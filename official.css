@@ -1,167 +1,245 @@
-:root {
-    --mono7: hsl(0, 0%, 10%);
-    --mono6: hsl(0, 0%, 20%);
-    --mono5: hsl(0, 0%, 30%);
-    --mono4: hsl(0, 0%, 40%);
-    --mono3: hsl(0, 0%, 60%);
-    --mono2: hsl(0, 0%, 80%);
-    --mono1: hsl(0, 0%, 90%);
-    --mono0: hsl(0, 0%, 100%);
-    --teal3: hsl(180, 100%, 20%);
-    --teal2: hsl(180, 60%, 40%);
-    --teal1: hsl(180, 60%, 70%);
-    --teal0: hsl(180, 100%, 90%);
-    
+@media (prefers-color-scheme: light) {
+    :root {
+        --bkgnd: hsl(180, 10%, 95%);
+        --imtext: hsl(180, 0%, 20%);
+        --loudtxt: hsl(180, 40%, 30%);
+        --text: hsl(180, 0%, 10%);
+        --border: hsl(180, 30%, 70%);
+        --hltxt: hsl(180, 40%, 70%);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bkgnd: hsl(180, 20%, 10%);
+        --imtext: hsl(180, 0%, 80%);
+        --loudtxt: hsl(180, 50%, 70%);
+        --text: hsl(180, 0%, 90%);
+        --border: hsl(180, 40%, 20%);
+        --hltxt: hsl(180, 20%, 15%);
+    }
+}
+
+@media (prefers-color-scheme: no-preference) {
+    :root {
+        --bkgnd: hsl(180, 10%, 95%);
+        --imtext: hsl(180, 0%, 20%);
+        --loudtxt: hsl(180, 40%, 30%);
+        --text: hsl(180, 0%, 10%);
+        --border: hsl(180, 30%, 70%);
+        --hltxt: hsl(180, 40%, 70%);
+    }
 }
 
 html {
     font-family: 'Courier New', monospace;
-    background-color: var(--mono7);
+    background-color: rgba(0, 0, 0, 0);
+    width: 95%;
+}
+
+body > * {
+    margin: 0 0 calc(0.6rem + 0.5vw) 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
 }
 
 body {
     transition: 0.5s;
-    font-size: calc(0.8rem + 0.9vw);
-    margin: 1%;
-    padding: 8px;
+    background-color: var(--bkgnd);
+    height: max-content;
+    margin: 0 auto;
+    padding: calc(0.6rem + 0.5vw);
+    width: 100%;
+    max-width: 130vh;
+    font-size: calc(0.6rem + 0.5vw);
 }
 
-h1 {
-    color: var(--mono0);
-    background-color: var(--mono6);
+h1, h2, h3, h4, h5, h6 {
+    color: var(--imtext);
     font-weight: bold;
-    border-radius: 25px;
-    margin: auto auto 20px auto;
-    padding: 10px 20px;
     width: fit-content;
-    text-align: center;
-}
-
-h2 {
-    color: var(--mono0);
-    background-color: var(--mono6);
-    font-weight: bold;
-    border-radius: 25px;
-    margin: auto auto 20px auto;
-    padding: 10px 20px;
-    width: fit-content;
-    text-align: center;
-}
-
-h3 {
-    color: var(--mono0);
-    background-color: var(--mono6);
-    font-weight: bold;
-    border-radius: 25px;
-    margin: auto auto 20px auto;
-    padding: 10px 20px;
-    width: fit-content;
-    text-align: center;
-}
-
-h4 {
-    color: var(--mono0);
-    background-color: var(--mono6);
-    font-weight: bold;
-    border-radius: 25px;
-    margin: auto auto 20px auto;
-    padding: 10px 20px;
-    width: fit-content;
-    text-align: center;
-}
-
-h5 {
-    color: var(--mono0);
-    background-color: var(--mono6);
-    font-weight: bold;
-    border-radius: 25px;
-    margin: auto auto 20px auto;
-    padding: 10px 20px;
-    width: fit-content;
-    text-align: center;
-}
-
-h6 {
-    color: var(--mono0);
-    background-color: var(--mono6);
-    font-weight: bold;
-    border-radius: 25px;
-    margin: auto auto 20px auto;
-    padding: 10px 20px;
-    width: fit-content;
-    text-align: center;
+    height: min-content;
+    text-align: left;
 }
 
 p {
-    color: var(--mono1);
-    background-color: var(--mono6);
-    border-radius: 15px;
-    margin: auto auto 20px auto;
-    padding: 10px 20px;
-    min-width: 50%;
-    width: auto;
-    height: auto;
-    text-align: center;
+    color: var(--text);
+    width: fit-content;
+    height: min-content;
+    text-align: left;
 }  
 
+mark {
+    color: var(--loudtxt);
+    background-color: var(--hltxt);
+}
+
 ol:not(ol ol), ul:not(ul ul) {
-    color: var(--mono1);
-    background-color: var(--mono6);
+    color: var(--text);
     list-style-position: inside;
-    border-radius: 15px;
-    margin: auto auto 20px auto;
-    padding: 10px 15px;
-    min-width: 50%;
+    width: fit-content;
+    height: min-content;
+    text-align: left;
 }
 
 table {
-    color: var(--mono1);
-    background-color: var(--mono6);
-    list-style-position: inside;
-    border-radius: 15px;
-    margin: auto auto 20px auto;
-    padding: 10px 15px;
-    min-width: 50%;
+    color: var(--text);
+    margin-left: auto;
+    margin-right: auto;
+    border-spacing: 0;
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    padding: 0;
+}
+
+th {
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
+    padding: calc(0.5*(0.6rem + 0.5vw));
+
 }
 
 td {
-    color: var(--mono2);
-    background-color: var(--mono5);
-    list-style-position: inside;
-    border-radius: 15px;
-    margin: 10px 20px;
-    padding: 10px 15px;
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
+    padding: calc(0.5*(0.6rem + 0.5vw));
+}
+
+form {
+    color: var(--text);
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    transition: 0.2s;
+    font-family: 'Courier New', monospace;
+    background-color: var(--bkgnd);
+    width: calc(1.2*(0.6rem + 0.5vw));
+    height: calc(1.2*(0.6rem + 0.5vw));
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    outline: none;
+    margin: 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
+}
+
+input[type="checkbox"]:checked {
+    appearance: none;
+    transition: 0.2s;
+    font-family: 'Courier New', monospace;
+    background-color: var(--border);
+    width: calc(1.2*(0.6rem + 0.5vw));
+    height: calc(1.2*(0.6rem + 0.5vw));
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    outline: none;
+    margin: 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
+}
+
+input[type="checkbox"]:hover {
+    appearance: none;
+    transition: 0.2s;
+    font-family: 'Courier New', monospace;
+    width: calc(1.2*(0.6rem + 0.5vw));
+    height: calc(1.2*(0.6rem + 0.5vw));
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--loudtxt);
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    outline: none;
+    margin: 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
+}
+
+input[type="radio"] {
+    appearance: none;
+    transition: 0.2s;
+    font-family: 'Courier New', monospace;
+    background-color: var(--bkgnd);
+    width: calc(1.2*(0.6rem + 0.5vw));
+    height: calc(1.2*(0.6rem + 0.5vw));
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
+    border-radius: calc(2*(0.6rem + 0.5vw));
+    outline: none;
+    margin: 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
+}
+
+input[type="radio"]:checked {
+    appearance: none;
+    transition: 0.2s;
+    font-family: 'Courier New', monospace;
+    background-color: var(--border);
+    width: calc(1.2*(0.6rem + 0.5vw));
+    height: calc(1.2*(0.6rem + 0.5vw));
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
+    border-radius: calc(2*(0.6rem + 0.5vw));
+    outline: none;
+    margin: 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
+}
+
+input[type="radio"]:hover {
+    appearance: none;
+    transition: 0.2s;
+    font-family: 'Courier New', monospace;
+    width: calc(1.2*(0.6rem + 0.5vw));
+    height: calc(1.2*(0.6rem + 0.5vw));
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--loudtxt);
+    border-radius: calc(2*(0.6rem + 0.5vw));
+    outline: none;
+    margin: 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
+}
+
+input:not(input[type="checkbox"], input[type="radio"]), select, textarea, button {
+    transition: 0.2s;
+    font-family: 'Courier New', monospace;
+    color: var(--text);
+    background-color: var(--hltxt);
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--hltxt);
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    outline: none;
+    margin: 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
+}
+
+input:not(input[type="checkbox"], input[type="radio"]):focus, select:focus, textarea:focus, button:focus {
+    transition: 0.2s;
+    font-family: 'Courier New', monospace;
+    color: var(--imtext);
+    background-color: var(--bkgnd);
+    border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    outline: none;
+    margin: 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
 }
 
 a:link{
     transition-duration: 0.2s;
-    color: var(--teal1);
+    color: var(--loudtxt);
     text-decoration: none; 
-    border-radius: 60px;
+    border-radius: calc(0.2*(0.6rem + 0.5vw));
     box-shadow: 0 0 6px 9px rgba(0, 0, 0, 0); /* No shadow initially */
 }
 
 a:visited {
     transition-duration: 0.2s;
-    color: var(--teal1);
+    color: var(--loudtxt);
     text-decoration: none; 
-    border-radius: 60px;
+    border-radius: calc(0.2*(0.6rem + 0.5vw));
     box-shadow: 0 0 6px 9px rgba(0, 0, 0, 0); /* No shadow initially */
 }
 
 a:hover {
     transition-duration: 0.2s;
-    color: var(--teal0);
+    color: var(--text);
     text-decoration: none; 
-    background-color: var(--teal3);
-    border-radius: 15px;
-    box-shadow: 0 0 0 6px var(--teal3); /* Add visual effect */
+    background-color: var(--hltxt);
+    border-radius: calc(0.2*(0.6rem + 0.5vw));
+    box-shadow: 0 0 0 6px var(--hltxt); /* Add visual effect */
 }
 
 img {
     border-radius: 25px;
     display: block;
-    margin: auto auto 20px auto;
     max-width: 100%;
     text-align: center;
 }
