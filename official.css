@@ -5,7 +5,9 @@
         --loudtxt: hsl(180, 40%, 30%);
         --text: hsl(180, 0%, 10%);
         --border: hsl(180, 30%, 70%);
-        --hltxt: hsl(180, 40%, 70%);
+        --hltxt: hsl(180, 55%, 85%);
+        --bkgndblack: hsl(180, 0%, 0%);
+        --txtwhite: hsl(180, 0%, 100%);
     }
 }
 
@@ -17,6 +19,8 @@
         --text: hsl(180, 0%, 90%);
         --border: hsl(180, 40%, 20%);
         --hltxt: hsl(180, 20%, 15%);
+        --bkgndblack: hsl(180, 0%, 0%);
+        --txtwhite: hsl(180, 0%, 100%);
     }
 }
 
@@ -28,6 +32,8 @@
         --text: hsl(180, 0%, 10%);
         --border: hsl(180, 30%, 70%);
         --hltxt: hsl(180, 40%, 70%);
+        --bkgndblack: hsl(180, 0%, 0%);
+        --txtwhite: hsl(180, 0%, 100%);
     }
 }
 
@@ -68,6 +74,38 @@ p {
     text-align: left;
 }  
 
+pre {
+    color: var(--txtwhite);
+    background-color: var(--bkgndblack);
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    width: 100%;
+    height: min-content;
+    padding: calc(0.6rem + 0.5vw);
+    text-align: left;
+}
+
+code:not(pre > code) {
+    color: var(--txtwhite);
+    background-color: var(--bkgndblack);
+    display:block;
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    width: 100%;
+    height: min-content;
+    box-sizing: content-box;
+    padding: calc(0.6rem + 0.5vw);
+    text-align: left;
+}
+
+blockquote {
+    color: var(--text);
+    background-color: var(--hltxt);
+    border-radius: calc(0.3*(0.6rem + 0.5vw));
+    width: 100%;
+    height: min-content;
+    padding: calc(0.6rem + 0.5vw);
+    text-align: left;
+}
+
 mark {
     color: var(--loudtxt);
     background-color: var(--hltxt);
@@ -94,7 +132,6 @@ table {
 th {
     border: calc(0.2*(0.6rem + 0.5vw)) solid var(--border);
     padding: calc(0.5*(0.6rem + 0.5vw));
-
 }
 
 td {
@@ -104,6 +141,16 @@ td {
 
 form {
     color: var(--text);
+}
+
+img, video {
+    height: auto;
+    width: 50vh;
+    max-width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    border-radius: calc(2*(0.6rem + 0.5vw));
 }
 
 input[type="checkbox"] {
