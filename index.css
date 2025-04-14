@@ -43,11 +43,6 @@ html {
     width: 95%;
 }
 
-body > * {
-    margin: 0 0 calc(0.6rem + 0.5vw) 0;
-    padding: calc(0.5*(0.6rem + 0.5vw));
-}
-
 body {
     transition: 0.5s;
     background-color: var(--bkgnd);
@@ -277,30 +272,33 @@ a:link{
     transition-duration: 0.2s;
     color: var(--loudtxt);
     text-decoration: none; 
-    border-radius: calc(0.2*(0.6rem + 0.5vw));
-    box-shadow: 0 0 6px 9px rgba(0, 0, 0, 0); /* No shadow initially */
 }
 
 a:visited {
     transition-duration: 0.2s;
     color: var(--loudtxt);
     text-decoration: none; 
-    border-radius: calc(0.2*(0.6rem + 0.5vw));
-    box-shadow: 0 0 6px 9px rgba(0, 0, 0, 0); /* No shadow initially */
-}
+ }
 
 a:hover {
     transition-duration: 0.2s;
     color: var(--text);
     text-decoration: none; 
-    background-color: var(--hltxt);
-    border-radius: calc(0.2*(0.6rem + 0.5vw));
-    box-shadow: 0 0 0 6px var(--hltxt); /* Add visual effect */
-}
+ }
 
 img {
     border-radius: 25px;
     display: block;
     max-width: 100%;
     text-align: center;
+}
+
+div {
+    margin: 0;
+    padding: 0;
+}
+
+div > :not(div) {
+    margin: 0 0 calc(0.6rem + 0.5vw) 0;
+    padding: calc(0.5*(0.6rem + 0.5vw));
 }
