@@ -7,30 +7,85 @@
         <meta name="color-scheme" content="light dark" />
         <link rel="stylesheet" href="/index.css" />
         <style>
-            .gallery {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: calc(0.6rem + 0.5vw);
-                margin: calc(0.6rem + 0.5vw) 0;
-            }
-            .gallery figure {
+            html, body {
                 margin: 0;
-                padding: calc(0.5 * (0.6rem + 0.5vw));
-                border: 1px solid var(--border);
-                background: var(--hltxt);
+                padding: 0;
+                height: 100%;
+                overflow: hidden; /* the gallery handles all scrolling */
             }
-            .gallery img {
+
+            /* Back-to-main: circle profile picture, top left */
+            .pfp {
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 10;
+                display: block;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                overflow: hidden;
+                border: 2px solid var(--border, #888);
+                background: var(--hltxt, #222);
+                color: inherit;
+                text-decoration: none;
+                font-size: 1.4rem;
+                line-height: 52px;
+                text-align: center;
+            }
+            .pfp img {
                 width: 100%;
-                height: auto;
+                height: 100%;
+                object-fit: cover;
                 display: block;
             }
-            .gallery figcaption {
-                margin-top: calc(0.3rem + 0.25vw);
-                color: var(--imtext);
-                font-size: 0.9em;
+
+            /* Full-viewport scroller. Direction is set by body.wide / body.tall. */
+            .gallery {
+                display: flex;
+                width: 100vw;
+                height: 100dvh;
+                scroll-snap-type: both mandatory;
             }
-            nav a {
-                margin-right: 1em;
+            body.wide .gallery {
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            body.tall .gallery {
+                flex-direction: column;
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+
+            .slide {
+                flex: 0 0 auto;
+                scroll-snap-align: center;
+                display: grid;
+                place-items: center;
+                box-sizing: border-box;
+                padding: 1rem;
+            }
+            body.wide .slide {
+                width: 100vw;
+                height: 100dvh;
+            }
+            body.tall .slide {
+                width: 100vw;
+                height: 100dvh;
+            }
+            .slide img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+            .slide.endcard {
+                font-size: 1.1rem;
+                text-align: center;
+            }
+            .slide.endcard a {
+                color: inherit;
             }
         </style>
         <html prefix="og: https://ogp.me/ns#">
@@ -59,34 +114,67 @@
     </head>
 
     <body>
-        <nav>
-            <a href="/index.html">&larr; home</a>
-            <a href="/employment.html">employment</a>
-            <a href="/projects.html">projects</a>
-        </nav>
+        <!-- Back to main page. Put your profile picture at /images/pfp.jpg -->
+        <a class="pfp" href="/index.html" title="Back to main page">
+            <img src="/images/pfp.jpg" alt="Back to main page"
+                 onerror="this.remove()" />
+            <span aria-hidden="true">&#8592;</span>
+        </a>
 
-        <h1>Photography</h1>
-        <p>Selected shots. More coming.</p>
+        <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
-        <div class="gallery">
-            <figure>
-                <img src="/images/me_and_drone.jpg" alt="Jace with a drone" />
-                <figcaption>me and the drone</figcaption>
-            </figure>
-            <!--
-            Add more photos like this:
-            <figure>
-                <img src="/images/your-photo.jpg" alt="describe the shot" />
-                <figcaption>caption here</figcaption>
-            </figure>
-            -->
-        </div>
+        <script>
+            // ------------------------------------------------------------------
+            // YOUR PORTFOLIO IMAGES GO HERE.
+            // 1. Put your image files in /images/portfolio/ in the repo.
+            // 2. List each filename below, in the order you want them shown.
+            //    Any web image format works: .jpg .jpeg .png .webp .gif
+            // ------------------------------------------------------------------
+            const PORTFOLIO_DIR = "/images/portfolio/";
+            const PORTFOLIO_IMAGES = [
+                // "photo-01.jpg",
+                // "photo-02.jpg",
+            ];
 
-        <h3>Contact</h3>
-        <ul>
-            <li>Email: <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a></li>
-        </ul>
+            const gallery = document.getElementById("gallery");
 
+            if (PORTFOLIO_IMAGES.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "slide endcard";
+                empty.innerHTML = "<p>Portfolio coming soon.</p>";
+                gallery.appendChild(empty);
+            } else {
+                for (const file of PORTFOLIO_IMAGES) {
+                    const slide = document.createElement("div");
+                    slide.className = "slide";
+                    const img = document.createElement("img");
+                    img.src = PORTFOLIO_DIR + file;
+                    img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
+                    img.loading = "lazy";
+                    slide.appendChild(img);
+                    gallery.appendChild(slide);
+                }
+            }
+
+            // Contact card as the final slide.
+            const end = document.createElement("div");
+            end.className = "slide endcard";
+            end.innerHTML =
+                '<p>Want prints or a shoot?<br>Email <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a></p>';
+            gallery.appendChild(end);
+
+            // Scroll direction follows the screen shape: wider screens scroll
+            // horizontally, taller screens scroll vertically. Re-evaluated on
+            // resize so rotating a phone/tablet just works. No platform
+            // detection anywhere — wheel and touch both drive the native
+            // scroll container on their own.
+            function setOrientation() {
+                document.body.classList.toggle("wide", window.innerWidth >= window.innerHeight);
+                document.body.classList.toggle("tall", window.innerWidth < window.innerHeight);
+            }
+            window.addEventListener("resize", setOrientation);
+            setOrientation();
+        </script>
         <script src="/index.js"></script>
     </body>
 </html>
