@@ -39,6 +39,17 @@
                 object-fit: cover;
                 display: block;
             }
+            /* Blurred halo behind the circle, matching the contact bar */
+            .pfp::before {
+                content: "";
+                position: absolute;
+                inset: -10px;
+                border-radius: 50%;
+                background: rgba(0, 0, 0, 0.35);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                z-index: -1;
+            }
 
             /* Contact info as a bar hovering over the bottom of the images */
             .contactbar {
