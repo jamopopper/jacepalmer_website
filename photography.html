@@ -6,8 +6,35 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="light dark" />
         <link rel="stylesheet" href="/index.css" />
+        <style>
+            .gallery {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: calc(0.6rem + 0.5vw);
+                margin: calc(0.6rem + 0.5vw) 0;
+            }
+            .gallery figure {
+                margin: 0;
+                padding: calc(0.5 * (0.6rem + 0.5vw));
+                border: 1px solid var(--border);
+                background: var(--hltxt);
+            }
+            .gallery img {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+            .gallery figcaption {
+                margin-top: calc(0.3rem + 0.25vw);
+                color: var(--imtext);
+                font-size: 0.9em;
+            }
+            nav a {
+                margin-right: 1em;
+            }
+        </style>
         <html prefix="og: https://ogp.me/ns#">
-        <meta property="og:title" content="Jace Palmer"/>
+        <meta property="og:title" content="Jace Palmer — Photography"/>
         <meta property="og:type" content="website"/>
         <meta property="og:url" content="https://jacepalmer.net/photography.html" />
         <meta property="og:image" content="/images/jp_logo_small.png"/>
@@ -28,19 +55,38 @@
         <meta name="msapplication-TileImage" content="/images.favicon.ico/ms-icon-144x144.png">
         <meta name="theme-color" content="#ffffff">
         <meta name="description" content="Photography by Jace Palmer">
-        <title>Jace Palmer</title>
+        <title>Jace Palmer — Photography</title>
     </head>
 
     <body>
-        <h1>Jace Palmer's Portfolio</h1>
-        <h2>THIS SITE IS UNDER CONSTRUCTION!</h2>
-        <h3>Contact info</h3>
+        <nav>
+            <a href="/index.html">&larr; home</a>
+            <a href="/employment.html">employment</a>
+            <a href="/projects.html">projects</a>
+        </nav>
+
+        <h1>Photography</h1>
+        <p>Selected shots. More coming.</p>
+
+        <div class="gallery">
+            <figure>
+                <img src="/images/me_and_drone.jpg" alt="Jace with a drone" />
+                <figcaption>me and the drone</figcaption>
+            </figure>
+            <!--
+            Add more photos like this:
+            <figure>
+                <img src="/images/your-photo.jpg" alt="describe the shot" />
+                <figcaption>caption here</figcaption>
+            </figure>
+            -->
+        </div>
+
+        <h3>Contact</h3>
         <ul>
             <li>Email: <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a></li>
         </ul>
 
-
-        
         <script src="/index.js"></script>
     </body>
 </html>
