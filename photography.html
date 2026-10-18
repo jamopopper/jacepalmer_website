@@ -40,6 +40,27 @@
                 display: block;
             }
 
+            /* Contact info as a bar hovering over the bottom of the images */
+            .contactbar {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 10;
+                text-align: center;
+                padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
+                font-size: 0.95rem;
+                color: #fff;
+                background: rgba(0, 0, 0, 0.45);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                pointer-events: none; /* lets the text hover without blocking scroll */
+            }
+            .contactbar a {
+                color: #fff;
+                pointer-events: auto;
+            }
+
             /* Full-viewport scroller. Direction is set by body.wide / body.tall. */
             .gallery {
                 display: flex;
@@ -84,9 +105,6 @@
                 font-size: 1.1rem;
                 text-align: center;
             }
-            .slide.endcard a {
-                color: inherit;
-            }
         </style>
         <html prefix="og: https://ogp.me/ns#">
         <meta property="og:title" content="Jace Palmer — Photography"/>
@@ -123,6 +141,11 @@
 
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
+        <footer class="contactbar">
+            Want prints or a shoot? Email
+            <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a>
+        </footer>
+
         <script>
             // ------------------------------------------------------------------
             // YOUR PORTFOLIO IMAGES GO HERE.
@@ -155,13 +178,6 @@
                     gallery.appendChild(slide);
                 }
             }
-
-            // Contact card as the final slide.
-            const end = document.createElement("div");
-            end.className = "slide endcard";
-            end.innerHTML =
-                '<p>Want prints or a shoot?<br>Email <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a></p>';
-            gallery.appendChild(end);
 
             // Scroll direction follows the screen shape: wider screens scroll
             // horizontally, taller screens scroll vertically. Re-evaluated on
