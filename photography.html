@@ -6,117 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="light dark" />
         <link rel="stylesheet" href="/index.css" />
-        <style>
-            html, body {
-                margin: 0;
-                padding: 0;
-                height: 100%;
-                overflow: hidden; /* the gallery handles all scrolling */
-            }
-
-            /* Back-to-main: circle profile picture, top left */
-            .pfp {
-                position: fixed;
-                top: 1rem;
-                left: 1rem;
-                z-index: 10;
-                display: block;
-                width: 56px;
-                height: 56px;
-                border-radius: 50%;
-                overflow: hidden;
-                border: 2px solid var(--border, #888);
-                background: var(--hltxt, #222);
-                color: inherit;
-                text-decoration: none;
-                font-size: 1.4rem;
-                line-height: 52px;
-                text-align: center;
-            }
-            .pfp img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: block;
-            }
-            /* Blurred halo behind the circle, matching the contact bar */
-            .pfp::before {
-                content: "";
-                position: absolute;
-                inset: -10px;
-                border-radius: 50%;
-                background: rgba(0, 0, 0, 0.35);
-                backdrop-filter: blur(4px);
-                -webkit-backdrop-filter: blur(4px);
-                z-index: -1;
-            }
-
-            /* Contact info as a bar hovering over the bottom of the images */
-            .contactbar {
-                position: fixed;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                z-index: 10;
-                text-align: center;
-                padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
-                font-size: 0.95rem;
-                color: #fff;
-                background: rgba(0, 0, 0, 0.45);
-                backdrop-filter: blur(4px);
-                -webkit-backdrop-filter: blur(4px);
-                pointer-events: none; /* lets the text hover without blocking scroll */
-            }
-            .contactbar a {
-                color: #fff;
-                pointer-events: auto;
-            }
-
-            /* Full-viewport scroller. Direction is set by body.wide / body.tall. */
-            .gallery {
-                display: flex;
-                width: 100vw;
-                height: 100dvh;
-                scroll-snap-type: both mandatory;
-            }
-            body.wide .gallery {
-                flex-direction: row;
-                overflow-x: auto;
-                overflow-y: hidden;
-            }
-            body.tall .gallery {
-                flex-direction: column;
-                overflow-x: hidden;
-                overflow-y: auto;
-            }
-
-            .slide {
-                flex: 0 0 auto;
-                scroll-snap-align: center;
-                display: grid;
-                place-items: center;
-                box-sizing: border-box;
-                padding: 1rem;
-            }
-            body.wide .slide {
-                width: 100vw;
-                height: 100dvh;
-            }
-            body.tall .slide {
-                width: 100vw;
-                height: 100dvh;
-            }
-            .slide img {
-                max-width: 100%;
-                max-height: 100%;
-                object-fit: contain;
-                display: block;
-            }
-            .slide.endcard {
-                font-size: 1.1rem;
-                text-align: center;
-            }
-        </style>
         <html prefix="og: https://ogp.me/ns#">
         <meta property="og:title" content="Jace Palmer — Photography"/>
         <meta property="og:type" content="website"/>
@@ -142,7 +31,7 @@
         <title>Jace Palmer — Photography</title>
     </head>
 
-    <body>
+    <body class="photography">
         <!-- Back to main page. Put your profile picture at /images/pfp.jpg -->
         <a class="pfp" href="/index.html" title="Back to main page">
             <img src="/images/pfp.jpg" alt="Back to main page"
