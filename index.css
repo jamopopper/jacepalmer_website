@@ -354,7 +354,11 @@ body.photography .pfp img {
     border-radius: 0;
     margin: 0;
     display: block;
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.55));
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+body.photography .pfp picture {
+    display: block;
+    height: 100%;
 }
 
 /* Full-viewport scroller. Direction is set by body.wide / body.tall. */
@@ -406,13 +410,19 @@ body.photography .contactbar {
     gap: 0.25rem 1rem;
     padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
     font-size: 0.95rem;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    color: #000;
+    background: transparent;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
     pointer-events: none; /* lets the text hover without blocking scroll */
 }
 body.photography .contactbar a {
-    color: #fff;
+    color: #000;
     pointer-events: auto;
+}
+/* Reversed on purpose: white text in light mode, black in dark mode. */
+@media (prefers-color-scheme: light) {
+    body.photography .contactbar,
+    body.photography .contactbar a {
+        color: #fff;
+    }
 }

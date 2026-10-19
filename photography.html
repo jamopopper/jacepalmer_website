@@ -32,10 +32,13 @@
     </head>
 
     <body class="photography">
-        <!-- Back to main page. Put your logo at /images/pfp.jpg -->
+        <!-- Back to main page. Logo: black for dark mode, white for light mode (reversed on purpose). -->
         <a class="pfp" href="/index.html" title="Back to main page">
-            <img src="/images/pfp.jpg" alt="Back to main page"
-                 onerror="this.remove()" />
+            <picture>
+                <source srcset="/images/pfp-white.png" media="(prefers-color-scheme: light)">
+                <img src="/images/pfp.png" alt="Back to main page"
+                     onerror="this.closest('picture').remove()" />
+            </picture>
             <span aria-hidden="true">&#8592;</span>
         </a>
 
