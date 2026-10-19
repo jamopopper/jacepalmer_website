@@ -32,13 +32,10 @@
     </head>
 
     <body class="photography">
-        <!-- Back to main page. Logo: black for dark mode, white for light mode (reversed on purpose). -->
+        <!-- Back to main page. Black logo; CSS inverts it to white in light mode. -->
         <a class="pfp" href="/index.html" title="Back to main page">
-            <picture>
-                <source srcset="/images/pfp-white.png" media="(prefers-color-scheme: light)">
-                <img src="/images/pfp.png" alt="Back to main page"
-                     onerror="this.closest('picture').remove()" />
-            </picture>
+            <img src="/images/pfp.png" alt="Back to main page"
+                 onerror="this.remove()" />
             <span aria-hidden="true">&#8592;</span>
         </a>
 

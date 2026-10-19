@@ -356,9 +356,11 @@ body.photography .pfp img {
     display: block;
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
 }
-body.photography .pfp picture {
-    display: block;
-    height: 100%;
+/* Reversed on purpose: black logo in dark mode, white in light mode. */
+@media (prefers-color-scheme: light) {
+    body.photography .pfp img {
+        filter: invert(1) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+    }
 }
 
 /* Full-viewport scroller. Direction is set by body.wide / body.tall. */
