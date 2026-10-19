@@ -328,13 +328,31 @@ body.photography {
     overflow: hidden; /* the gallery handles all scrolling */
 }
 
-/* Back-to-main: logo image, top left. Transparent PNG sits with no box
-   behind it; its glow is a blurred copy of the logo's own shape. */
-body.photography .pfp {
+/* Top bar: logo left, contact info right. This header is the page's only
+   fixed element, and nothing on it is filtered or transformed, so it stays
+   pinned to the top in every browser. */
+body.photography .topbar {
     position: fixed;
-    top: 1rem;
-    left: 1rem;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 10;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 1rem;
+    pointer-events: none;
+}
+body.photography .topbar a {
+    pointer-events: auto;
+}
+
+/* Back-to-main: logo image. Transparent PNG sits with no box behind it;
+   its glow is a blurred copy of the logo's own shape. */
+body.photography .pfp {
+    position: static;
+    flex: 0 0 auto;
     display: block;
     height: 56px;
     background: none;
@@ -398,28 +416,22 @@ body.photography .slide img {
     margin: 0;
 }
 
-/* Contact info as a bar hovering over the bottom of the images */
+/* Contact info, top right. The glow lives on this inner container so the
+   fixed header itself stays unfiltered and pinned. */
 body.photography .contactbar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 0.25rem 1rem;
-    padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
+    padding-top: 0.5rem;
     font-size: 0.95rem;
+    text-align: right;
     color: #000;
-    background: transparent;
     filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
-    pointer-events: none; /* lets the text hover without blocking scroll */
 }
 body.photography .contactbar a {
     color: #000;
-    pointer-events: auto;
 }
 /* Reversed on purpose: white text in light mode, black in dark mode. */
 @media (prefers-color-scheme: light) {

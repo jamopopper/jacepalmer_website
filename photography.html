@@ -32,20 +32,21 @@
     </head>
 
     <body class="photography">
-        <!-- Back to main page. Black logo; CSS inverts it to white in light mode. -->
-        <a class="pfp" href="/index.html" title="Back to main page">
-            <img src="/images/pfp.png" alt="Back to main page"
-                 onerror="this.remove()" />
-            <span aria-hidden="true">&#8592;</span>
-        </a>
+        <header class="topbar">
+            <!-- Back to main page. Black logo; CSS inverts it to white in light mode. -->
+            <a class="pfp" href="/index.html" title="Back to main page">
+                <img src="/images/pfp.png" alt="Back to main page"
+                     onerror="this.remove()" />
+                <span aria-hidden="true">&#8592;</span>
+            </a>
+            <div class="contactbar">
+                <span>Want prints or a shoot?</span>
+                <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a>
+                <a href="tel:+15415307472">(541) 530-7472</a>
+            </div>
+        </header>
 
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
-
-        <footer class="contactbar">
-            <span>Want prints or a shoot?</span>
-            <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a>
-            <a href="tel:+15415307472">(541) 530-7472</a>
-        </footer>
 
         <script>
             // ------------------------------------------------------------------
