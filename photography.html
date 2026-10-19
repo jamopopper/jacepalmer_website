@@ -48,20 +48,17 @@
 
         <script>
             // ------------------------------------------------------------------
-            // Portfolio images are discovered automatically: every image file in
-            // the repo's images/portfolio/ folder shows up here, newest-taken
-            // first. Just add image files to that folder — no HTML changes needed.
-            //
-            // Order comes from each photo's EXIF "DateTimeOriginal" (the date the
-            // photo was taken). Files without that tag (screenshots, some exports,
-            // PNG/WebP) go after the dated ones, sorted by filename.
+            // YOUR PORTFOLIO IMAGES GO HERE.
+            // 1. Put your image files in /images/portfolio/ in the repo.
+            // 2. List each filename below, in the order you want them shown
+            //    (e.g. newest-taken first).
+            //    Any web image format works: .jpg .jpeg .png .webp .gif
             // ------------------------------------------------------------------
-            const REPO = "jamopopper/jacepalmer_website";
-            const PORTFOLIO_DIR = "images/portfolio/";
-            const IMAGE_EXT = /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i;
-            // Folder is read from the live site first, then this review branch
-            // while the page isn't merged yet.
-            const REFS_TO_TRY = ["main", "photography-page"];
+            const PORTFOLIO_DIR = "/images/portfolio/";
+            const PORTFOLIO_IMAGES = [
+                // "photo-01.jpg",
+                // "photo-02.jpg",
+            ];
 
             const gallery = document.getElementById("gallery");
 
@@ -72,132 +69,20 @@
                 gallery.appendChild(empty);
             }
 
-            // Minimal EXIF reader: pulls DateTimeOriginal out of a JPEG's APP1
-            // segment. Returns a Date, or null if there's no usable tag.
-            function exifTakenDate(buf) {
-                const v = new DataView(buf);
-                if (buf.byteLength < 4 || v.getUint16(0, false) !== 0xFFD8) return null; // not a JPEG
-                let off = 2;
-                while (off + 4 <= buf.byteLength) {
-                    if (v.getUint8(off) !== 0xFF) return null;
-                    const marker = v.getUint8(off + 1);
-                    if (marker === 0xD8) { off += 2; continue; }
-                    if (marker === 0xD9 || marker === 0xDA) break; // end, or start of image data
-                    const len = v.getUint16(off + 2, false);
-                    if (len < 2 || off + 2 + len > buf.byteLength) break;
-                    if (marker === 0xE1 && len > 10 &&
-                        v.getUint32(off + 4, false) === 0x45786966 && // "Exif"
-                        v.getUint16(off + 8, false) === 0) {
-                        const d = readExifDate(v, off + 10);
-                        if (d) return d;
-                    }
-                    off += 2 + len;
-                }
-                return null;
-            }
-
-            function readExifDate(v, tiff) {
-                if (tiff + 8 > v.byteLength) return null;
-                const le = v.getUint16(tiff, false) === 0x4949; // "II" = little-endian
-                if (!le && v.getUint16(tiff, false) !== 0x4D4D) return null; // not "MM" either
-                const u16 = (o) => v.getUint16(o, le);
-                const u32 = (o) => v.getUint32(o, le);
-                const strAt = (at, num) => {
-                    if (at === null || at + num > v.byteLength) return null;
-                    let s = "";
-                    for (let k = 0; k < num; k++) {
-                        const c = v.getUint8(at + k);
-                        if (!c) break;
-                        s += String.fromCharCode(c);
-                    }
-                    return s;
-                };
-                // Find a tag in an IFD; returns the absolute offset of its value bytes.
-                const find = (ifd, tag, wantType) => {
-                    if (ifd + 2 > v.byteLength) return null;
-                    const count = u16(ifd);
-                    const typeSize = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
-                    for (let i = 0; i < count; i++) {
-                        const e = ifd + 2 + i * 12;
-                        if (e + 12 > v.byteLength) return null;
-                        if (u16(e) !== tag) continue;
-                        const type = u16(e + 2), num = u32(e + 4);
-                        if (wantType && type !== wantType) continue;
-                        const total = (typeSize[type] || 0) * num;
-                        return total <= 4 ? e + 8 : tiff + u32(e + 8);
-                    }
-                    return null;
-                };
-                const parseDate = (s) => {
-                    const m = /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/.exec(s || "");
-                    return m ? new Date(m[1], m[2] - 1, m[3], m[4], m[5], m[6]) : null;
-                };
-                if (u16(tiff + 2) !== 42) return null;
-                const ifd0 = tiff + u32(tiff + 4);
-                const exifPtrAt = find(ifd0, 0x8769, 4); // Exif IFD pointer (LONG)
-                if (exifPtrAt === null) return null;
-                const exifIfd = tiff + v.getUint32(exifPtrAt, le);
-                const dto = parseDate(strAt(find(exifIfd, 0x9003, 2), 20)); // DateTimeOriginal
-                if (dto) return dto;
-                return parseDate(strAt(find(exifIfd, 0x9004, 2), 20)); // CreateDate fallback
-            }
-
-            // Date a photo was taken, via a small Range request — EXIF lives at
-            // the top of the file, so we don't download the whole image twice.
-            async function takenDate(url) {
-                try {
-                    const res = await fetch(url, { headers: { Range: "bytes=0-65535" } });
-                    if (!res.ok) return null;
-                    return exifTakenDate(await res.arrayBuffer());
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            async function loadGallery() {
-                let files = [];
-                for (const ref of REFS_TO_TRY) {
-                    try {
-                        const res = await fetch(
-                            "https://api.github.com/repos/" + REPO + "/contents/" + PORTFOLIO_DIR + "?ref=" + ref
-                        );
-                        if (!res.ok) continue;
-                        const items = await res.json();
-                        if (Array.isArray(items)) {
-                            files = items.filter((i) => i.type === "file" && IMAGE_EXT.test(i.name));
-                            if (files.length) break;
-                        }
-                    } catch (e) { /* try next ref */ }
-                }
-                if (!files.length) {
-                    showEmpty("Portfolio coming soon.");
-                    return;
-                }
-                const dated = await Promise.all(files.map(async (f) => ({
-                    name: f.name,
-                    url: f.download_url,
-                    taken: await takenDate(f.download_url)
-                })));
-                dated.sort((a, b) => {
-                    if (a.taken && b.taken) return b.taken - a.taken; // newest first
-                    if (a.taken) return -1;
-                    if (b.taken) return 1;
-                    return a.name.localeCompare(b.name);
-                });
-                for (const f of dated) {
+            if (PORTFOLIO_IMAGES.length === 0) {
+                showEmpty("Portfolio coming soon.");
+            } else {
+                for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
                     slide.className = "slide";
                     const img = document.createElement("img");
-                    img.src = f.url;
-                    img.alt = f.name.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
-                    if (f.taken) img.title = f.taken.toLocaleDateString();
+                    img.src = PORTFOLIO_DIR + file;
+                    img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
                     img.loading = "lazy";
                     slide.appendChild(img);
                     gallery.appendChild(slide);
                 }
             }
-
-            loadGallery();
 
             // Scroll direction follows the screen shape: wider screens scroll
             // horizontally, taller screens scroll vertically. Re-evaluated on
