@@ -171,6 +171,7 @@ body.photography .contactbar {
     text-align: right;
     color: #000;
     -webkit-text-stroke: 3px rgba(255, 255, 255, 0.5);
+    paint-order: stroke fill; /* outline renders behind the letterforms */
 }
 body.photography .contactbar a {
     color: #000;
