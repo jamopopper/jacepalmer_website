@@ -77,6 +77,10 @@ body.photography .pfp img {
     border-radius: 0;
     margin: 0;
     display: block;
+    /* Hard 1px outline following the logo's own shape, matching the
+       outlined contact text. White in dark mode, black in light mode. */
+    filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff)
+            drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
 }
 /* The arrow is only a fallback for a missing logo — hidden otherwise. */
 body.photography .pfp span {
@@ -88,7 +92,9 @@ body.photography .pfp.no-logo span {
 /* Reversed on purpose: black logo in dark mode, white in light mode. */
 @media (prefers-color-scheme: light) {
     body.photography .pfp img {
-        filter: invert(1);
+        filter: invert(1)
+                drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000)
+                drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
     }
 }
 
