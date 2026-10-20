@@ -78,6 +78,13 @@ body.photography .pfp img {
     margin: 0;
     display: block;
 }
+/* The arrow is only a fallback for a missing logo — hidden otherwise. */
+body.photography .pfp span {
+    display: none;
+}
+body.photography .pfp.no-logo span {
+    display: inline;
+}
 /* Reversed on purpose: black logo in dark mode, white in light mode. */
 @media (prefers-color-scheme: light) {
     body.photography .pfp img {
