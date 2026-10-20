@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="light dark" />
-        <link rel="stylesheet" href="/index.css" />
+        <link rel="stylesheet" href="/photography.css" />
         <html prefix="og: https://ogp.me/ns#">
         <meta property="og:title" content="Jace Palmer — Photography"/>
         <meta property="og:type" content="website"/>
@@ -33,14 +33,12 @@
 
     <body class="photography">
         <header class="topbar">
-            <!-- Back to main page. Black logo; CSS inverts it to white in light mode. -->
             <a class="pfp" href="/index.html" title="Back to main page">
                 <img src="/images/jp_logo-01.png" alt="Back to main page"
-                     onerror="this.remove()" />
+                     onerror="this.remove();this.parentElement.classList.add('no-logo')" />
                 <span aria-hidden="true">&#8592;</span>
             </a>
             <div class="contactbar">
-                <span>Want prints or a shoot?</span>
                 <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a>
                 <a href="tel:+15415307472">(541) 530-7472</a>
             </div>
@@ -51,16 +49,16 @@
         <script>
             const PORTFOLIO_DIR = "/images/portfolio/";
             const PORTFOLIO_IMAGES = [
-                "P1650036 4 Edited.jpeg",
-                "P1650044 7 Edited.jpeg",
-                "IMG_1684.jpeg",
-                "IMG_1906.jpeg",
-                "IMG_1909.jpeg",
-                "IMG_1917.jpeg",
-                "IMG_2468.jpeg",
-                "IMG_2471.jpeg",
-                "IMG_2469.jpeg",
                 "IMG_2474.jpeg",
+                "IMG_2469.jpeg",
+                "IMG_2471.jpeg",
+                "IMG_2468.jpeg",
+                "IMG_1917.jpeg",
+                "IMG_1909.jpeg",
+                "IMG_1906.jpeg",
+                "IMG_1684.jpeg",
+                "P1650044 7 Edited.jpeg",
+                "P1650036 4 Edited.jpeg",
             ];
 
             const gallery = document.getElementById("gallery");
