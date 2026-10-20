@@ -157,7 +157,7 @@ body.photography .slide.endcard p {
     color: var(--text);
 }
 
-/* Contact info, top right. Bold with a contrasting outline for legibility
+/* Contact info, top right. Bold with slight glyph fattening for legibility
    over photos. */
 body.photography .contactbar {
     display: flex;
@@ -173,8 +173,6 @@ body.photography .contactbar {
     /* Slightly fattens the glyphs past Courier New's own boldest face. */
     text-shadow: 0.15px 0 0 currentColor, -0.15px 0 0 currentColor,
                  0 0.15px 0 currentColor, 0 -0.15px 0 currentColor;
-    -webkit-text-stroke: 3px rgba(255, 255, 255, 0.5);
-    paint-order: stroke fill; /* outline renders behind the letterforms */
 }
 body.photography .contactbar a {
     color: #000;
@@ -184,8 +182,5 @@ body.photography .contactbar a {
     body.photography .contactbar,
     body.photography .contactbar a {
         color: #fff;
-    }
-    body.photography .contactbar {
-        -webkit-text-stroke: 3px rgba(0, 0, 0, 0.5);
     }
 }
