@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="light dark" />
-        <link rel="stylesheet" href="/index.css" />
+        <link rel="stylesheet" href="/photography.css" />
         <html prefix="og: https://ogp.me/ns#">
         <meta property="og:title" content="Jace Palmer — Photography"/>
         <meta property="og:type" content="website"/>
@@ -49,8 +49,16 @@
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
         <script>
+            // ------------------------------------------------------------------
+            // YOUR PORTFOLIO IMAGES GO HERE.
+            // 1. Put your image files in /images/portfolio/ in the repo.
+            // 2. List each filename below, in the order you want them shown
+            //    (e.g. newest-taken first).
+            //    Any web image format works: .jpg .jpeg .png .webp .gif
+            // ------------------------------------------------------------------
             const PORTFOLIO_DIR = "/images/portfolio/";
             const PORTFOLIO_IMAGES = [
+                // Ordered oldest to newest by file timestamp.
                 "P1650036 4 Edited.jpeg",
                 "P1650044 7 Edited.jpeg",
                 "IMG_1684.jpeg",
@@ -87,6 +95,11 @@
                 }
             }
 
+            // Scroll direction follows the screen shape: wider screens scroll
+            // horizontally, taller screens scroll vertically. Re-evaluated on
+            // resize so rotating a phone/tablet just works. No platform
+            // detection anywhere — wheel and touch both drive the native
+            // scroll container on their own.
             function setOrientation() {
                 document.body.classList.toggle("wide", window.innerWidth >= window.innerHeight);
                 document.body.classList.toggle("tall", window.innerWidth < window.innerHeight);
