@@ -1,22 +1,22 @@
 /* ---------- Photography page (standalone styles) ---------- */
 
-/* Palette carried over from index.css so this page stands alone. */
+/* Black and white only — nothing carried over from the main site's palette. */
 @media (prefers-color-scheme: light) {
     :root {
-        --bkgnd: hsl(180, 10%, 95%);
-        --text: hsl(180, 0%, 10%);
+        --bkgnd: #fff;
+        --text: #000;
     }
 }
 @media (prefers-color-scheme: dark) {
     :root {
-        --bkgnd: hsl(180, 20%, 10%);
-        --text: hsl(180, 0%, 90%);
+        --bkgnd: #000;
+        --text: #fff;
     }
 }
 @media (prefers-color-scheme: no-preference) {
     :root {
-        --bkgnd: hsl(180, 10%, 95%);
-        --text: hsl(180, 0%, 10%);
+        --bkgnd: #fff;
+        --text: #000;
     }
 }
 
