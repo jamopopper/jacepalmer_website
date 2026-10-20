@@ -170,6 +170,9 @@ body.photography .contactbar {
     font-weight: 900;
     text-align: right;
     color: #000;
+    /* Fattens the glyphs past Courier New's own boldest face. */
+    text-shadow: 1px 0 0 currentColor, -1px 0 0 currentColor,
+                 0 1px 0 currentColor, 0 -1px 0 currentColor;
     -webkit-text-stroke: 3px rgba(255, 255, 255, 0.5);
     paint-order: stroke fill; /* outline renders behind the letterforms */
 }
