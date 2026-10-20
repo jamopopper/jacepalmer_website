@@ -7,7 +7,7 @@
         <meta name="color-scheme" content="light dark" />
         <link rel="stylesheet" href="/index.css" />
         <html prefix="og: https://ogp.me/ns#">
-        <meta property="og:title" content="Jace Palmer"/>
+        <meta property="og:title" content="Jace Palmer — Photography"/>
         <meta property="og:type" content="website"/>
         <meta property="og:url" content="https://jacepalmer.net/photography.html" />
         <meta property="og:image" content="/images/jp_logo_small.png"/>
@@ -28,19 +28,72 @@
         <meta name="msapplication-TileImage" content="/images.favicon.ico/ms-icon-144x144.png">
         <meta name="theme-color" content="#ffffff">
         <meta name="description" content="Photography by Jace Palmer">
-        <title>Jace Palmer</title>
+        <title>Jace Palmer — Photography</title>
     </head>
 
-    <body>
-        <h1>Jace Palmer's Portfolio</h1>
-        <h2>THIS SITE IS UNDER CONSTRUCTION!</h2>
-        <h3>Contact info</h3>
-        <ul>
-            <li>Email: <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a></li>
-        </ul>
+    <body class="photography">
+        <header class="topbar">
+            <!-- Back to main page. Black logo; CSS inverts it to white in light mode. -->
+            <a class="pfp" href="/index.html" title="Back to main page">
+                <img src="/images/jp_logo-01.png" alt="Back to main page"
+                     onerror="this.remove()" />
+                <span aria-hidden="true">&#8592;</span>
+            </a>
+            <div class="contactbar">
+                <span>Want prints or a shoot?</span>
+                <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a>
+                <a href="tel:+15415307472">(541) 530-7472</a>
+            </div>
+        </header>
 
+        <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
-        
+        <script>
+            const PORTFOLIO_DIR = "/images/portfolio/";
+            const PORTFOLIO_IMAGES = [
+                "P1650036 4 Edited.jpeg",
+                "P1650044 7 Edited.jpeg",
+                "IMG_1684.jpeg",
+                "IMG_1906.jpeg",
+                "IMG_1909.jpeg",
+                "IMG_1917.jpeg",
+                "IMG_2468.jpeg",
+                "IMG_2471.jpeg",
+                "IMG_2469.jpeg",
+                "IMG_2474.jpeg",
+            ];
+
+            const gallery = document.getElementById("gallery");
+
+            function showEmpty(message) {
+                const empty = document.createElement("div");
+                empty.className = "slide endcard";
+                empty.innerHTML = "<p>" + message + "</p>";
+                gallery.appendChild(empty);
+            }
+
+            if (PORTFOLIO_IMAGES.length === 0) {
+                showEmpty("Portfolio coming soon.");
+            } else {
+                for (const file of PORTFOLIO_IMAGES) {
+                    const slide = document.createElement("div");
+                    slide.className = "slide";
+                    const img = document.createElement("img");
+                    img.src = PORTFOLIO_DIR + file;
+                    img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
+                    img.loading = "lazy";
+                    slide.appendChild(img);
+                    gallery.appendChild(slide);
+                }
+            }
+
+            function setOrientation() {
+                document.body.classList.toggle("wide", window.innerWidth >= window.innerHeight);
+                document.body.classList.toggle("tall", window.innerWidth < window.innerHeight);
+            }
+            window.addEventListener("resize", setOrientation);
+            setOrientation();
+        </script>
         <script src="/index.js"></script>
     </body>
 </html>
