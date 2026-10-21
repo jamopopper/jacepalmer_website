@@ -47,13 +47,20 @@
 
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
-        <!-- Scroll cues: fades on both edges of the strip, plus an arrow
-             button at each end that shows while its fade does. Clicking one
-             smooth-scrolls the strip most of a screenful. -->
+        <!-- Scroll cues: fades on both edges of the strip, plus a pair of
+             arrow buttons at each end that shows while its fade does — the
+             double arrow steps 80% of the screen, the underlined arrow
+             skips to that end of the strip. -->
         <div class="edgefade trail" aria-hidden="true"></div>
         <div class="edgefade lead" aria-hidden="true"></div>
-        <button class="scrollbtn lead" id="scrollBack" type="button" aria-label="Scroll back">&#8595;</button>
-        <button class="scrollbtn trail" id="scrollFwd" type="button" aria-label="Scroll forward">&#8595;</button>
+        <div class="btngroup lead">
+            <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo">&#8595;</button>
+            <button class="scrollbtn step" id="scrollBack" type="button" aria-label="Scroll back">&#8659;</button>
+        </div>
+        <div class="btngroup trail">
+            <button class="scrollbtn step" id="scrollFwd" type="button" aria-label="Scroll forward">&#8659;</button>
+            <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo">&#8595;</button>
+        </div>
 
         <script>
             // ------------------------------------------------------------------
@@ -124,6 +131,10 @@
             const leadFade = document.querySelector(".edgefade.lead");
             const fwdBtn = document.getElementById("scrollFwd");
             const backBtn = document.getElementById("scrollBack");
+            const skipFwdBtn = document.getElementById("skipEnd");
+            const skipBackBtn = document.getElementById("skipStart");
+            const fwdGroup = document.querySelector(".btngroup.trail");
+            const backGroup = document.querySelector(".btngroup.lead");
             const SCROLL_MS = 1467; // nudge duration — 1.5x the original 2200ms pace
             const BUTTON_MS = 880; // button scrolls: same easing at 2.5x the nudge's speed
             let nudging = false;
@@ -139,8 +150,8 @@
                 const atStart = max <= 0 || pos <= 2;
                 fade.classList.toggle("at-end", atEnd);
                 leadFade.classList.toggle("at-start", atStart);
-                fwdBtn.classList.toggle("off", atEnd);
-                backBtn.classList.toggle("off", atStart);
+                fwdGroup.classList.toggle("off", atEnd);
+                backGroup.classList.toggle("off", atStart);
                 if (!nudging && pos > 4) userScrolled = true;
             }
             gallery.addEventListener("scroll", updateFade, { passive: true });
@@ -222,6 +233,10 @@
             }
             fwdBtn.addEventListener("click", () => smoothScrollBy(screenDelta(1)));
             backBtn.addEventListener("click", () => smoothScrollBy(screenDelta(-1)));
+            // Skip buttons ride the same animation to the strip's end —
+            // the clamp in smoothScrollBy lands them exactly on it.
+            skipFwdBtn.addEventListener("click", () => smoothScrollBy(Number.MAX_SAFE_INTEGER));
+            skipBackBtn.addEventListener("click", () => smoothScrollBy(-Number.MAX_SAFE_INTEGER));
 
             if (PORTFOLIO_IMAGES.length > 1 &&
                 !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
