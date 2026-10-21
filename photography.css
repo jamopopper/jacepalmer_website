@@ -208,8 +208,17 @@ body.photography .btngroup {
     position: fixed;
     z-index: 6;
     display: flex;
-    gap: 0.25rem; /* the pair sits tight together */
+    gap: 0;
     transition: opacity 0.4s ease;
+}
+/* The icons carry padding inside their own boxes, so the pair's boxes
+   overlap a little in the stacking axis to sit the glyphs nearly
+   touching. */
+body.photography.tall .btngroup .scrollbtn + .scrollbtn {
+    margin-top: -0.75rem;
+}
+body.photography.wide .btngroup .scrollbtn + .scrollbtn {
+    margin-left: -0.7rem;
 }
 body.photography .btngroup.off {
     opacity: 0;
