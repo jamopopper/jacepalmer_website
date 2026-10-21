@@ -124,7 +124,8 @@
             const leadFade = document.querySelector(".edgefade.lead");
             const fwdBtn = document.getElementById("scrollFwd");
             const backBtn = document.getElementById("scrollBack");
-            const SCROLL_MS = 2200; // the nudge and the button scrolls share a duration
+            const SCROLL_MS = 2200; // nudge duration
+            const BUTTON_MS = 880; // button scrolls: same easing at 2.5x the nudge's speed
             let nudging = false;
             let userScrolled = false;
 
@@ -191,7 +192,7 @@
             gallery.addEventListener("touchstart", cancelAnimations, { passive: true });
 
             // Arrow buttons: smooth-scroll 80% of the screen dimension in
-            // the strip's direction, eased like the nudge over SCROLL_MS.
+            // the strip's direction, eased like the nudge over BUTTON_MS.
             function smoothScrollBy(delta) {
                 cancelAnimations();
                 const horizontal = document.body.classList.contains("wide");
@@ -206,7 +207,7 @@
                 const start = performance.now();
                 function frame(now) {
                     if (buttonAnim !== token) return;
-                    const p = Math.min((now - start) / SCROLL_MS, 1);
+                    const p = Math.min((now - start) / BUTTON_MS, 1);
                     const value = from + (to - from) * easeInOut(p);
                     if (horizontal) gallery.scrollLeft = value;
                     else gallery.scrollTop = value;
