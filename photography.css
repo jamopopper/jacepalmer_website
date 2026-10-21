@@ -119,20 +119,13 @@ body.photography.tall .slide img {
     margin: 0;
 }
 
-/* Scroll cues. Edge fade: a soft gradient on the trailing edge (bottom on
-   tall screens, right on wide) that stays for as long as there's more strip
-   past it — it fades out at the end of the strip. */
+/* Scroll cues. Edge fades: soft gradients on both edges of the strip,
+   always on — they never hide, even at the ends of the strip. */
 body.photography .edgefade {
     position: fixed;
     z-index: 5;
     pointer-events: none;
     transition: opacity 0.4s ease;
-}
-body.photography .edgefade.at-end {
-    opacity: 0;
-}
-body.photography .edgefade.at-start {
-    opacity: 0;
 }
 body.photography.tall .edgefade.trail {
     left: 0;
