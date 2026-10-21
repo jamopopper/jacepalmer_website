@@ -258,15 +258,19 @@ body.photography.tall .btngroup .scrollbtn:first-child .pillhalf {
 body.photography.tall .btngroup .scrollbtn:last-child .pillhalf {
     transform: rotate(-90deg); /* round end down */
 }
-/* Icons point along the strip, away from the nearest end. */
+/* Icons point along the strip, away from the nearest end. Each is scaled
+   down a touch so the cutout clears the pill's edges all around. */
+body.photography .scrollbtn .ic {
+    transform: scale(0.85);
+}
 body.photography.wide .btngroup.lead .scrollbtn .ic {
-    transform: rotate(180deg);
+    transform: rotate(180deg) scale(0.85);
 }
 body.photography.tall .btngroup.trail .scrollbtn .ic {
-    transform: rotate(90deg);
+    transform: rotate(90deg) scale(0.85);
 }
 body.photography.tall .btngroup.lead .scrollbtn .ic {
-    transform: rotate(-90deg);
+    transform: rotate(-90deg) scale(0.85);
 }
 
 /* Empty-state message (only shows if the image list is empty). */
