@@ -144,6 +144,9 @@ body.photography .edgefade {
 body.photography .edgefade.at-end {
     opacity: 0;
 }
+body.photography .edgefade.at-start {
+    opacity: 0;
+}
 body.photography.tall .edgefade.trail {
     left: 0;
     right: 0;
