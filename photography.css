@@ -214,11 +214,7 @@ body.photography .scrollhint {
                  0 0.75px 0 currentColor, 0 -0.75px 0 currentColor;
     line-height: 1;
     color: #000;
-    opacity: 0;
-    transition: opacity 0.15s ease; /* quick in, so it lands with the nudge */
-}
-body.photography .scrollhint.show {
-    opacity: 1;
+    opacity: 0; /* the nudge script drives this directly, frame by frame */
 }
 body.photography.tall .scrollhint {
     bottom: 1.25rem;

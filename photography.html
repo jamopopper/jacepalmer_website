@@ -144,45 +144,47 @@
             });
             window.addEventListener("load", updateFade);
 
-            // Ease the strip out and back by hand — the native smooth
-            // scroll covers this distance too quickly and reads as a snap.
-            // The outward leg eases OUT (full speed immediately) so the
-            // movement is visible the instant the arrow appears; a slow
-            // ease-in start made the arrow seem to show up first.
+            // One clock drives the whole nudge, so the movement and the
+            // arrow stay perfectly in sync: the strip eases out and back
+            // symmetrically while the arrow's opacity follows a sine over
+            // the same span — invisible at the start, fully opaque at the
+            // peak of the nudge, gone again at the end.
             const easeInOut = (t) => t < 0.5
                 ? 4 * t * t * t
                 : 1 - Math.pow(-2 * t + 2, 3) / 2;
-            const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-            function animateScroll(to, duration, done, easeFn) {
+            let nudgeCancelled = false;
+            function runNudge() {
                 const horizontal = document.body.classList.contains("wide");
-                const from = horizontal ? gallery.scrollLeft : gallery.scrollTop;
-                const ease = easeFn || easeInOut;
+                const distance = 48;
+                const duration = 2200;
                 const start = performance.now();
+                nudging = true;
+                nudgeCancelled = false;
+                function finish() {
+                    hint.style.opacity = "0";
+                    nudging = false;
+                }
                 function frame(now) {
-                    const t = Math.min((now - start) / duration, 1);
-                    const value = from + (to - from) * ease(t);
-                    if (horizontal) gallery.scrollLeft = value;
-                    else gallery.scrollTop = value;
-                    if (t < 1) requestAnimationFrame(frame);
-                    else if (done) done();
+                    if (nudgeCancelled) { finish(); return; }
+                    const p = Math.min((now - start) / duration, 1);
+                    const out = p < 0.5 ? easeInOut(p * 2) : easeInOut(2 - p * 2);
+                    const pos = distance * out;
+                    if (horizontal) gallery.scrollLeft = pos;
+                    else gallery.scrollTop = pos;
+                    hint.style.opacity = String(Math.sin(Math.PI * p));
+                    if (p < 1) requestAnimationFrame(frame);
+                    else finish();
                 }
                 requestAnimationFrame(frame);
             }
+            // A real scroll attempt during the nudge hands control over.
+            gallery.addEventListener("wheel", () => { nudgeCancelled = true; }, { passive: true });
+            gallery.addEventListener("touchstart", () => { nudgeCancelled = true; }, { passive: true });
 
             if (PORTFOLIO_IMAGES.length > 1 &&
                 !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 setTimeout(() => {
-                    if (userScrolled) return;
-                    nudging = true;
-                    hint.classList.add("show");
-                    animateScroll(48, 1000, () => {
-                        setTimeout(() => {
-                            animateScroll(0, 1000, () => {
-                                hint.classList.remove("show");
-                                nudging = false;
-                            });
-                        }, 250);
-                    }, easeOut);
+                    if (!userScrolled) runNudge();
                 }, 3000);
             }
         </script>
