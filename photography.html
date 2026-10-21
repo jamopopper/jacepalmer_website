@@ -112,7 +112,7 @@
             setOrientation();
 
             // Scroll cues. A fade sits on the trailing edge for as long as
-            // there's more strip past it. About 1.5s after the page opens,
+            // there's more strip past it. About 3s after the page opens,
             // the strip nudges forward and back once while an arrow shows —
             // skipped if the visitor has already started scrolling or their
             // system prefers reduced motion.
@@ -133,27 +133,49 @@
             gallery.addEventListener("scroll", updateFade, { passive: true });
             window.addEventListener("resize", updateFade);
             updateFade();
+            // Late-loading photos grow the strip after that first check,
+            // when it can still measure zero overflow — re-check as each
+            // photo lands so the fade is correct from the start.
+            gallery.querySelectorAll("img").forEach((img) => {
+                if (!img.complete) img.addEventListener("load", updateFade);
+            });
+            window.addEventListener("load", updateFade);
+
+            // Ease the strip out and back by hand — the native smooth
+            // scroll covers this distance too quickly and reads as a snap.
+            function animateScroll(to, duration, done) {
+                const horizontal = document.body.classList.contains("wide");
+                const from = horizontal ? gallery.scrollLeft : gallery.scrollTop;
+                const start = performance.now();
+                function frame(now) {
+                    const t = Math.min((now - start) / duration, 1);
+                    const eased = t < 0.5
+                        ? 4 * t * t * t
+                        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                    const value = from + (to - from) * eased;
+                    if (horizontal) gallery.scrollLeft = value;
+                    else gallery.scrollTop = value;
+                    if (t < 1) requestAnimationFrame(frame);
+                    else if (done) done();
+                }
+                requestAnimationFrame(frame);
+            }
 
             if (PORTFOLIO_IMAGES.length > 1 &&
                 !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 setTimeout(() => {
                     if (userScrolled) return;
-                    const horizontal = document.body.classList.contains("wide");
                     nudging = true;
                     hint.classList.add("show");
-                    gallery.scrollTo(horizontal
-                        ? { left: 48, behavior: "smooth" }
-                        : { top: 48, behavior: "smooth" });
-                    setTimeout(() => {
-                        gallery.scrollTo(horizontal
-                            ? { left: 0, behavior: "smooth" }
-                            : { top: 0, behavior: "smooth" });
+                    animateScroll(48, 1000, () => {
                         setTimeout(() => {
-                            hint.classList.remove("show");
-                            nudging = false;
-                        }, 450);
-                    }, 700);
-                }, 1500);
+                            animateScroll(0, 1000, () => {
+                                hint.classList.remove("show");
+                                nudging = false;
+                            });
+                        }, 250);
+                    });
+                }, 3000);
             }
         </script>
         <script src="/index.js"></script>
