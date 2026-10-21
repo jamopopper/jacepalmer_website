@@ -1,23 +1,10 @@
 /* ---------- Photography page (standalone styles) ---------- */
 
-/* Black and white only — nothing carried over from the main site's palette. */
-@media (prefers-color-scheme: light) {
-    :root {
-        --bkgnd: #fff;
-        --text: #000;
-    }
-}
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bkgnd: #000;
-        --text: #fff;
-    }
-}
-@media (prefers-color-scheme: no-preference) {
-    :root {
-        --bkgnd: #fff;
-        --text: #000;
-    }
+/* Black and white only — nothing carried over from the main site's palette.
+   No light/dark modes: one fixed scheme — white elements, black fades. */
+:root {
+    --bkgnd: #000;
+    --text: #fff;
 }
 
 html {
@@ -77,6 +64,7 @@ body.photography .pfp img {
     border-radius: 0;
     margin: 0;
     display: block;
+    filter: invert(1); /* the PNG is black; the logo is always white */
 }
 /* The arrow is only a fallback for a missing logo — hidden otherwise. */
 body.photography .pfp span {
@@ -84,12 +72,6 @@ body.photography .pfp span {
 }
 body.photography .pfp.no-logo span {
     display: inline;
-}
-/* Reversed on purpose: black logo in dark mode, white in light mode. */
-@media (prefers-color-scheme: light) {
-    body.photography .pfp img {
-        filter: invert(1);
-    }
 }
 
 /* Full-viewport scroller, continuous (no snapping). Wide screens scroll
@@ -200,12 +182,18 @@ body.photography.wide .edgefade.lead {
         rgba(0, 0, 0, 0.55) 80%,
         rgba(0, 0, 0, 0.92) 100%);
 }
-/* Nudge arrow: hidden except while the load nudge runs. Points down on tall
-   screens, right on wide ones. Colored like the contact text. */
-body.photography .scrollhint {
+/* Arrow buttons at the strip's ends. Each shows while its edge fade shows
+   (the script toggles .off), and clicking one smooth-scrolls the strip.
+   Always white. The back arrow sits below the top bar on tall screens (at
+   the left on wide ones), rotated to point back along the strip. */
+body.photography .scrollbtn {
     position: fixed;
     z-index: 6;
-    pointer-events: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
     font-size: 3.5rem;
     font-weight: 900;
     /* Same glyph-fattening trick as the contact text, scaled up with the
@@ -213,56 +201,32 @@ body.photography .scrollhint {
     text-shadow: 0.75px 0 0 currentColor, -0.75px 0 0 currentColor,
                  0 0.75px 0 currentColor, 0 -0.75px 0 currentColor;
     line-height: 1;
-    color: #000;
-    opacity: 0; /* the nudge script drives this directly, frame by frame */
+    color: #fff;
+    transition: opacity 0.4s ease;
 }
-body.photography.tall .scrollhint {
+body.photography .scrollbtn.off {
+    opacity: 0;
+    pointer-events: none;
+}
+body.photography.tall .scrollbtn.trail {
     bottom: 1.25rem;
     left: 50%;
     transform: translateX(-50%);
 }
-body.photography.wide .scrollhint {
+body.photography.wide .scrollbtn.trail {
     right: 1.25rem;
     top: 50%;
     transform: translateY(-50%) rotate(-90deg);
 }
-@media (prefers-color-scheme: light) {
-    body.photography .scrollhint {
-        color: #fff;
-    }
-    /* The fades follow the same reversed scheme: white in light mode. */
-    body.photography.tall .edgefade.trail {
-        background: linear-gradient(to bottom,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.08) 35%,
-            rgba(255, 255, 255, 0.28) 60%,
-            rgba(255, 255, 255, 0.55) 80%,
-            rgba(255, 255, 255, 0.92) 100%);
-    }
-    body.photography.wide .edgefade.trail {
-        background: linear-gradient(to right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.08) 35%,
-            rgba(255, 255, 255, 0.28) 60%,
-            rgba(255, 255, 255, 0.55) 80%,
-            rgba(255, 255, 255, 0.92) 100%);
-    }
-    body.photography.tall .edgefade.lead {
-        background: linear-gradient(to top,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.08) 35%,
-            rgba(255, 255, 255, 0.28) 60%,
-            rgba(255, 255, 255, 0.55) 80%,
-            rgba(255, 255, 255, 0.92) 100%);
-    }
-    body.photography.wide .edgefade.lead {
-        background: linear-gradient(to left,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.08) 35%,
-            rgba(255, 255, 255, 0.28) 60%,
-            rgba(255, 255, 255, 0.55) 80%,
-            rgba(255, 255, 255, 0.92) 100%);
-    }
+body.photography.tall .scrollbtn.lead {
+    top: 7.5rem; /* below the top bar, which ends ~114px down */
+    left: 50%;
+    transform: translateX(-50%) rotate(180deg);
+}
+body.photography.wide .scrollbtn.lead {
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
 }
 
 /* Empty-state message (only shows if the image list is empty). */
@@ -295,19 +259,12 @@ body.photography .contactbar {
     font-size: 1.25rem;
     font-weight: 900;
     text-align: right;
-    color: #000;
+    color: #fff;
     /* Slightly fattens the glyphs past Courier New's own boldest face. */
     text-shadow: 0.15px 0 0 currentColor, -0.15px 0 0 currentColor,
                  0 0.15px 0 currentColor, 0 -0.15px 0 currentColor;
 }
 body.photography .contactbar a {
-    color: #000;
+    color: #fff;
     text-decoration: none; /* still links, just no underline */
-}
-/* Reversed on purpose: white text in light mode, black in dark mode. */
-@media (prefers-color-scheme: light) {
-    body.photography .contactbar,
-    body.photography .contactbar a {
-        color: #fff;
-    }
 }

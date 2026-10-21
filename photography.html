@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="color-scheme" content="light dark" />
+        <meta name="color-scheme" content="dark" />
         <link rel="stylesheet" href="/photography.css" />
         <html prefix="og: https://ogp.me/ns#">
         <meta property="og:title" content="Jace Palmer — Photography"/>
@@ -33,7 +33,7 @@
 
     <body class="photography">
         <header class="topbar">
-            <!-- Back to main page. Black logo; CSS inverts it to white in light mode. -->
+            <!-- Back to main page. Black logo PNG; CSS inverts it to white. -->
             <a class="pfp" href="/index.html" title="Back to main page">
                 <img src="/images/jp_logo-01.png" alt="Back to main page"
                      onerror="this.remove();this.parentElement.classList.add('no-logo')" />
@@ -47,11 +47,13 @@
 
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
-        <!-- Scroll cues: a permanent fade on the trailing edge, plus an arrow
-             that shows only during the load nudge. Neither takes clicks. -->
+        <!-- Scroll cues: fades on both edges of the strip, plus an arrow
+             button at each end that shows while its fade does. Clicking one
+             smooth-scrolls the strip most of a screenful. -->
         <div class="edgefade trail" aria-hidden="true"></div>
         <div class="edgefade lead" aria-hidden="true"></div>
-        <div class="scrollhint" aria-hidden="true">&#8595;</div>
+        <button class="scrollbtn lead" id="scrollBack" type="button" aria-label="Scroll back">&#8595;</button>
+        <button class="scrollbtn trail" id="scrollFwd" type="button" aria-label="Scroll forward">&#8595;</button>
 
         <script>
             // ------------------------------------------------------------------
@@ -112,14 +114,17 @@
             window.addEventListener("resize", setOrientation);
             setOrientation();
 
-            // Scroll cues. A fade sits on the trailing edge for as long as
-            // there's more strip past it. About 3s after the page opens,
-            // the strip nudges forward and back once while an arrow shows —
-            // skipped if the visitor has already started scrolling or their
-            // system prefers reduced motion.
+            // Scroll cues. Fades sit on both edges of the strip, each with
+            // an arrow button that shows while its fade does; clicking an
+            // arrow smooth-scrolls the strip 80% of the screen. About 3s
+            // after the page opens, the strip also nudges forward and back
+            // once — skipped if the visitor has already started scrolling
+            // or their system prefers reduced motion.
             const fade = document.querySelector(".edgefade.trail");
             const leadFade = document.querySelector(".edgefade.lead");
-            const hint = document.querySelector(".scrollhint");
+            const fwdBtn = document.getElementById("scrollFwd");
+            const backBtn = document.getElementById("scrollBack");
+            const SCROLL_MS = 2200; // the nudge and the button scrolls share a duration
             let nudging = false;
             let userScrolled = false;
 
@@ -129,8 +134,12 @@
                 const max = horizontal
                     ? gallery.scrollWidth - gallery.clientWidth
                     : gallery.scrollHeight - gallery.clientHeight;
-                fade.classList.toggle("at-end", max <= 0 || pos >= max - 2);
-                leadFade.classList.toggle("at-start", max <= 0 || pos <= 2);
+                const atEnd = max <= 0 || pos >= max - 2;
+                const atStart = max <= 0 || pos <= 2;
+                fade.classList.toggle("at-end", atEnd);
+                leadFade.classList.toggle("at-start", atStart);
+                fwdBtn.classList.toggle("off", atEnd);
+                backBtn.classList.toggle("off", atStart);
                 if (!nudging && pos > 4) userScrolled = true;
             }
             gallery.addEventListener("scroll", updateFade, { passive: true });
@@ -144,11 +153,8 @@
             });
             window.addEventListener("load", updateFade);
 
-            // One clock drives the whole nudge, so the movement and the
-            // arrow stay perfectly in sync: the strip eases out and back
-            // symmetrically while the arrow's opacity follows a sine over
-            // the same span — invisible at the start, fully opaque at the
-            // peak of the nudge, gone again at the end.
+            // The nudge: the strip eases out and back symmetrically on one
+            // clock — zero speed at the start, the peak, and the end.
             const easeInOut = (t) => t < 0.5
                 ? 4 * t * t * t
                 : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -156,12 +162,11 @@
             function runNudge() {
                 const horizontal = document.body.classList.contains("wide");
                 const distance = 48;
-                const duration = 2200;
+                const duration = SCROLL_MS;
                 const start = performance.now();
                 nudging = true;
                 nudgeCancelled = false;
                 function finish() {
-                    hint.style.opacity = "0";
                     nudging = false;
                 }
                 function frame(now) {
@@ -171,15 +176,51 @@
                     const pos = distance * out;
                     if (horizontal) gallery.scrollLeft = pos;
                     else gallery.scrollTop = pos;
-                    hint.style.opacity = String(Math.sin(Math.PI * p));
                     if (p < 1) requestAnimationFrame(frame);
                     else finish();
                 }
                 requestAnimationFrame(frame);
             }
-            // A real scroll attempt during the nudge hands control over.
-            gallery.addEventListener("wheel", () => { nudgeCancelled = true; }, { passive: true });
-            gallery.addEventListener("touchstart", () => { nudgeCancelled = true; }, { passive: true });
+            // A real scroll attempt during an animation hands control over.
+            let buttonAnim = null;
+            function cancelAnimations() {
+                nudgeCancelled = true;
+                buttonAnim = null;
+            }
+            gallery.addEventListener("wheel", cancelAnimations, { passive: true });
+            gallery.addEventListener("touchstart", cancelAnimations, { passive: true });
+
+            // Arrow buttons: smooth-scroll 80% of the screen dimension in
+            // the strip's direction, eased like the nudge over SCROLL_MS.
+            function smoothScrollBy(delta) {
+                cancelAnimations();
+                const horizontal = document.body.classList.contains("wide");
+                const from = horizontal ? gallery.scrollLeft : gallery.scrollTop;
+                const max = horizontal
+                    ? gallery.scrollWidth - gallery.clientWidth
+                    : gallery.scrollHeight - gallery.clientHeight;
+                const to = Math.max(0, Math.min(max, from + delta));
+                if (to === from) return;
+                const token = {};
+                buttonAnim = token;
+                const start = performance.now();
+                function frame(now) {
+                    if (buttonAnim !== token) return;
+                    const p = Math.min((now - start) / SCROLL_MS, 1);
+                    const value = from + (to - from) * easeInOut(p);
+                    if (horizontal) gallery.scrollLeft = value;
+                    else gallery.scrollTop = value;
+                    if (p < 1) requestAnimationFrame(frame);
+                    else buttonAnim = null;
+                }
+                requestAnimationFrame(frame);
+            }
+            function screenDelta(sign) {
+                const horizontal = document.body.classList.contains("wide");
+                return sign * 0.8 * (horizontal ? gallery.clientWidth : gallery.clientHeight);
+            }
+            fwdBtn.addEventListener("click", () => smoothScrollBy(screenDelta(1)));
+            backBtn.addEventListener("click", () => smoothScrollBy(screenDelta(-1)));
 
             if (PORTFOLIO_IMAGES.length > 1 &&
                 !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
