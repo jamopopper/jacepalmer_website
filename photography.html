@@ -48,18 +48,18 @@
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
         <!-- Scroll cues: fades on both edges of the strip, plus a pair of
-             arrow buttons at each end that shows while its fade does — the
-             double arrow steps 80% of the screen, the underlined arrow
-             skips to that end of the strip. -->
+             remote-style buttons at each end that shows while its fade
+             does — fast-forward (double triangle) steps 80% of the screen,
+             skip (triangle and bar) goes to that end of the strip. -->
         <div class="edgefade trail" aria-hidden="true"></div>
         <div class="edgefade lead" aria-hidden="true"></div>
         <div class="btngroup lead">
-            <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo">&#8595;</button>
-            <button class="scrollbtn step" id="scrollBack" type="button" aria-label="Scroll back">&#8659;</button>
+            <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M8 15 L36 32 L8 49 Z"/><rect x="43" y="15" width="9" height="34"/></svg></button>
+            <button class="scrollbtn step" id="scrollBack" type="button" aria-label="Scroll back"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M6 15 L27 32 L6 49 Z"/><path d="M30 15 L51 32 L30 49 Z"/></svg></button>
         </div>
         <div class="btngroup trail">
-            <button class="scrollbtn step" id="scrollFwd" type="button" aria-label="Scroll forward">&#8659;</button>
-            <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo">&#8595;</button>
+            <button class="scrollbtn step" id="scrollFwd" type="button" aria-label="Scroll forward"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M6 15 L27 32 L6 49 Z"/><path d="M30 15 L51 32 L30 49 Z"/></svg></button>
+            <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M8 15 L36 32 L8 49 Z"/><rect x="43" y="15" width="9" height="34"/></svg></button>
         </div>
 
         <script>

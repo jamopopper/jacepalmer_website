@@ -182,30 +182,27 @@ body.photography.wide .edgefade.lead {
         rgba(0, 0, 0, 0.55) 80%,
         rgba(0, 0, 0, 0.92) 100%);
 }
-/* Arrow buttons: a fast-forward/skip pair at each end of the strip. Each
-   pair shows while its edge fade shows (the script toggles .off on the
-   group), and every button is always white. The double arrow steps 80% of
-   the screen; the underlined arrow — a bar at its tip — skips to that end
-   of the strip. The back pair sits below the top bar on tall screens, at
-   the left on wide ones. */
+/* Arrow buttons: a fast-forward/skip pair at each end of the strip, drawn
+   like TV-remote controls. Each pair shows while its edge fade shows (the
+   script toggles .off on the group), and every button is always white.
+   The double-triangle fast-forward steps 80% of the screen; the
+   triangle-and-bar skip goes to that end of the strip. The back pair sits
+   below the top bar on tall screens, at the left on wide ones. */
 body.photography .scrollbtn {
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
-    font-family: inherit;
-    font-size: 3.5rem;
-    font-weight: 900;
-    /* Same glyph-fattening trick as the contact text, scaled up with the
-       glyph — Courier New's boldest face is the cap otherwise. */
-    text-shadow: 0.75px 0 0 currentColor, -0.75px 0 0 currentColor,
-                 0 0.75px 0 currentColor, 0 -0.75px 0 currentColor;
-    line-height: 1;
     color: #fff;
+    line-height: 0;
 }
-body.photography .scrollbtn.skip {
-    text-decoration: underline;
-    text-underline-offset: 0.05em;
+/* Remote-control icons, drawn as inline SVG: solid triangles in the
+   button's color. */
+body.photography .scrollbtn svg {
+    display: block;
+    width: 3.5rem;
+    height: 3.5rem;
+    fill: currentColor;
 }
 body.photography .btngroup {
     position: fixed;
@@ -242,16 +239,16 @@ body.photography.wide .btngroup.lead {
     transform: translateY(-50%);
     flex-direction: row;
 }
-/* Buttons point along the strip: the glyphs are drawn pointing down, so
-   only the back pair (up/left) and the wide-screen pairs rotate. */
-body.photography.tall .btngroup.lead .scrollbtn {
-    transform: rotate(180deg);
+/* The icons are drawn pointing right, remote-style; rotate each pair to
+   point along the strip. */
+body.photography.tall .btngroup.trail .scrollbtn {
+    transform: rotate(90deg); /* right becomes down */
 }
-body.photography.wide .btngroup.trail .scrollbtn {
-    transform: rotate(-90deg);
+body.photography.tall .btngroup.lead .scrollbtn {
+    transform: rotate(-90deg); /* right becomes up */
 }
 body.photography.wide .btngroup.lead .scrollbtn {
-    transform: rotate(90deg);
+    transform: rotate(180deg); /* right becomes left */
 }
 
 /* Empty-state message (only shows if the image list is empty). */
