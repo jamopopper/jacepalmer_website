@@ -285,6 +285,47 @@
             skipFwdBtn.addEventListener("click", () => smoothScrollBy(Number.MAX_SAFE_INTEGER));
             skipBackBtn.addEventListener("click", () => smoothScrollBy(-Number.MAX_SAFE_INTEGER));
 
+            // The progress dot is a scrubber too: dragging it along its
+            // edge — from the back pair's centre to the forward pair's —
+            // maps linearly onto the strip's scroll range. Setting the
+            // scroll fires the normal scroll handler, which repositions
+            // the dot (and runs the end merges) as usual.
+            let dotDragging = false;
+            function scrubTo(e) {
+                const horizontal = document.body.classList.contains("wide");
+                const max = horizontal
+                    ? gallery.scrollWidth - gallery.clientWidth
+                    : gallery.scrollHeight - gallery.clientHeight;
+                if (max <= 0) return;
+                const bR = backGroup.getBoundingClientRect();
+                const fR = fwdGroup.getBoundingClientRect();
+                let c0, c1, p;
+                if (horizontal) {
+                    c0 = bR.left + bR.width / 2;
+                    c1 = fR.left + fR.width / 2;
+                    p = e.clientX;
+                } else {
+                    c0 = bR.top + bR.height / 2;
+                    c1 = fR.top + fR.height / 2;
+                    p = e.clientY;
+                }
+                const f = Math.max(0, Math.min(1, (p - c0) / (c1 - c0)));
+                if (horizontal) gallery.scrollLeft = f * max;
+                else gallery.scrollTop = f * max;
+            }
+            dot.addEventListener("pointerdown", (e) => {
+                dotDragging = true;
+                dot.setPointerCapture(e.pointerId);
+                cancelAnimations();
+                e.preventDefault();
+                scrubTo(e);
+            });
+            dot.addEventListener("pointermove", (e) => {
+                if (dotDragging) scrubTo(e);
+            });
+            dot.addEventListener("pointerup", () => { dotDragging = false; });
+            dot.addEventListener("pointercancel", () => { dotDragging = false; });
+
             if (PORTFOLIO_IMAGES.length > 1 &&
                 !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 setTimeout(() => {

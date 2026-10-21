@@ -81,6 +81,11 @@ body.photography .gallery {
     display: flex;
     width: 100vw;
     height: 100dvh;
+    scrollbar-width: none; /* Firefox: no browser scrollbar — the page's
+                             own dot and pills are the scroll UI */
+}
+body.photography .gallery::-webkit-scrollbar {
+    display: none; /* Chrome / Safari: same */
 }
 body.photography.wide .gallery {
     flex-direction: row;
@@ -244,11 +249,23 @@ body.photography .scrolldot {
     height: 1.3125rem;
     border-radius: 50%;
     background: #fff;
-    pointer-events: none;
+    cursor: grab;
+    touch-action: none; /* dragging the dot scrubs the strip — the browser
+                           must not claim the gesture for itself */
     transition: opacity 0.4s ease;
+}
+/* Invisible halo so the small dot is easy to grab. */
+body.photography .scrolldot::after {
+    content: "";
+    position: absolute;
+    inset: -14px;
+}
+body.photography .scrolldot:active {
+    cursor: grabbing;
 }
 body.photography .scrolldot.off {
     opacity: 0;
+    pointer-events: none;
 }
 body.photography.tall .scrolldot {
     right: 0.5rem;
