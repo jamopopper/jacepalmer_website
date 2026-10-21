@@ -156,28 +156,48 @@
                 const atStart = max <= 0 || pos <= 2;
                 fade.classList.toggle("at-end", atEnd);
                 leadFade.classList.toggle("at-start", atStart);
-                fwdGroup.classList.toggle("off", atEnd);
-                backGroup.classList.toggle("off", atStart);
-                // Progress dot: rides the edge between the two pill pairs,
-                // from the back pair to the forward pair as scroll goes
-                // 0 → all the way. Hidden when the strip doesn't overflow.
+                // Pair/dot merge at the ends. In the last MERGE px of
+                // scroll at either end, that end's pair fades out and
+                // squishes toward its own centre (scale) while the dot
+                // slides from its between-pairs track into that same
+                // centre — one scroll-driven motion, so the pair reads as
+                // collapsing into the dot, and reverses on the way back.
+                // Mid-strip, the dot rides the edge between the pairs.
+                function setPair(group, o) {
+                    group.style.opacity = String(o);
+                    group.style.transform = "scale(" + (0.55 + 0.45 * o) + ")";
+                    group.style.pointerEvents = o <= 0.02 ? "none" : "";
+                }
                 if (max <= 0) {
+                    setPair(backGroup, 0);
+                    setPair(fwdGroup, 0);
                     dot.classList.add("off");
                 } else {
+                    const MERGE = Math.min(140, max * 0.25);
+                    setPair(backGroup, Math.min(1, pos / MERGE));
+                    setPair(fwdGroup, Math.min(1, (max - pos) / MERGE));
                     dot.classList.remove("off");
-                    const f = pos / max;
                     const d = dot.offsetWidth;
+                    const bR = backGroup.getBoundingClientRect();
+                    const fR = fwdGroup.getBoundingClientRect();
+                    let v0, v1, v2, v3;
                     if (horizontal) {
-                        const startX = backGroup.getBoundingClientRect().right + 8;
-                        const endX = fwdGroup.getBoundingClientRect().left - 8 - d;
-                        dot.style.left = (startX + f * Math.max(0, endX - startX)) + "px";
-                        dot.style.top = "";
+                        v0 = bR.left + bR.width / 2 - d / 2;
+                        v1 = bR.right + 8;
+                        v2 = fR.left - 8 - d;
+                        v3 = fR.left + fR.width / 2 - d / 2;
                     } else {
-                        const startY = backGroup.getBoundingClientRect().bottom + 8;
-                        const endY = fwdGroup.getBoundingClientRect().top - 8 - d;
-                        dot.style.top = (startY + f * Math.max(0, endY - startY)) + "px";
-                        dot.style.left = "";
+                        v0 = bR.top + bR.height / 2 - d / 2;
+                        v1 = bR.bottom + 8;
+                        v2 = fR.top - 8 - d;
+                        v3 = fR.top + fR.height / 2 - d / 2;
                     }
+                    let a;
+                    if (pos <= MERGE) a = v0 + (v1 - v0) * (pos / MERGE);
+                    else if (pos >= max - MERGE) a = v2 + (v3 - v2) * ((pos - (max - MERGE)) / MERGE);
+                    else a = v1 + (v2 - v1) * ((pos - MERGE) / (max - 2 * MERGE));
+                    if (horizontal) { dot.style.left = a + "px"; dot.style.top = ""; }
+                    else { dot.style.top = a + "px"; dot.style.left = ""; }
                 }
                 if (!nudging && pos > 4) userScrolled = true;
             }

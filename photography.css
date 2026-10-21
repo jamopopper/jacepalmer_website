@@ -183,8 +183,9 @@ body.photography.wide .edgefade.lead {
         rgba(0, 0, 0, 0.92) 100%);
 }
 /* Arrow buttons: a fast-forward/skip pair at each end of the strip, drawn
-   like TV-remote controls. Each pair shows while its edge fade shows (the
-   script toggles .off on the group), and every button is always white.
+   like TV-remote controls. As the strip nears either end, that end's pair
+   merges into the progress dot (the script drives its opacity and scale
+   from scroll); every button is always white.
    The double-triangle fast-forward steps 80% of the screen; the
    triangle-and-bar skip goes to that end of the strip. The pairs sit in
    the corners at the strip's ends: right corners on tall screens (the
@@ -209,11 +210,8 @@ body.photography .btngroup {
     z-index: 6;
     display: flex;
     gap: 2px; /* a hairline seam where the pill splits */
-    transition: opacity 0.4s ease;
-}
-body.photography .btngroup.off {
-    opacity: 0;
-    pointer-events: none;
+    /* No transition: the script drives opacity/scale from scroll position
+       every frame so the pair and the dot merge in lockstep. */
 }
 body.photography.tall .btngroup.trail {
     bottom: 0.5rem;
