@@ -33,6 +33,7 @@
 
     <body class="photography">
         <header class="topbar">
+            <!-- Back to main page. Black logo; CSS inverts it to white in light mode. -->
             <a class="pfp" href="/index.html" title="Back to main page">
                 <img src="/images/jp_logo-01.png" alt="Back to main page"
                      onerror="this.remove();this.parentElement.classList.add('no-logo')" />
@@ -46,9 +47,22 @@
 
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
+        <!-- Scroll cues: a permanent fade on the trailing edge, plus an arrow
+             that shows only during the load nudge. Neither takes clicks. -->
+        <div class="edgefade" aria-hidden="true"></div>
+        <div class="scrollhint" aria-hidden="true">&#8595;</div>
+
         <script>
+            // ------------------------------------------------------------------
+            // YOUR PORTFOLIO IMAGES GO HERE.
+            // 1. Put your image files in /images/portfolio/ in the repo.
+            // 2. List each filename below, in the order you want them shown
+            //    (e.g. newest-taken first).
+            //    Any web image format works: .jpg .jpeg .png .webp .gif
+            // ------------------------------------------------------------------
             const PORTFOLIO_DIR = "/images/portfolio/";
             const PORTFOLIO_IMAGES = [
+                // Ordered newest to oldest by file timestamp.
                 "IMG_2474.jpeg",
                 "IMG_2469.jpeg",
                 "IMG_2471.jpeg",
@@ -85,12 +99,62 @@
                 }
             }
 
+            // Scroll direction follows the screen shape: wider screens scroll
+            // horizontally, taller screens scroll vertically. Re-evaluated on
+            // resize so rotating a phone/tablet just works. No platform
+            // detection anywhere — wheel and touch both drive the native
+            // scroll container on their own.
             function setOrientation() {
                 document.body.classList.toggle("wide", window.innerWidth >= window.innerHeight);
                 document.body.classList.toggle("tall", window.innerWidth < window.innerHeight);
             }
             window.addEventListener("resize", setOrientation);
             setOrientation();
+
+            // Scroll cues. A fade sits on the trailing edge for as long as
+            // there's more strip past it. About 1.5s after the page opens,
+            // the strip nudges forward and back once while an arrow shows —
+            // skipped if the visitor has already started scrolling or their
+            // system prefers reduced motion.
+            const fade = document.querySelector(".edgefade");
+            const hint = document.querySelector(".scrollhint");
+            let nudging = false;
+            let userScrolled = false;
+
+            function updateFade() {
+                const horizontal = document.body.classList.contains("wide");
+                const pos = horizontal ? gallery.scrollLeft : gallery.scrollTop;
+                const max = horizontal
+                    ? gallery.scrollWidth - gallery.clientWidth
+                    : gallery.scrollHeight - gallery.clientHeight;
+                fade.classList.toggle("at-end", max <= 0 || pos >= max - 2);
+                if (!nudging && pos > 4) userScrolled = true;
+            }
+            gallery.addEventListener("scroll", updateFade, { passive: true });
+            window.addEventListener("resize", updateFade);
+            updateFade();
+
+            if (PORTFOLIO_IMAGES.length > 1 &&
+                !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                setTimeout(() => {
+                    if (userScrolled) return;
+                    const horizontal = document.body.classList.contains("wide");
+                    nudging = true;
+                    hint.classList.add("show");
+                    gallery.scrollTo(horizontal
+                        ? { left: 48, behavior: "smooth" }
+                        : { top: 48, behavior: "smooth" });
+                    setTimeout(() => {
+                        gallery.scrollTo(horizontal
+                            ? { left: 0, behavior: "smooth" }
+                            : { top: 0, behavior: "smooth" });
+                        setTimeout(() => {
+                            hint.classList.remove("show");
+                            nudging = false;
+                        }, 450);
+                    }, 700);
+                }, 1500);
+            }
         </script>
         <script src="/index.js"></script>
     </body>

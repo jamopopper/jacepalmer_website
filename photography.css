@@ -132,6 +132,64 @@ body.photography.tall .slide img {
     margin: 0;
 }
 
+/* Scroll cues. Edge fade: a soft gradient on the trailing edge (bottom on
+   tall screens, right on wide) that stays for as long as there's more strip
+   past it — it fades out at the end of the strip. */
+body.photography .edgefade {
+    position: fixed;
+    z-index: 5;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+body.photography .edgefade.at-end {
+    opacity: 0;
+}
+body.photography.tall .edgefade {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 72px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.45));
+}
+body.photography.wide .edgefade {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 72px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.45));
+}
+/* Nudge arrow: hidden except while the load nudge runs. Points down on tall
+   screens, right on wide ones. Colored like the contact text. */
+body.photography .scrollhint {
+    position: fixed;
+    z-index: 6;
+    pointer-events: none;
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+    color: #000;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+body.photography .scrollhint.show {
+    opacity: 1;
+}
+body.photography.tall .scrollhint {
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+body.photography.wide .scrollhint {
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+}
+@media (prefers-color-scheme: light) {
+    body.photography .scrollhint {
+        color: #fff;
+    }
+}
+
 /* Empty-state message (only shows if the image list is empty). */
 body.photography .slide.endcard {
     width: 100vw;
