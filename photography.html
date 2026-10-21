@@ -49,17 +49,18 @@
 
         <!-- Scroll cues: fades on both edges of the strip, plus a pair of
              remote-style buttons at each end that shows while its fade
-             does — fast-forward (double triangle) steps 80% of the screen,
-             skip (triangle and bar) goes to that end of the strip. -->
+             does. Each pair forms one split pill — fast-forward (double
+             triangle) steps 80% of the screen, skip (triangle and bar)
+             goes to that end — with the icons cut out of the pill. -->
         <div class="edgefade trail" aria-hidden="true"></div>
         <div class="edgefade lead" aria-hidden="true"></div>
         <div class="btngroup lead">
-            <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M8 15 L36 32 L8 49 Z"/><rect x="43" y="15" width="9" height="34"/></svg></button>
-            <button class="scrollbtn step" id="scrollBack" type="button" aria-label="Scroll back"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M6 15 L27 32 L6 49 Z"/><path d="M30 15 L51 32 L30 49 Z"/></svg></button>
+            <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skip-start" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path class="pillhalf" d="M64 0 H32 A32 32 0 0 0 32 64 H64 Z" fill="#fff"/><g class="ic" fill="#000"><path d="M8 15 L36 32 L8 49 Z"/><rect x="43" y="15" width="9" height="34"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skip-start)"/></svg></button>
+            <button class="scrollbtn step" id="scrollBack" type="button" aria-label="Scroll back"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-back-step" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path class="pillhalf" d="M64 0 H32 A32 32 0 0 0 32 64 H64 Z" fill="#fff"/><g class="ic" fill="#000"><path d="M6 15 L27 32 L6 49 Z"/><path d="M30 15 L51 32 L30 49 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-back-step)"/></svg></button>
         </div>
         <div class="btngroup trail">
-            <button class="scrollbtn step" id="scrollFwd" type="button" aria-label="Scroll forward"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M6 15 L27 32 L6 49 Z"/><path d="M30 15 L51 32 L30 49 Z"/></svg></button>
-            <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M8 15 L36 32 L8 49 Z"/><rect x="43" y="15" width="9" height="34"/></svg></button>
+            <button class="scrollbtn step" id="scrollFwd" type="button" aria-label="Scroll forward"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-fwd-step" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path class="pillhalf" d="M64 0 H32 A32 32 0 0 0 32 64 H64 Z" fill="#fff"/><g class="ic" fill="#000"><path d="M6 15 L27 32 L6 49 Z"/><path d="M30 15 L51 32 L30 49 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-fwd-step)"/></svg></button>
+            <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skip-end" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path class="pillhalf" d="M64 0 H32 A32 32 0 0 0 32 64 H64 Z" fill="#fff"/><g class="ic" fill="#000"><path d="M8 15 L36 32 L8 49 Z"/><rect x="43" y="15" width="9" height="34"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skip-end)"/></svg></button>
         </div>
 
         <script>

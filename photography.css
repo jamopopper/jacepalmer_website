@@ -196,19 +196,18 @@ body.photography .scrollbtn {
     color: #fff;
     line-height: 0;
 }
-/* Remote-control icons, drawn as inline SVG: solid triangles in the
-   button's color. */
+/* The button's SVG is one half of a split pill with its icon cut out;
+   sizing lives here, the shapes live in the markup's masks. */
 body.photography .scrollbtn svg {
     display: block;
     width: 1.3125rem; /* half of the previous 2.625rem */
     height: 1.3125rem;
-    fill: currentColor;
 }
 body.photography .btngroup {
     position: fixed;
     z-index: 6;
     display: flex;
-    gap: 0.125rem; /* a small breathing gap between the pair */
+    gap: 2px; /* a hairline seam where the pill splits */
     transition: opacity 0.4s ease;
 }
 body.photography .btngroup.off {
@@ -239,16 +238,35 @@ body.photography.wide .btngroup.lead {
     transform: translateY(-50%);
     flex-direction: row;
 }
-/* The icons are drawn pointing right, remote-style; rotate each pair to
-   point along the strip. */
-body.photography.tall .btngroup.trail .scrollbtn {
-    transform: rotate(90deg); /* right becomes down */
+/* Split-pill geometry. In the markup each button's mask holds the same
+   canonical pieces: a pill half with its round end pointing left, and a
+   remote icon pointing right. The two pieces rotate independently
+   (transform-box keeps each centered) to fit the strip's direction and
+   which half of the pill the button is. */
+body.photography .scrollbtn .pillhalf,
+body.photography .scrollbtn .ic {
+    transform-box: fill-box;
+    transform-origin: center;
 }
-body.photography.tall .btngroup.lead .scrollbtn {
-    transform: rotate(-90deg); /* right becomes up */
+/* Pill halves: wide pairs split left/right, tall pairs split top/bottom. */
+body.photography.wide .btngroup .scrollbtn:last-child .pillhalf {
+    transform: rotate(180deg); /* round end right */
 }
-body.photography.wide .btngroup.lead .scrollbtn {
-    transform: rotate(180deg); /* right becomes left */
+body.photography.tall .btngroup .scrollbtn:first-child .pillhalf {
+    transform: rotate(90deg); /* round end up */
+}
+body.photography.tall .btngroup .scrollbtn:last-child .pillhalf {
+    transform: rotate(-90deg); /* round end down */
+}
+/* Icons point along the strip, away from the nearest end. */
+body.photography.wide .btngroup.lead .scrollbtn .ic {
+    transform: rotate(180deg);
+}
+body.photography.tall .btngroup.trail .scrollbtn .ic {
+    transform: rotate(90deg);
+}
+body.photography.tall .btngroup.lead .scrollbtn .ic {
+    transform: rotate(-90deg);
 }
 
 /* Empty-state message (only shows if the image list is empty). */
