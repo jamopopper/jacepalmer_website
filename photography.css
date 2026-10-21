@@ -235,15 +235,15 @@ body.photography.wide .btngroup.lead {
     bottom: 0.5rem;
     flex-direction: row;
 }
-/* Scroll progress dot: a white disc the same length as a split pill,
-   travelling the edge between the two pairs (right edge on tall screens,
-   bottom edge on wide ones). The script sets its position from the
-   strip's scroll fraction. */
+/* Scroll progress dot: a white disc matching the pills' narrow
+   dimension, travelling the edge between the two pairs (right edge on
+   tall screens, bottom edge on wide ones). The script sets its position
+   from the strip's scroll fraction. */
 body.photography .scrolldot {
     position: fixed;
     z-index: 6;
-    width: calc(2 * 1.3125rem + 2px);
-    height: calc(2 * 1.3125rem + 2px);
+    width: 1.3125rem;
+    height: 1.3125rem;
     border-radius: 50%;
     background: #fff;
     pointer-events: none;
