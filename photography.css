@@ -144,7 +144,7 @@ body.photography .edgefade {
 body.photography .edgefade.at-end {
     opacity: 0;
 }
-body.photography.tall .edgefade {
+body.photography.tall .edgefade.trail {
     left: 0;
     right: 0;
     bottom: 0;
@@ -159,12 +159,38 @@ body.photography.tall .edgefade {
         rgba(0, 0, 0, 0.55) 80%,
         rgba(0, 0, 0, 0.92) 100%);
 }
-body.photography.wide .edgefade {
+body.photography.wide .edgefade.trail {
     top: 0;
     bottom: 0;
     right: 0;
     width: 40px;
     background: linear-gradient(to right,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.08) 35%,
+        rgba(0, 0, 0, 0.28) 60%,
+        rgba(0, 0, 0, 0.55) 80%,
+        rgba(0, 0, 0, 0.92) 100%);
+}
+/* Leading-edge fade: same treatment at the start of the strip (top on tall
+   screens, left on wide ones), darkening toward the edge. */
+body.photography.tall .edgefade.lead {
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 40px;
+    background: linear-gradient(to top,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.08) 35%,
+        rgba(0, 0, 0, 0.28) 60%,
+        rgba(0, 0, 0, 0.55) 80%,
+        rgba(0, 0, 0, 0.92) 100%);
+}
+body.photography.wide .edgefade.lead {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    background: linear-gradient(to left,
         rgba(0, 0, 0, 0) 0%,
         rgba(0, 0, 0, 0.08) 35%,
         rgba(0, 0, 0, 0.28) 60%,

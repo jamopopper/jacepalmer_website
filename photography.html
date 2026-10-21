@@ -49,7 +49,8 @@
 
         <!-- Scroll cues: a permanent fade on the trailing edge, plus an arrow
              that shows only during the load nudge. Neither takes clicks. -->
-        <div class="edgefade" aria-hidden="true"></div>
+        <div class="edgefade trail" aria-hidden="true"></div>
+        <div class="edgefade lead" aria-hidden="true"></div>
         <div class="scrollhint" aria-hidden="true">&#8595;</div>
 
         <script>
@@ -116,7 +117,7 @@
             // the strip nudges forward and back once while an arrow shows —
             // skipped if the visitor has already started scrolling or their
             // system prefers reduced motion.
-            const fade = document.querySelector(".edgefade");
+            const fade = document.querySelector(".edgefade.trail");
             const hint = document.querySelector(".scrollhint");
             let nudging = false;
             let userScrolled = false;
