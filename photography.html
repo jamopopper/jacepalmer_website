@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="color-scheme" content="light dark" />
+        <meta name="color-scheme" content="dark" />
         <link rel="stylesheet" href="/photography.css" />
         <html prefix="og: https://ogp.me/ns#">
         <meta property="og:title" content="Jace Palmer — Photography"/>
@@ -45,6 +45,17 @@
         </header>
 
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
+        <div class="edgefade trail" aria-hidden="true"></div>
+        <div class="edgefade lead" aria-hidden="true"></div>
+        <div class="btngroup lead">
+            <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 0 L32 0 A32 32 0 0 0 32 64 L64 64 Z" fill="#fff"/><g fill="#000"><path d="M53.7 17.5 L29.9 32 L53.7 46.5 Z"/><rect x="16.3" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 64 L64 32 A32 32 0 0 0 0 32 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M17.5 53.7 L32 29.9 L46.5 53.7 Z"/><rect x="17.5" y="16.3" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-tall)"/></svg></button>
+            <button class="scrollbtn step" id="scrollBack" type="button" aria-label="Scroll back"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollBack-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L32 0 A32 32 0 0 1 32 64 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M48.1 17.5 L30.3 32 L48.1 46.5 Z"/><path d="M27.7 17.5 L9.9 32 L27.7 46.5 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollBack-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollBack-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L0 32 A32 32 0 0 0 64 32 L64 0 Z" fill="#fff"/><g fill="#000"><path d="M17.5 48.1 L32 30.3 L46.5 48.1 Z"/><path d="M17.5 27.7 L32 9.9 L46.5 27.7 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollBack-tall)"/></svg></button>
+        </div>
+        <div class="btngroup trail">
+            <button class="scrollbtn step" id="scrollFwd" type="button" aria-label="Scroll forward"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollFwd-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 0 L32 0 A32 32 0 0 0 32 64 L64 64 Z" fill="#fff"/><g fill="#000"><path d="M15.9 17.5 L33.7 32 L15.9 46.5 Z"/><path d="M36.3 17.5 L54.1 32 L36.3 46.5 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollFwd-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollFwd-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 64 L64 32 A32 32 0 0 0 0 32 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M46.5 15.9 L32 33.7 L17.5 15.9 Z"/><path d="M46.5 36.3 L32 54.1 L17.5 36.3 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollFwd-tall)"/></svg></button>
+            <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L32 0 A32 32 0 0 1 32 64 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M10.3 17.5 L34.1 32 L10.3 46.5 Z"/><rect x="40" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L0 32 A32 32 0 0 0 64 32 L64 0 Z" fill="#fff"/><g fill="#000"><path d="M46.5 10.3 L32 34.1 L17.5 10.3 Z"/><rect x="17.5" y="40" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-tall)"/></svg></button>
+        </div>
+        <div class="scrolldot" aria-hidden="true"></div>
 
         <script>
             const PORTFOLIO_DIR = "/images/portfolio/";
@@ -57,6 +68,31 @@
                 "IMG_1909.jpeg",
                 "IMG_1906.jpeg",
                 "IMG_1684.jpeg",
+                "IMG_1668.JPG",
+                "IMG_1545.JPG",
+                "IMG_1544.JPG",
+                "IMG_1324.JPG",
+                "IMG_1406.JPG",
+                "IMG_1404.JPG",
+                "IMG_1376.JPG",
+                "P1760160 6 Edited.jpg",
+                "IMG_0599 13 Edited.jpg",
+                "IMG_0444 10 Edited.jpg",
+                "IMG_0467 4 Edited.jpg",
+                "P1740326 51 Edited.jpg",
+                "P1740316 49 Edited.jpg",
+                "P1740278 42 Edited.jpg",
+                "P1740151 26 Edited.jpg",
+                "P1730856 19 Edited.JPG",
+                "P1730780 3 Edited.JPG",
+                "P1730723 110 Edited.jpg",
+                "P1730662 106 Edited.jpg",
+                "P1730625 101 Edited.jpg",
+                "P1730402 68 Edited.jpg",
+                "P1730240 37 Edited.jpg",
+                "P1730098 19 Edited.jpg",
+                "P1730082 17 Edited.jpg",
+                "P1730016 11 Edited.jpg",
                 "P1650044 7 Edited.jpeg",
                 "P1650036 4 Edited.jpeg",
             ];
@@ -91,6 +127,176 @@
             }
             window.addEventListener("resize", setOrientation);
             setOrientation();
+
+            const fwdBtn = document.getElementById("scrollFwd");
+            const backBtn = document.getElementById("scrollBack");
+            const skipFwdBtn = document.getElementById("skipEnd");
+            const skipBackBtn = document.getElementById("skipStart");
+            const fwdGroup = document.querySelector(".btngroup.trail");
+            const backGroup = document.querySelector(".btngroup.lead");
+            const dot = document.querySelector(".scrolldot");
+            const SCROLL_MS = 1467; 
+            const BUTTON_MS = 880; 
+            let nudging = false;
+            let userScrolled = false;
+
+            function updateFade() {
+                const horizontal = document.body.classList.contains("wide");
+                const pos = horizontal ? gallery.scrollLeft : gallery.scrollTop;
+                const max = horizontal
+                    ? gallery.scrollWidth - gallery.clientWidth
+                    : gallery.scrollHeight - gallery.clientHeight;
+                function setPair(group, o) {
+                    group.style.opacity = String(o);
+                    group.style.transform = "scale(" + (0.55 + 0.45 * o) + ")";
+                    group.style.pointerEvents = o <= 0.02 ? "none" : "";
+                }
+                if (max <= 0) {
+                    setPair(backGroup, 0);
+                    setPair(fwdGroup, 0);
+                    dot.classList.add("off");
+                } else {
+                    const MERGE = Math.min(140, max * 0.25);
+                    setPair(backGroup, Math.min(1, pos / MERGE));
+                    setPair(fwdGroup, Math.min(1, (max - pos) / MERGE));
+                    dot.classList.remove("off");
+                    const d = dot.offsetWidth;
+                    const bR = backGroup.getBoundingClientRect();
+                    const fR = fwdGroup.getBoundingClientRect();
+                    let v0, v1, v2, v3;
+                    if (horizontal) {
+                        v0 = bR.left + bR.width / 2 - d / 2;
+                        v1 = bR.right + 8;
+                        v2 = fR.left - 8 - d;
+                        v3 = fR.left + fR.width / 2 - d / 2;
+                    } else {
+                        v0 = bR.top + bR.height / 2 - d / 2;
+                        v1 = bR.bottom + 8;
+                        v2 = fR.top - 8 - d;
+                        v3 = fR.top + fR.height / 2 - d / 2;
+                    }
+                    let a;
+                    if (pos <= MERGE) a = v0 + (v1 - v0) * (pos / MERGE);
+                    else if (pos >= max - MERGE) a = v2 + (v3 - v2) * ((pos - (max - MERGE)) / MERGE);
+                    else a = v1 + (v2 - v1) * ((pos - MERGE) / (max - 2 * MERGE));
+                    if (horizontal) { dot.style.left = a + "px"; dot.style.top = ""; }
+                    else { dot.style.top = a + "px"; dot.style.left = ""; }
+                }
+                if (!nudging && pos > 4) userScrolled = true;
+            }
+            gallery.addEventListener("scroll", updateFade, { passive: true });
+            window.addEventListener("resize", updateFade);
+            updateFade();
+            gallery.querySelectorAll("img").forEach((img) => {
+                if (!img.complete) img.addEventListener("load", updateFade);
+            });
+            window.addEventListener("load", updateFade);
+            const easeInOut = (t) => t < 0.5
+                ? 4 * t * t * t
+                : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            let nudgeCancelled = false;
+            function runNudge() {
+                const horizontal = document.body.classList.contains("wide");
+                const distance = 48;
+                const duration = SCROLL_MS;
+                const start = performance.now();
+                nudging = true;
+                nudgeCancelled = false;
+                function finish() {
+                    nudging = false;
+                }
+                function frame(now) {
+                    if (nudgeCancelled) { finish(); return; }
+                    const p = Math.min((now - start) / duration, 1);
+                    const out = p < 0.5 ? easeInOut(p * 2) : easeInOut(2 - p * 2);
+                    const pos = distance * out;
+                    if (horizontal) gallery.scrollLeft = pos;
+                    else gallery.scrollTop = pos;
+                    if (p < 1) requestAnimationFrame(frame);
+                    else finish();
+                }
+                requestAnimationFrame(frame);
+            }
+            let buttonAnim = null;
+            function cancelAnimations() {
+                nudgeCancelled = true;
+                buttonAnim = null;
+            }
+            gallery.addEventListener("wheel", cancelAnimations, { passive: true });
+            gallery.addEventListener("touchstart", cancelAnimations, { passive: true });
+            function smoothScrollBy(delta) {
+                cancelAnimations();
+                const horizontal = document.body.classList.contains("wide");
+                const from = horizontal ? gallery.scrollLeft : gallery.scrollTop;
+                const max = horizontal
+                    ? gallery.scrollWidth - gallery.clientWidth
+                    : gallery.scrollHeight - gallery.clientHeight;
+                const to = Math.max(0, Math.min(max, from + delta));
+                if (to === from) return;
+                const token = {};
+                buttonAnim = token;
+                const start = performance.now();
+                function frame(now) {
+                    if (buttonAnim !== token) return;
+                    const p = Math.min((now - start) / BUTTON_MS, 1);
+                    const value = from + (to - from) * easeInOut(p);
+                    if (horizontal) gallery.scrollLeft = value;
+                    else gallery.scrollTop = value;
+                    if (p < 1) requestAnimationFrame(frame);
+                    else buttonAnim = null;
+                }
+                requestAnimationFrame(frame);
+            }
+            function screenDelta(sign) {
+                const horizontal = document.body.classList.contains("wide");
+                return sign * 0.8 * (horizontal ? gallery.clientWidth : gallery.clientHeight);
+            }
+            fwdBtn.addEventListener("click", () => smoothScrollBy(screenDelta(1)));
+            backBtn.addEventListener("click", () => smoothScrollBy(screenDelta(-1)));
+            skipFwdBtn.addEventListener("click", () => smoothScrollBy(Number.MAX_SAFE_INTEGER));
+            skipBackBtn.addEventListener("click", () => smoothScrollBy(-Number.MAX_SAFE_INTEGER));
+            let dotDragging = false;
+            function scrubTo(e) {
+                const horizontal = document.body.classList.contains("wide");
+                const max = horizontal
+                    ? gallery.scrollWidth - gallery.clientWidth
+                    : gallery.scrollHeight - gallery.clientHeight;
+                if (max <= 0) return;
+                const bR = backGroup.getBoundingClientRect();
+                const fR = fwdGroup.getBoundingClientRect();
+                let c0, c1, p;
+                if (horizontal) {
+                    c0 = bR.left + bR.width / 2;
+                    c1 = fR.left + fR.width / 2;
+                    p = e.clientX;
+                } else {
+                    c0 = bR.top + bR.height / 2;
+                    c1 = fR.top + fR.height / 2;
+                    p = e.clientY;
+                }
+                const f = Math.max(0, Math.min(1, (p - c0) / (c1 - c0)));
+                if (horizontal) gallery.scrollLeft = f * max;
+                else gallery.scrollTop = f * max;
+            }
+            dot.addEventListener("pointerdown", (e) => {
+                dotDragging = true;
+                dot.setPointerCapture(e.pointerId);
+                cancelAnimations();
+                e.preventDefault();
+                scrubTo(e);
+            });
+            dot.addEventListener("pointermove", (e) => {
+                if (dotDragging) scrubTo(e);
+            });
+            dot.addEventListener("pointerup", () => { dotDragging = false; });
+            dot.addEventListener("pointercancel", () => { dotDragging = false; });
+
+            if (PORTFOLIO_IMAGES.length > 1 &&
+                !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                setTimeout(() => {
+                    if (!userScrolled) runNudge();
+                }, 3000);
+            }
         </script>
         <script src="/index.js"></script>
     </body>
