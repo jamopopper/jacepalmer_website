@@ -200,25 +200,16 @@ body.photography .scrollbtn {
    button's color. */
 body.photography .scrollbtn svg {
     display: block;
-    width: 2.625rem; /* 75% of the previous 3.5rem */
-    height: 2.625rem;
+    width: 1.3125rem; /* half of the previous 2.625rem */
+    height: 1.3125rem;
     fill: currentColor;
 }
 body.photography .btngroup {
     position: fixed;
     z-index: 6;
     display: flex;
-    gap: 0;
+    gap: 0.125rem; /* a small breathing gap between the pair */
     transition: opacity 0.4s ease;
-}
-/* The icons carry padding inside their own boxes, so the pair's boxes
-   overlap a little in the stacking axis to sit the glyphs nearly
-   touching. */
-body.photography.tall .btngroup .scrollbtn + .scrollbtn {
-    margin-top: -0.75rem;
-}
-body.photography.wide .btngroup .scrollbtn + .scrollbtn {
-    margin-left: -0.7rem;
 }
 body.photography .btngroup.off {
     opacity: 0;
