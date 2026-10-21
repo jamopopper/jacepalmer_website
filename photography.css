@@ -238,39 +238,15 @@ body.photography.wide .btngroup.lead {
     transform: translateY(-50%);
     flex-direction: row;
 }
-/* Split-pill geometry. In the markup each button's mask holds the same
-   canonical pieces: a pill half with its round end pointing left, and a
-   remote icon pointing right. The two pieces rotate independently
-   (transform-box keeps each centered) to fit the strip's direction and
-   which half of the pill the button is. */
-body.photography .scrollbtn .pillhalf,
-body.photography .scrollbtn .ic {
-    transform-box: fill-box;
-    transform-origin: center;
+/* Split-pill geometry is baked into the markup: each button carries two
+   pre-drawn SVGs (wide / tall) whose mask holds its pill half with the
+   icon already centered on that half's visual centroid — no transforms,
+   so nothing can drift off-center. CSS only picks which variant shows. */
+body.photography.wide .scrollbtn svg.for-tall {
+    display: none;
 }
-/* Pill halves: wide pairs split left/right, tall pairs split top/bottom. */
-body.photography.wide .btngroup .scrollbtn:last-child .pillhalf {
-    transform: rotate(180deg); /* round end right */
-}
-body.photography.tall .btngroup .scrollbtn:first-child .pillhalf {
-    transform: rotate(90deg); /* round end up */
-}
-body.photography.tall .btngroup .scrollbtn:last-child .pillhalf {
-    transform: rotate(-90deg); /* round end down */
-}
-/* Icons point along the strip, away from the nearest end. Each is scaled
-   down a touch so the cutout clears the pill's edges all around. */
-body.photography .scrollbtn .ic {
-    transform: scale(0.85);
-}
-body.photography.wide .btngroup.lead .scrollbtn .ic {
-    transform: rotate(180deg) scale(0.85);
-}
-body.photography.tall .btngroup.trail .scrollbtn .ic {
-    transform: rotate(90deg) scale(0.85);
-}
-body.photography.tall .btngroup.lead .scrollbtn .ic {
-    transform: rotate(-90deg) scale(0.85);
+body.photography.tall .scrollbtn svg.for-wide {
+    display: none;
 }
 
 /* Empty-state message (only shows if the image list is empty). */
