@@ -206,8 +206,12 @@ body.photography .scrollhint {
     position: fixed;
     z-index: 6;
     pointer-events: none;
-    font-size: 2rem;
+    font-size: 3.5rem;
     font-weight: 900;
+    /* Same glyph-fattening trick as the contact text, scaled up with the
+       glyph — Courier New's boldest face is the cap otherwise. */
+    text-shadow: 0.75px 0 0 currentColor, -0.75px 0 0 currentColor,
+                 0 0.75px 0 currentColor, 0 -0.75px 0 currentColor;
     line-height: 1;
     color: #000;
     opacity: 0;
