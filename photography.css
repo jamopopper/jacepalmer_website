@@ -186,8 +186,9 @@ body.photography.wide .edgefade.lead {
    like TV-remote controls. Each pair shows while its edge fade shows (the
    script toggles .off on the group), and every button is always white.
    The double-triangle fast-forward steps 80% of the screen; the
-   triangle-and-bar skip goes to that end of the strip. The back pair sits
-   below the top bar on tall screens, at the left on wide ones. */
+   triangle-and-bar skip goes to that end of the strip. The pairs sit in
+   the corners at the strip's ends: right corners on tall screens (the
+   back pair still tucked below the top bar), bottom corners on wide. */
 body.photography .scrollbtn {
     background: none;
     border: none;
@@ -216,27 +217,46 @@ body.photography .btngroup.off {
 }
 body.photography.tall .btngroup.trail {
     bottom: 0.5rem;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 0.5rem;
     flex-direction: column;
 }
 body.photography.wide .btngroup.trail {
     right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: 0.5rem;
     flex-direction: row;
 }
 body.photography.tall .btngroup.lead {
     top: 7.25rem; /* below the top bar, which ends ~114px down */
-    left: 50%;
-    transform: translateX(-50%);
+    right: 0.5rem;
     flex-direction: column;
 }
 body.photography.wide .btngroup.lead {
     left: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: 0.5rem;
     flex-direction: row;
+}
+/* Scroll progress dot: a white disc the same length as a split pill,
+   travelling the edge between the two pairs (right edge on tall screens,
+   bottom edge on wide ones). The script sets its position from the
+   strip's scroll fraction. */
+body.photography .scrolldot {
+    position: fixed;
+    z-index: 6;
+    width: calc(2 * 1.3125rem + 2px);
+    height: calc(2 * 1.3125rem + 2px);
+    border-radius: 50%;
+    background: #fff;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+body.photography .scrolldot.off {
+    opacity: 0;
+}
+body.photography.tall .scrolldot {
+    right: 0.5rem;
+}
+body.photography.wide .scrolldot {
+    bottom: 0.5rem;
 }
 /* Split-pill geometry is baked into the markup: each button carries two
    pre-drawn SVGs (wide / tall) whose mask holds its pill half with the

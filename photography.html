@@ -63,6 +63,10 @@
             <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L32 0 A32 32 0 0 1 32 64 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M10.3 17.5 L34.1 32 L10.3 46.5 Z"/><rect x="40" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L0 32 A32 32 0 0 0 64 32 L64 0 Z" fill="#fff"/><g fill="#000"><path d="M46.5 10.3 L32 34.1 L17.5 10.3 Z"/><rect x="17.5" y="40" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-tall)"/></svg></button>
         </div>
 
+        <!-- Scroll progress dot: travels the edge between the two pill
+             pairs as the strip scrolls. -->
+        <div class="scrolldot" aria-hidden="true"></div>
+
         <script>
             // ------------------------------------------------------------------
             // YOUR PORTFOLIO IMAGES GO HERE.
@@ -136,6 +140,7 @@
             const skipBackBtn = document.getElementById("skipStart");
             const fwdGroup = document.querySelector(".btngroup.trail");
             const backGroup = document.querySelector(".btngroup.lead");
+            const dot = document.querySelector(".scrolldot");
             const SCROLL_MS = 1467; // nudge duration — 1.5x the original 2200ms pace
             const BUTTON_MS = 880; // button scrolls: same easing at 2.5x the nudge's speed
             let nudging = false;
@@ -153,6 +158,27 @@
                 leadFade.classList.toggle("at-start", atStart);
                 fwdGroup.classList.toggle("off", atEnd);
                 backGroup.classList.toggle("off", atStart);
+                // Progress dot: rides the edge between the two pill pairs,
+                // from the back pair to the forward pair as scroll goes
+                // 0 → all the way. Hidden when the strip doesn't overflow.
+                if (max <= 0) {
+                    dot.classList.add("off");
+                } else {
+                    dot.classList.remove("off");
+                    const f = pos / max;
+                    const d = dot.offsetWidth;
+                    if (horizontal) {
+                        const startX = backGroup.getBoundingClientRect().right + 8;
+                        const endX = fwdGroup.getBoundingClientRect().left - 8 - d;
+                        dot.style.left = (startX + f * Math.max(0, endX - startX)) + "px";
+                        dot.style.top = "";
+                    } else {
+                        const startY = backGroup.getBoundingClientRect().bottom + 8;
+                        const endY = fwdGroup.getBoundingClientRect().top - 8 - d;
+                        dot.style.top = (startY + f * Math.max(0, endY - startY)) + "px";
+                        dot.style.left = "";
+                    }
+                }
                 if (!nudging && pos > 4) userScrolled = true;
             }
             gallery.addEventListener("scroll", updateFade, { passive: true });
