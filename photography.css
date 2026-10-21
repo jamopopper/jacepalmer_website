@@ -200,15 +200,15 @@ body.photography .scrollbtn {
    button's color. */
 body.photography .scrollbtn svg {
     display: block;
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 2.625rem; /* 75% of the previous 3.5rem */
+    height: 2.625rem;
     fill: currentColor;
 }
 body.photography .btngroup {
     position: fixed;
     z-index: 6;
     display: flex;
-    gap: 1.25rem;
+    gap: 0.25rem; /* the pair sits tight together */
     transition: opacity 0.4s ease;
 }
 body.photography .btngroup.off {
@@ -216,25 +216,25 @@ body.photography .btngroup.off {
     pointer-events: none;
 }
 body.photography.tall .btngroup.trail {
-    bottom: 1.25rem;
+    bottom: 0.5rem;
     left: 50%;
     transform: translateX(-50%);
     flex-direction: column;
 }
 body.photography.wide .btngroup.trail {
-    right: 1.25rem;
+    right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
     flex-direction: row;
 }
 body.photography.tall .btngroup.lead {
-    top: 7.5rem; /* below the top bar, which ends ~114px down */
+    top: 7.25rem; /* below the top bar, which ends ~114px down */
     left: 50%;
     transform: translateX(-50%);
     flex-direction: column;
 }
 body.photography.wide .btngroup.lead {
-    left: 1.25rem;
+    left: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
     flex-direction: row;
