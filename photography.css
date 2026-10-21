@@ -1,28 +1,19 @@
-/* ---------- Photography page (standalone styles) ---------- */
-
-/* Black and white only — nothing carried over from the main site's palette.
-   No light/dark modes: one fixed scheme — white elements, black fades. */
 :root {
     --bkgnd: #000;
     --text: #fff;
 }
-
 html {
     font-family: 'Courier New', monospace;
 }
-
 body.photography {
     margin: 0;
     padding: 0;
     width: 100vw;
     height: 100dvh;
-    overflow: hidden; /* the gallery handles all scrolling */
+    overflow: hidden; 
     background-color: var(--bkgnd);
     color: var(--text);
 }
-
-/* Top bar: logo left, contact info right. This header is the page's only
-   fixed element, so it stays pinned to the top in every browser. */
 body.photography .topbar {
     position: fixed;
     top: 0;
@@ -39,8 +30,6 @@ body.photography .topbar {
 body.photography .topbar a {
     pointer-events: auto;
 }
-
-/* Back-to-main: logo image. Transparent PNG, no box behind it. */
 body.photography .pfp {
     position: static;
     flex: 0 0 auto;
@@ -64,28 +53,22 @@ body.photography .pfp img {
     border-radius: 0;
     margin: 0;
     display: block;
-    filter: invert(1); /* the PNG is black; the logo is always white */
+    filter: invert(1); 
 }
-/* The arrow is only a fallback for a missing logo — hidden otherwise. */
 body.photography .pfp span {
     display: none;
 }
 body.photography .pfp.no-logo span {
     display: inline;
 }
-
-/* Full-viewport scroller, continuous (no snapping). Wide screens scroll
-   horizontally, tall screens scroll vertically. Direction is set by
-   body.wide / body.tall. */
 body.photography .gallery {
     display: flex;
     width: 100vw;
     height: 100dvh;
-    scrollbar-width: none; /* Firefox: no browser scrollbar — the page's
-                             own dot and pills are the scroll UI */
+    scrollbar-width: none; 
 }
 body.photography .gallery::-webkit-scrollbar {
-    display: none; /* Chrome / Safari: same */
+    display: none;
 }
 body.photography.wide .gallery {
     flex-direction: row;
@@ -97,9 +80,6 @@ body.photography.tall .gallery {
     overflow-x: hidden;
     overflow-y: auto;
 }
-/* Film strip: no fixed frame size — each photo keeps its own proportions,
-   filling the strip edge to edge. Wide screens: full screen height, widths
-   vary. Tall screens: full screen width, heights vary. */
 body.photography .slide {
     flex: 0 0 auto;
     margin: 0;
@@ -118,9 +98,6 @@ body.photography.tall .slide img {
     display: block;
     margin: 0;
 }
-
-/* Scroll cues. Edge fades: soft gradients on both edges of the strip,
-   always on — they never hide, even at the ends of the strip. */
 body.photography .edgefade {
     position: fixed;
     z-index: 5;
@@ -132,9 +109,6 @@ body.photography.tall .edgefade.trail {
     right: 0;
     bottom: 0;
     height: 40px;
-    /* Eased multi-stop curve: a linear fade's constant slope makes its
-       start edge visible, so the darkening creeps in slowly and only
-       builds near the edge. */
     background: linear-gradient(to bottom,
         rgba(0, 0, 0, 0) 0%,
         rgba(0, 0, 0, 0.08) 35%,
@@ -154,8 +128,6 @@ body.photography.wide .edgefade.trail {
         rgba(0, 0, 0, 0.55) 80%,
         rgba(0, 0, 0, 0.92) 100%);
 }
-/* Leading-edge fade: same treatment at the start of the strip (top on tall
-   screens, left on wide ones), darkening toward the edge. */
 body.photography.tall .edgefade.lead {
     left: 0;
     right: 0;
@@ -180,14 +152,6 @@ body.photography.wide .edgefade.lead {
         rgba(0, 0, 0, 0.55) 80%,
         rgba(0, 0, 0, 0.92) 100%);
 }
-/* Arrow buttons: a fast-forward/skip pair at each end of the strip, drawn
-   like TV-remote controls. As the strip nears either end, that end's pair
-   merges into the progress dot (the script drives its opacity and scale
-   from scroll); every button is always white.
-   The double-triangle fast-forward steps 80% of the screen; the
-   triangle-and-bar skip goes to that end of the strip. The pairs sit in
-   the corners at the strip's ends: right corners on tall screens (the
-   back pair still tucked below the top bar), bottom corners on wide. */
 body.photography .scrollbtn {
     background: none;
     border: none;
@@ -196,20 +160,16 @@ body.photography .scrollbtn {
     color: #fff;
     line-height: 0;
 }
-/* The button's SVG is one half of a split pill with its icon cut out;
-   sizing lives here, the shapes live in the markup's masks. */
 body.photography .scrollbtn svg {
     display: block;
-    width: 1.3125rem; /* half of the previous 2.625rem */
+    width: 1.3125rem; 
     height: 1.3125rem;
 }
 body.photography .btngroup {
     position: fixed;
     z-index: 6;
     display: flex;
-    gap: 2px; /* a hairline seam where the pill splits */
-    /* No transition: the script drives opacity/scale from scroll position
-       every frame so the pair and the dot merge in lockstep. */
+    gap: 2px; 
 }
 body.photography.tall .btngroup.trail {
     bottom: 0.5rem;
@@ -222,7 +182,7 @@ body.photography.wide .btngroup.trail {
     flex-direction: row;
 }
 body.photography.tall .btngroup.lead {
-    top: 7.25rem; /* below the top bar, which ends ~114px down */
+    top: 7.25rem; 
     right: 0.5rem;
     flex-direction: column;
 }
@@ -231,10 +191,6 @@ body.photography.wide .btngroup.lead {
     bottom: 0.5rem;
     flex-direction: row;
 }
-/* Scroll progress dot: a white disc matching the pills' narrow
-   dimension, travelling the edge between the two pairs (right edge on
-   tall screens, bottom edge on wide ones). The script sets its position
-   from the strip's scroll fraction. */
 body.photography .scrolldot {
     position: fixed;
     z-index: 6;
@@ -243,11 +199,9 @@ body.photography .scrolldot {
     border-radius: 50%;
     background: #fff;
     cursor: grab;
-    touch-action: none; /* dragging the dot scrubs the strip — the browser
-                           must not claim the gesture for itself */
+    touch-action: none; 
     transition: opacity 0.4s ease;
 }
-/* Invisible halo so the small dot is easy to grab. */
 body.photography .scrolldot::after {
     content: "";
     position: absolute;
@@ -266,18 +220,12 @@ body.photography.tall .scrolldot {
 body.photography.wide .scrolldot {
     bottom: 0.5rem;
 }
-/* Split-pill geometry is baked into the markup: each button carries two
-   pre-drawn SVGs (wide / tall) whose mask holds its pill half with the
-   icon already centered on that half's visual centroid — no transforms,
-   so nothing can drift off-center. CSS only picks which variant shows. */
 body.photography.wide .scrollbtn svg.for-tall {
     display: none;
 }
 body.photography.tall .scrollbtn svg.for-wide {
     display: none;
 }
-
-/* Empty-state message (only shows if the image list is empty). */
 body.photography .slide.endcard {
     width: 100vw;
     height: 100dvh;
@@ -294,25 +242,21 @@ body.photography .slide.endcard p {
     font-weight: 900;
     color: var(--text);
 }
-
-/* Contact info, top right. Bold with slight glyph fattening for legibility
-   over photos. */
 body.photography .contactbar {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: center;
-    gap: 0.75rem; /* lines grouped mid-height instead of spread apart */
-    height: 82px; /* matches the logo height */
+    gap: 0.75rem; 
+    height: 82px; 
     font-size: 1.25rem;
     font-weight: 900;
     text-align: right;
     color: #fff;
-    /* Slightly fattens the glyphs past Courier New's own boldest face. */
     text-shadow: 0.15px 0 0 currentColor, -0.15px 0 0 currentColor,
                  0 0.15px 0 currentColor, 0 -0.15px 0 currentColor;
 }
 body.photography .contactbar a {
     color: #fff;
-    text-decoration: none; /* still links, just no underline */
+    text-decoration: none;
 }
