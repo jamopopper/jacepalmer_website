@@ -146,16 +146,21 @@
 
             // Ease the strip out and back by hand — the native smooth
             // scroll covers this distance too quickly and reads as a snap.
-            function animateScroll(to, duration, done) {
+            // The outward leg eases OUT (full speed immediately) so the
+            // movement is visible the instant the arrow appears; a slow
+            // ease-in start made the arrow seem to show up first.
+            const easeInOut = (t) => t < 0.5
+                ? 4 * t * t * t
+                : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+            function animateScroll(to, duration, done, easeFn) {
                 const horizontal = document.body.classList.contains("wide");
                 const from = horizontal ? gallery.scrollLeft : gallery.scrollTop;
+                const ease = easeFn || easeInOut;
                 const start = performance.now();
                 function frame(now) {
                     const t = Math.min((now - start) / duration, 1);
-                    const eased = t < 0.5
-                        ? 4 * t * t * t
-                        : 1 - Math.pow(-2 * t + 2, 3) / 2;
-                    const value = from + (to - from) * eased;
+                    const value = from + (to - from) * ease(t);
                     if (horizontal) gallery.scrollLeft = value;
                     else gallery.scrollTop = value;
                     if (t < 1) requestAnimationFrame(frame);
@@ -177,7 +182,7 @@
                                 nudging = false;
                             });
                         }, 250);
-                    });
+                    }, easeOut);
                 }, 3000);
             }
         </script>

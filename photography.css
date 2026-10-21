@@ -215,7 +215,7 @@ body.photography .scrollhint {
     line-height: 1;
     color: #000;
     opacity: 0;
-    transition: opacity 0.35s ease;
+    transition: opacity 0.15s ease; /* quick in, so it lands with the nudge */
 }
 body.photography .scrollhint.show {
     opacity: 1;
