@@ -146,199 +146,10 @@
             if (PORTFOLIO_IMAGES.length === 0) {
                 showEmpty("Portfolio coming soon.");
             } else {
-                // The strip holds the photos over a separate backdrop
-                // layer of blurred tiles (one per photo, sized by an
-                // invisible copy of the photo). When a photo loads,
-                // it's drawn into its tile's canvas at a tiny size
-                // with all of the blur baked in — no CSS filter is
-                // involved, so there is nothing for the browser to
-                // re-render (or fringe) when the page is zoomed.
+                // The strip holds the photos on the page's plain
+                // black ground — no backdrop layer, no blur.
                 const strip = document.createElement("div");
                 strip.className = "strip";
-                const pyrA = document.createElement("canvas");
-                const pyrB = document.createElement("canvas");
-                function paintTile(canvas, img, L) {
-                    // Blur: a Kawase-style pyramid, baked into the
-                    // bitmap — the tile element itself carries no CSS
-                    // filter (a filter darkens an element's edges where
-                    // it runs out of image, worst at the corners, and
-                    // iOS re-renders filtered layers on pinch-zoom,
-                    // which made corner shadows come and go). The photo
-                    // is cut step by step down to ~32px wide, then
-                    // doubled back up to the tile size: every step is a
-                    // proper local average, and stacked averages
-                    // converge on a Gaussian falloff — the Gaussian
-                    // look without ever running a real Gaussian over
-                    // the full-size photo. (The old one-step shrink to
-                    // a tiny canvas aliased into blotches and faceted
-                    // on the way back up.) The first step quarters the
-                    // photo, skipping the 2000px intermediate — the
-                    // most expensive pass — then halves carry it the
-                    // rest of the way down. (Cutting by thirds all the
-                    // way left the kernel visibly box-shaped; the
-                    // halves converge smoother.) All the passes run
-                    // once per photo, at load time.
-                    const aspect = img.naturalHeight / img.naturalWidth;
-                    let src = img;
-                    let sw = img.naturalWidth;
-                    let cur = pyrA;
-                    let nxt = pyrB;
-                    function step(w) {
-                        const h = Math.max(1, Math.round(w * aspect));
-                        cur.width = w;
-                        cur.height = h;
-                        cur.getContext("2d").drawImage(src, 0, 0, w, h);
-                        src = cur;
-                        sw = w;
-                        const t = cur; cur = nxt; nxt = t;
-                    }
-                    step(Math.max(1, Math.round(img.naturalWidth / 4)));
-                    while (sw > 32) step(Math.max(1, Math.round(sw / 2)));
-                    while (sw < 160) step(Math.min(160, sw * 2));
-                    canvas.width = 160;
-                    canvas.height = Math.max(1, Math.round(160 * aspect));
-                    const ctx = canvas.getContext("2d");
-                    // Draw the pyramid's top level in BLED PAST the
-                    // edges, with one light blur applied to the draw
-                    // itself as a final polish — the blur's dark fringe
-                    // lands outside the bitmap instead of on the photo's
-                    // rim, and the tile's edge colors come from just
-                    // inside the photo. (The polish used to be a
-                    // separate copy-clear-redraw pass over the finished
-                    // bitmap; that dance could lose the bitmap entirely
-                    // on a loaded main thread — a tile with no backdrop
-                    // at all — so the blur now happens inside the one
-                    // draw that fills the tile.)
-                    const bleedX = Math.round(canvas.width * 0.15);
-                    const bleedY = Math.round(canvas.height * 0.15);
-                    ctx.filter = "blur(4px)";
-                    ctx.drawImage(src, -bleedX, -bleedY, canvas.width + 2 * bleedX, canvas.height + 2 * bleedY);
-                    ctx.filter = "none";
-                    // Bake the halo's feather into the bitmap itself:
-                    // erase a ramp on every side, from full erase at
-                    // the canvas edge to none at the photo's edge, so
-                    // each tile's blur is a soft halo around its own
-                    // photo and nothing else — no crossfades, no
-                    // colour mixing between neighbours. Doing this in
-                    // the image data — instead of a CSS mask or blend
-                    // mode — keeps the effect on the plainest
-                    // compositing path.
-                    const horizontal = document.body.classList.contains("wide");
-                    if (!L) return;
-                    const axisBitmap = horizontal ? canvas.width : canvas.height;
-                    const crossBitmap = horizontal ? canvas.height : canvas.width;
-                    // Feather lengths in bitmap px: the halo's alpha
-                    // falls across the whole spill on every side. The
-                    // cross spills are 24px on the screen-edge side and
-                    // 32px on the lane side (see the canvas insets).
-                    const aS = Math.max(1, Math.round(L.start * axisBitmap / L.axis));
-                    const aE = Math.max(1, Math.round(L.end * axisBitmap / L.axis));
-                    const cE = Math.max(1, Math.round(24 * crossBitmap / L.cross));
-                    const cL = Math.max(1, Math.round(32 * crossBitmap / L.cross));
-                    ctx.globalCompositeOperation = "destination-out";
-                    let g;
-                    if (horizontal) {
-                        g = ctx.createLinearGradient(0, 0, aS, 0);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, 0, aS, canvas.height);
-                        g = ctx.createLinearGradient(canvas.width, 0, canvas.width - aE, 0);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(canvas.width - aE, 0, aE, canvas.height);
-                        g = ctx.createLinearGradient(0, 0, 0, cE);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, 0, canvas.width, cE);
-                        g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - cL);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, canvas.height - cL, canvas.width, cL);
-                    } else {
-                        g = ctx.createLinearGradient(0, 0, 0, aS);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, 0, canvas.width, aS);
-                        g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - aE);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, canvas.height - aE, canvas.width, aE);
-                        g = ctx.createLinearGradient(0, 0, cE, 0);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, 0, cE, canvas.height);
-                        g = ctx.createLinearGradient(canvas.width, 0, canvas.width - cL, 0);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(canvas.width - cL, 0, cL, canvas.height);
-                    }
-                    ctx.globalCompositeOperation = "source-over";
-                }
-                // The tile canvas's display lengths along both axes,
-                // read from the photo's sizer copy (which is what
-                // sizes the tile) plus the canvas's spill. The feather
-                // math needs these lengths, and they must come from
-                // the sizer: painting used to measure the canvas
-                // itself at photo-load time, when the tile might not
-                // have its size yet — a lost race erased most of the
-                // bitmap and the backdrop came out faint or missing.
-                // Axis spill is 24px; the strip's first/last tiles
-                // spill only the end-padding unit (7.75px) outward,
-                // matching their canvases in the CSS. Cross spill
-                // totals 56 (24 screen-edge side + 32 lane side).
-                function tileLengths(entry) {
-                    const horizontal = document.body.classList.contains("wide");
-                    const axisPhoto = horizontal ? entry.sizer.clientWidth : entry.sizer.clientHeight;
-                    const crossPhoto = horizontal ? entry.sizer.clientHeight : entry.sizer.clientWidth;
-                    if (!axisPhoto || !crossPhoto) return null;
-                    const start = entry.isFirst ? 7.75 : 24;
-                    const end = entry.isLast ? 7.75 : 24;
-                    return {
-                        axis: axisPhoto + start + end,
-                        cross: crossPhoto + 56,
-                        start: start,
-                        end: end
-                    };
-                }
-                function tryPaint(entry) {
-                    if (!entry.imgReady || !entry.sizerReady) return;
-                    const L = tileLengths(entry);
-                    if (L) paintTile(entry.tile, entry.img, L);
-                }
-                // If the screen rotates, the baked ramps sit on the wrong
-                // axis — repaint every loaded photo's halos on a flip.
-                // Seeded from the window's shape rather than the body
-                // class: the class isn't set until setOrientation()
-                // runs, and this handler must run it BEFORE checking
-                // for a flip — the repaint used to check the class
-                // before anything had updated it, concluded "no flip"
-                // on every rotation, and left the ramps baked on the
-                // old axis until a reload.
-                let lastWide = window.innerWidth >= window.innerHeight;
-                window.addEventListener("resize", function () {
-                    setOrientation();
-                    const nowWide = document.body.classList.contains("wide");
-                    if (nowWide === lastWide) return;
-                    lastWide = nowWide;
-                    queue.forEach(function (entry) {
-                        if (entry.img.complete && entry.img.naturalWidth > 0) {
-                            entry.sizerReady = true;
-                            tryPaint(entry);
-                        }
-                    });
-                });
-                const backdrop = document.createElement("div");
-                backdrop.className = "backdrop";
-                backdrop.setAttribute("aria-hidden", "true");
-                strip.appendChild(backdrop);
                 const queue = [];
                 for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
@@ -347,20 +158,7 @@
                     img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
                     slide.appendChild(img);
                     strip.appendChild(slide);
-                    const tile = document.createElement("div");
-                    tile.className = "tile";
-                    const sizer = document.createElement("img");
-                    sizer.className = "sizer";
-                    sizer.alt = "";
-                    tile.appendChild(sizer);
-                    const tileCanvas = document.createElement("canvas");
-                    tile.appendChild(tileCanvas);
-                    backdrop.appendChild(tile);
-                    queue.push({ img: img, file: file, sizer: sizer, tile: tileCanvas });
-                }
-                if (queue.length) {
-                    queue[0].isFirst = true;
-                    queue[queue.length - 1].isLast = true;
+                    queue.push({ img: img, file: file });
                 }
                 gallery.appendChild(strip);
                 // Photos load in a small rolling window (a few in
@@ -381,37 +179,14 @@
                             pumpLoads();
                         };
                         entry.img.addEventListener("load", function () {
-                            entry.imgReady = true;
-                            tryPaint(entry);
                             updateFade();
                             settle();
                         });
                         entry.img.addEventListener("error", settle);
-                        entry.sizer.addEventListener("load", function () {
-                            entry.sizerReady = true;
-                            tryPaint(entry);
-                        });
-                        entry.sizer.addEventListener("error", function () {
-                            entry.sizerReady = true;
-                            tryPaint(entry);
-                        });
                         entry.img.src = PORTFOLIO_DIR + entry.file;
-                        entry.sizer.src = entry.img.src;
                     }
                 }
                 pumpLoads();
-                // The first tiles paint during the page's initial
-                // layout burst, while the main thread is saturated
-                // with image decodes — and a canvas painted in that
-                // window can lose its commit (a backdrop that never
-                // appears; a refresh drops a different one). Once the
-                // page has fully loaded, repaint every ready tile:
-                // identical output, committed from a settled page.
-                window.addEventListener("load", function () {
-                    queue.forEach(function (entry) {
-                        if (entry.imgReady && entry.sizerReady) tryPaint(entry);
-                    });
-                });
             }
 
             // Scroll direction follows the screen shape: wider screens scroll
@@ -449,7 +224,7 @@
                 const pos = scrollPos();
                 const max = scrollMax();
                 // (The black edge fades were removed 2026-10-21 at
-                // Jace's request — the blurred backdrop does that job.)
+                // Jace's request.)
                 // Pair/dot merge at the ends. In the last MERGE px of
                 // scroll at either end, that end's pair fades out and
                 // shrinks toward its far end (its transform origin sits
