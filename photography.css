@@ -104,11 +104,10 @@ body.photography.tall .gallery {
     padding-right: var(--lane); /* the lane: blurred backdrop only */
 }
 /* The strip: photos keep their own proportions, lightly rounded corners,
-   separated by a gap equal to the corner radius. Behind them sits a
-   blurred twin of the whole strip — same layout, heavily blurred and
-   darkened — so the gaps and the scroll lane show the photos' own colors
-   bleeding across the boundaries instead of a hard crease. The twin
-   extends one lane past the photo area so the lane is blur too; that
+   separated by a gap equal to the corner radius. Behind them, each photo
+   has its own blurred halo (see img.halo below), so the gaps and the
+   scroll lane glow with the nearest photos' colors. The halo layer
+   extends one lane past the photo area so the lane is covered too; that
    extension is on the cross axis, which the gallery clips, so it never
    adds scrollable overflow. */
 body.photography .strip {
@@ -125,35 +124,34 @@ body.photography.tall .strip {
     flex-direction: column;
     width: 100%;
 }
-body.photography .twinlayer {
+body.photography .halos {
     position: absolute;
     z-index: 0;
     display: flex;
     gap: var(--r);
     pointer-events: none;
-    filter: blur(48px) brightness(0.65);
 }
-body.photography.wide .twinlayer {
+body.photography.wide .halos {
     top: 0;
     right: 0;
     bottom: calc(-1 * var(--lane));
     left: 0;
     flex-direction: row;
 }
-body.photography.tall .twinlayer {
+body.photography.tall .halos {
     top: 0;
     right: calc(-1 * var(--lane));
     bottom: 0;
     left: 0;
     flex-direction: column;
 }
-/* Twin slides must match the real slides' size, but the twin layer is
+/* Halo slides must match the real slides' size, but the halo layer is
    one lane taller/wider than the strip — so size them to the layer
    minus the lane instead of letting them stretch. */
-body.photography.wide .twinlayer .slide {
+body.photography.wide .halos .slide {
     height: calc(100% - var(--lane));
 }
-body.photography.tall .twinlayer .slide {
+body.photography.tall .halos .slide {
     width: calc(100% - var(--lane));
 }
 body.photography .slide {
@@ -178,6 +176,32 @@ body.photography.tall .slide img {
     height: auto;
     display: block;
     margin: 0;
+}
+/* Per-photo halos: each halo is an oversized blurred copy of its own
+   photo (a small, cheap layer — no giant filtered surface for the
+   browser to tile or drop). It spills past the photo's frame on every
+   side — far enough on the lane side to cross the whole lane — and a
+   mask fades it out along the scroll axis, so neighbouring halos
+   cross-blend inside the gaps instead of meeting at a crease. */
+body.photography .strip .halos .slide img.halo {
+    position: absolute;
+    object-fit: cover;
+    border-radius: 0;
+    filter: blur(32px) brightness(0.65);
+}
+body.photography.tall .strip .halos .slide img.halo {
+    inset: -26px -60px -26px -26px;
+    width: calc(100% + 86px);
+    height: calc(100% + 52px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%);
+}
+body.photography.wide .strip .halos .slide img.halo {
+    inset: -26px -26px -60px -26px;
+    width: calc(100% + 52px);
+    height: calc(100% + 86px);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%);
 }
 
 /* Scroll cues. Edge fades: soft gradients on both edges of the strip,

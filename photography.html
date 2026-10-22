@@ -128,16 +128,15 @@
             if (PORTFOLIO_IMAGES.length === 0) {
                 showEmpty("Portfolio coming soon.");
             } else {
-                // The strip holds the photos; behind them, a blurred
-                // twin of the same strip (same layout, same images)
-                // fills the gaps and the scroll lane with the photos'
-                // own colors, blurred together across the boundaries.
+                // The strip holds the photos; behind them, each photo
+                // gets its own blurred halo filling the gaps and the
+                // scroll lane with the photos' own colors.
                 const strip = document.createElement("div");
                 strip.className = "strip";
-                const twin = document.createElement("div");
-                twin.className = "twinlayer";
-                twin.setAttribute("aria-hidden", "true");
-                strip.appendChild(twin);
+                const halos = document.createElement("div");
+                halos.className = "halos";
+                halos.setAttribute("aria-hidden", "true");
+                strip.appendChild(halos);
                 for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
                     slide.className = "slide";
@@ -147,15 +146,16 @@
                     img.loading = "lazy";
                     slide.appendChild(img);
                     strip.appendChild(slide);
-                    const twinSlide = document.createElement("div");
-                    twinSlide.className = "slide";
-                    const twinImg = document.createElement("img");
-                    twinImg.src = PORTFOLIO_DIR + file;
-                    twinImg.alt = "";
-                    twinImg.loading = "lazy";
-                    twinImg.draggable = false;
-                    twinSlide.appendChild(twinImg);
-                    twin.appendChild(twinSlide);
+                    const haloSlide = document.createElement("div");
+                    haloSlide.className = "slide";
+                    const haloImg = document.createElement("img");
+                    haloImg.className = "halo";
+                    haloImg.src = PORTFOLIO_DIR + file;
+                    haloImg.alt = "";
+                    haloImg.loading = "lazy";
+                    haloImg.draggable = false;
+                    haloSlide.appendChild(haloImg);
+                    halos.appendChild(haloSlide);
                 }
                 gallery.appendChild(strip);
             }
