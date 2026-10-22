@@ -154,10 +154,12 @@ body.photography.tall .slide img {
    The tile's canvas is a tiny baked-blur copy of the photo (painted
    by the script when the photo loads) spilling 40px past the photo
    along the scroll axis — hidden under the neighbouring photos,
-   visible in the gap and the lane — with a real CSS blur on top:
-   the filter's own overshoot also lands under the neighbours, so
-   it can never wash over a photo's face the way it did when the
-   halos lived inside the slides. The crossfade in each gap is
+   visible in the gap and the lane. All of the blur is baked into
+   the bitmap (see paintTile): there is deliberately no CSS filter
+   on the tile — a filter darkens an element's edges where it runs
+   out of image (worst at the corners), and iOS Safari re-renders
+   filtered layers when the page is pinch-zoomed, which made those
+   corner shadows come and go. The crossfade in each gap is
    baked into the canvases as an alpha ramp over the spill (see
    paintTile in the script). No masks and no blend modes: the mask
    zeroed the spill outright, and the screen blend composited in
@@ -201,7 +203,6 @@ body.photography .tile canvas {
     object-fit: fill;
     border-radius: 0;
     pointer-events: none;
-    filter: blur(20px);
 }
 body.photography.tall .tile canvas {
     inset: -40px -60px -40px -26px;

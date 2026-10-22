@@ -129,30 +129,46 @@
                 // The strip holds the photos over a separate backdrop
                 // layer of blurred tiles (one per photo, sized by an
                 // invisible copy of the photo). When a photo loads,
-                // it's drawn into its tile's canvas at a tiny size —
-                // the shrink itself is most of the blur — and CSS
-                // stretches the tiny result back up and blurs it for
-                // real; the filter's overshoot lands under the
-                // neighbouring photos, so faces stay clean. The phone
-                // only ever filters a tiny texture stretched up, never
-                // a full-size image.
+                // it's drawn into its tile's canvas at a tiny size
+                // with all of the blur baked in — no CSS filter is
+                // involved, so there is nothing for the browser to
+                // re-render (or fringe) when the page is zoomed.
                 const strip = document.createElement("div");
                 strip.className = "strip";
                 const tinyCanvas = document.createElement("canvas");
+                const blurCopy = document.createElement("canvas");
                 function paintTile(canvas, img) {
-                    // Blur, baked in two stages: shrink the photo hard
-                    // onto a tiny canvas (that shrink is most of the
-                    // blur), then draw the tiny copy up into the tile
-                    // bitmap — the upscale smooths it further; a CSS
-                    // blur on the tile finishes it.
-                    const TINY_W = 40;
+                    // Blur, baked in three stages, all inside the
+                    // bitmap — the tile element itself carries no CSS
+                    // filter (a filter darkens an element's edges where
+                    // it runs out of image, worst at the corners, and
+                    // iOS re-renders filtered layers on pinch-zoom,
+                    // which made corner shadows come and go):
+                    // 1. shrink the photo hard onto a tiny canvas (the
+                    //    shrink is most of the blur);
+                    // 2. draw the tiny copy up into the tile bitmap
+                    //    BLED PAST the edges, so the blur pass's dark
+                    //    fringe lands outside the bitmap instead of on
+                    //    the photo's rim — and the tile's edge colors
+                    //    come from just inside the photo;
+                    // 3. a canvas blur pass over the bitmap.
+                    const TINY_W = 24;
                     tinyCanvas.width = TINY_W;
                     tinyCanvas.height = Math.max(1, Math.round(TINY_W * img.naturalHeight / img.naturalWidth));
                     tinyCanvas.getContext("2d").drawImage(img, 0, 0, tinyCanvas.width, tinyCanvas.height);
                     canvas.width = 160;
                     canvas.height = Math.max(1, Math.round(160 * img.naturalHeight / img.naturalWidth));
                     const ctx = canvas.getContext("2d");
-                    ctx.drawImage(tinyCanvas, 0, 0, canvas.width, canvas.height);
+                    const bleedX = Math.round(canvas.width * 0.15);
+                    const bleedY = Math.round(canvas.height * 0.15);
+                    ctx.drawImage(tinyCanvas, -bleedX, -bleedY, canvas.width + 2 * bleedX, canvas.height + 2 * bleedY);
+                    blurCopy.width = canvas.width;
+                    blurCopy.height = canvas.height;
+                    blurCopy.getContext("2d").drawImage(canvas, 0, 0);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.filter = "blur(6px)";
+                    ctx.drawImage(blurCopy, 0, 0);
+                    ctx.filter = "none";
                     // Bake the crossfade into the bitmap itself: erase a
                     // ramp at each end of the scroll axis (full erase at
                     // the edge, none 40px in — the length of the tile's
