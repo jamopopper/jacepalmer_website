@@ -137,7 +137,7 @@
                 strip.className = "strip";
                 const pyrA = document.createElement("canvas");
                 const pyrB = document.createElement("canvas");
-                function paintTile(canvas, img, axisClient) {
+                function paintTile(canvas, img, axisClient, fadeStart, fadeEnd) {
                     // Blur: a Kawase-style pyramid, baked into the
                     // bitmap — the tile element itself carries no CSS
                     // filter (a filter darkens an element's edges where
@@ -199,7 +199,12 @@
                     // the edge, none 80px in — the length of the tile's
                     // spill), so where two tiles overlap in a gap each
                     // still carries most of its strength and the colors
-                    // dissolve into each other. Doing this in the image data — instead
+                    // dissolve into each other. The strip's first and
+                    // last tiles skip the ramp on their outer side:
+                    // there is no neighbour out there to hand off to,
+                    // so the ramp would only drain their glow to black
+                    // against the page — without it their backdrop runs
+                    // full-strength to the strip's end. Doing this in the image data — instead
                     // of a CSS mask or blend mode — keeps the effect on
                     // the plainest compositing path.
                     const horizontal = document.body.classList.contains("wide");
@@ -208,27 +213,35 @@
                     const ramp = Math.max(1, Math.round(80 * axisBitmap / axisClient));
                     ctx.globalCompositeOperation = "destination-out";
                     if (horizontal) {
-                        let g = ctx.createLinearGradient(0, 0, ramp, 0);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, 0, ramp, canvas.height);
-                        g = ctx.createLinearGradient(canvas.width, 0, canvas.width - ramp, 0);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(canvas.width - ramp, 0, ramp, canvas.height);
+                        if (fadeStart) {
+                            let g = ctx.createLinearGradient(0, 0, ramp, 0);
+                            g.addColorStop(0, "rgba(0,0,0,1)");
+                            g.addColorStop(1, "rgba(0,0,0,0)");
+                            ctx.fillStyle = g;
+                            ctx.fillRect(0, 0, ramp, canvas.height);
+                        }
+                        if (fadeEnd) {
+                            let g = ctx.createLinearGradient(canvas.width, 0, canvas.width - ramp, 0);
+                            g.addColorStop(0, "rgba(0,0,0,1)");
+                            g.addColorStop(1, "rgba(0,0,0,0)");
+                            ctx.fillStyle = g;
+                            ctx.fillRect(canvas.width - ramp, 0, ramp, canvas.height);
+                        }
                     } else {
-                        let g = ctx.createLinearGradient(0, 0, 0, ramp);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, 0, canvas.width, ramp);
-                        g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - ramp);
-                        g.addColorStop(0, "rgba(0,0,0,1)");
-                        g.addColorStop(1, "rgba(0,0,0,0)");
-                        ctx.fillStyle = g;
-                        ctx.fillRect(0, canvas.height - ramp, canvas.width, ramp);
+                        if (fadeStart) {
+                            let g = ctx.createLinearGradient(0, 0, 0, ramp);
+                            g.addColorStop(0, "rgba(0,0,0,1)");
+                            g.addColorStop(1, "rgba(0,0,0,0)");
+                            ctx.fillStyle = g;
+                            ctx.fillRect(0, 0, canvas.width, ramp);
+                        }
+                        if (fadeEnd) {
+                            let g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - ramp);
+                            g.addColorStop(0, "rgba(0,0,0,1)");
+                            g.addColorStop(1, "rgba(0,0,0,0)");
+                            ctx.fillStyle = g;
+                            ctx.fillRect(0, canvas.height - ramp, canvas.width, ramp);
+                        }
                     }
                     ctx.globalCompositeOperation = "source-over";
                 }
@@ -243,11 +256,15 @@
                 function axisClientFor(entry) {
                     const horizontal = document.body.classList.contains("wide");
                     const photo = horizontal ? entry.sizer.clientWidth : entry.sizer.clientHeight;
-                    return photo ? photo + 160 : 0;
+                    // Middle tiles spill 80px past both ends; the
+                    // strip's first/last tiles spill only toward their
+                    // gap — their canvases stop at the strip's ends.
+                    const spill = (entry.isFirst || entry.isLast) ? 80 : 160;
+                    return photo ? photo + spill : 0;
                 }
                 function tryPaint(entry) {
                     if (!entry.imgReady || !entry.sizerReady) return;
-                    paintTile(entry.tile, entry.img, axisClientFor(entry));
+                    paintTile(entry.tile, entry.img, axisClientFor(entry), !entry.isFirst, !entry.isLast);
                 }
                 // If the screen rotates, the baked ramps sit on the wrong
                 // axis — repaint every loaded photo's halos on a flip.
@@ -293,6 +310,10 @@
                     tile.appendChild(tileCanvas);
                     backdrop.appendChild(tile);
                     queue.push({ img: img, file: file, sizer: sizer, tile: tileCanvas });
+                }
+                if (queue.length) {
+                    queue[0].isFirst = true;
+                    queue[queue.length - 1].isLast = true;
                 }
                 gallery.appendChild(strip);
                 // Photos load in a small rolling window (a few in
