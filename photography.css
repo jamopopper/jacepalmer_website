@@ -285,11 +285,20 @@ body.photography .slide.endcard p {
     color: var(--text);
 }
 
-/* Contact info: top right on wide screens. Bold with slight glyph
-   fattening for legibility over photos. On tall screens it flips to
-   the bottom-left corner (rule below) — the tall layout is the wide
-   layout flipped across the diagonal. */
+/* Contact info: a fixed element at body level — nested inside the
+   fixed top bar it lagged behind Safari's bar animations, while the
+   body-level pill pairs rode them smoothly. Wide screens: top
+   right, level with the top bar (same offsets the bar's padding
+   used to give it). Tall screens: flipped to the bottom-left corner
+   (rule below) — the tall layout is the wide layout flipped across
+   the diagonal. Bold with slight glyph fattening for legibility
+   over photos. */
 body.photography .contactbar {
+    position: fixed;
+    top: calc((var(--lane) - 1.3125rem) / 4 + env(safe-area-inset-top, 0px));
+    right: calc((var(--lane) - 1.3125rem) / 2);
+    z-index: 10; /* the top bar's level, where it used to live */
+    pointer-events: none; /* the bar's rule went with the move */
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -307,6 +316,7 @@ body.photography .contactbar {
 body.photography .contactbar a {
     color: #fff;
     text-decoration: none; /* still links, just no underline */
+    pointer-events: auto;
 }
 
 /* Tall screens: the contact block leaves the top bar and pins to
@@ -316,6 +326,8 @@ body.photography .contactbar a {
    left into the corner. */
 body.photography.tall .contactbar {
     position: fixed;
+    top: auto; /* the base rule's wide-screen anchors would stretch */
+    right: auto; /* the block if all four edges were set */
     /* Own layer, like the pill pairs: as a bottom-anchored fixed
        element it rides the visual viewport while Safari's bars grow
        and shrink, and without a layer that ride is repainted in
