@@ -53,8 +53,10 @@ body.photography.tall {
     overflow-y: auto;
 }
 
-/* Top bar: logo left, contact info right. This header is the page's only
-   fixed element, so it stays pinned to the top in every browser. */
+/* Top bar: logo left, contact info right (tall screens: logo only —
+   the contact info flips to the bottom-left corner, see .contactbar).
+   This header is the page's only fixed element, so it stays pinned
+   to the top in every browser. */
 body.photography .topbar {
     position: fixed;
     top: 0;
@@ -239,8 +241,13 @@ body.photography.wide .btngroup.trail {
     flex-direction: row;
 }
 body.photography.tall .btngroup.lead {
-    top: calc(7.25rem + env(safe-area-inset-top, 0px)); /* below the top
-       bar, which ends ~98px down plus the safe-area inset */
+    /* All the way into the top-right corner: the tall layout is the
+       wide one flipped across the diagonal, and the wide lead pair
+       sits in its corner at this same unit (plus the safe-area inset
+       at the top, as the top bar takes). It used to hang below the
+       top bar; with the contact info flipped to the bottom-left,
+       the corner is free. */
+    top: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-top, 0px));
     right: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
     flex-direction: column;
 }
@@ -278,8 +285,10 @@ body.photography .slide.endcard p {
     color: var(--text);
 }
 
-/* Contact info, top right. Bold with slight glyph fattening for legibility
-   over photos. */
+/* Contact info: top right on wide screens. Bold with slight glyph
+   fattening for legibility over photos. On tall screens it flips to
+   the bottom-left corner (rule below) — the tall layout is the wide
+   layout flipped across the diagonal. */
 body.photography .contactbar {
     display: flex;
     flex-direction: column;
@@ -298,4 +307,18 @@ body.photography .contactbar {
 body.photography .contactbar a {
     color: #fff;
     text-decoration: none; /* still links, just no underline */
+}
+
+/* Tall screens: the contact block leaves the top bar and pins to
+   the bottom-left corner, at the same unit from both edges as the
+   pill pairs sit from theirs — the diagonal flip of its wide-screen
+   spot (the top bar's right end). Text stays horizontal, aligned
+   left into the corner. */
+body.photography.tall .contactbar {
+    position: fixed;
+    left: calc((var(--lane) - 1.3125rem) / 2);
+    bottom: calc((var(--lane) - 1.3125rem) / 2);
+    align-items: flex-start;
+    text-align: left;
+    height: auto;
 }
