@@ -386,10 +386,11 @@
                 // Jace's request — the blurred backdrop does that job.)
                 // Pair/dot merge at the ends. In the last MERGE px of
                 // scroll at either end, that end's pair fades out and
-                // squishes toward its own centre (scale) while the dot
-                // slides from its between-pairs track into that same
-                // centre — one scroll-driven motion, so the pair reads as
-                // collapsing into the dot, and reverses on the way back.
+                // shrinks toward its far end (its transform origin sits
+                // at that tip) while the dot slides from its
+                // between-pairs track onto that same tip — one
+                // scroll-driven motion, so the pair reads as collapsing
+                // into the dot at its end, and reverses on the way back.
                 // Mid-strip, the dot rides the edge between the pairs.
                 function setPair(group, o) {
                     group.style.opacity = String(o);
@@ -406,19 +407,24 @@
                     setPair(fwdGroup, Math.min(1, (max - pos) / MERGE));
                     dot.classList.remove("off");
                     const d = dot.offsetWidth;
-                    const bR = backGroup.getBoundingClientRect();
-                    const fR = fwdGroup.getBoundingClientRect();
+                    // Layout boxes, not getBoundingClientRect: the pairs
+                    // are mid-shrink (transformed) while this runs, and
+                    // the anchors must stay on the untransformed tips.
+                    const bL = backGroup.offsetLeft, bT = backGroup.offsetTop;
+                    const bW = backGroup.offsetWidth, bH = backGroup.offsetHeight;
+                    const fL = fwdGroup.offsetLeft, fT = fwdGroup.offsetTop;
+                    const fW = fwdGroup.offsetWidth, fH = fwdGroup.offsetHeight;
                     let v0, v1, v2, v3;
                     if (horizontal) {
-                        v0 = bR.left + bR.width / 2 - d / 2;
-                        v1 = bR.right + 8;
-                        v2 = fR.left - 8 - d;
-                        v3 = fR.left + fR.width / 2 - d / 2;
+                        v0 = bL; // the lead pair's start tip
+                        v1 = bL + bW + 8;
+                        v2 = fL - 8 - d;
+                        v3 = fL + fW - d; // the trail pair's end tip
                     } else {
-                        v0 = bR.top + bR.height / 2 - d / 2;
-                        v1 = bR.bottom + 8;
-                        v2 = fR.top - 8 - d;
-                        v3 = fR.top + fR.height / 2 - d / 2;
+                        v0 = bT;
+                        v1 = bT + bH + 8;
+                        v2 = fT - 8 - d;
+                        v3 = fT + fH - d;
                     }
                     let a;
                     if (pos <= MERGE) a = v0 + (v1 - v0) * (pos / MERGE);
@@ -525,16 +531,15 @@
                     ? gallery.scrollWidth - gallery.clientWidth
                     : gallery.scrollHeight - gallery.clientHeight;
                 if (max <= 0) return;
-                const bR = backGroup.getBoundingClientRect();
-                const fR = fwdGroup.getBoundingClientRect();
+                const dd = dot.offsetWidth;
                 let c0, c1, p;
                 if (horizontal) {
-                    c0 = bR.left + bR.width / 2;
-                    c1 = fR.left + fR.width / 2;
+                    c0 = backGroup.offsetLeft + dd / 2;
+                    c1 = fwdGroup.offsetLeft + fwdGroup.offsetWidth - dd / 2;
                     p = e.clientX;
                 } else {
-                    c0 = bR.top + bR.height / 2;
-                    c1 = fR.top + fR.height / 2;
+                    c0 = backGroup.offsetTop + dd / 2;
+                    c1 = fwdGroup.offsetTop + fwdGroup.offsetHeight - dd / 2;
                     p = e.clientY;
                 }
                 const f = Math.max(0, Math.min(1, (p - c0) / (c1 - c0)));

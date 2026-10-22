@@ -261,6 +261,22 @@ body.photography .btngroup {
     /* No transition: the script drives opacity/scale from scroll position
        every frame so the pair and the dot merge in lockstep. */
 }
+/* Each pair shrinks toward its far end — the tip nearest its end of
+   the strip — which is where the dot comes to rest (see updateFade in
+   the page's script): the pair's transform origin sits at that tip's
+   centre, half a button in from the end. */
+body.photography.tall .btngroup.lead {
+    transform-origin: 50% 0.65625rem;
+}
+body.photography.tall .btngroup.trail {
+    transform-origin: 50% calc(100% - 0.65625rem);
+}
+body.photography.wide .btngroup.lead {
+    transform-origin: 0.65625rem 50%;
+}
+body.photography.wide .btngroup.trail {
+    transform-origin: calc(100% - 0.65625rem) 50%;
+}
 body.photography.tall .btngroup.trail {
     /* Both offsets are the lane-centring value, so the pill's end is
        the same distance from the screen's bottom edge (and from the
