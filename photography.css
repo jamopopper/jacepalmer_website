@@ -41,7 +41,10 @@ body.photography .topbar {
     align-items: flex-start;
     justify-content: space-between;
     gap: 0.5rem 1rem;
-    padding: 1rem;
+    /* Same spacing unit as the gallery's margins — the distance from
+       the buttons to the photos' edge — so the logo and contact block
+       align with the photos' edges below them. */
+    padding: calc((var(--lane) - 1.3125rem) / 4);
     pointer-events: none;
 }
 body.photography .topbar a {
