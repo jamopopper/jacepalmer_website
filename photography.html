@@ -145,24 +145,26 @@
                     // it runs out of image, worst at the corners, and
                     // iOS re-renders filtered layers on pinch-zoom,
                     // which made corner shadows come and go). The photo
-                    // is cut down step by step to ~50px wide, then
-                    // scaled back up to the tile size: every step is a
+                    // is halved step by step down to ~64px wide, then
+                    // doubled back up to the tile size: every step is a
                     // proper local average, and stacked averages
                     // converge on a Gaussian falloff — the Gaussian
                     // look without ever running a real Gaussian over
                     // the full-size photo. (The old one-step shrink to
                     // a tiny canvas aliased into blotches and faceted
-                    // on the way back up.) The steps cut by thirds, not
-                    // halves — about six passes instead of ten, the
-                    // largest on a canvas a ninth the photo's area —
+                    // on the way back up.) The pyramid stops at ~64px
+                    // instead of ~32px — eight passes instead of ten —
                     // and all of them run once per photo, at load time.
+                    // (Cutting by thirds instead, six passes, left the
+                    // kernel visibly box-shaped; the halves converge
+                    // smoother.)
                     const aspect = img.naturalHeight / img.naturalWidth;
                     let src = img;
                     let sw = img.naturalWidth;
                     let cur = pyrA;
                     let nxt = pyrB;
                     while (sw > 64) {
-                        const w = Math.max(1, Math.round(sw / 3));
+                        const w = Math.max(1, Math.round(sw / 2));
                         const h = Math.max(1, Math.round(w * aspect));
                         cur.width = w;
                         cur.height = h;
@@ -172,7 +174,7 @@
                         const t = cur; cur = nxt; nxt = t;
                     }
                     while (sw < 160) {
-                        const w = Math.min(160, sw * 3);
+                        const w = Math.min(160, sw * 2);
                         const h = Math.max(1, Math.round(w * aspect));
                         cur.width = w;
                         cur.height = h;
@@ -197,7 +199,7 @@
                     blurCopy.height = canvas.height;
                     blurCopy.getContext("2d").drawImage(canvas, 0, 0);
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.filter = "blur(4px)";
+                    ctx.filter = "blur(6px)";
                     ctx.drawImage(blurCopy, 0, 0);
                     ctx.filter = "none";
                     // Bake the crossfade into the bitmap itself: erase a
