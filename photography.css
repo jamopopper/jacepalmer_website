@@ -156,7 +156,7 @@ body.photography .slide img.halo {
     z-index: -1;
     object-fit: cover;
     border-radius: 0;
-    filter: blur(32px) brightness(0.65);
+    filter: blur(80px) brightness(0.65);
     pointer-events: none;
 }
 body.photography.tall .slide img.halo {
