@@ -66,6 +66,14 @@
              pairs as the strip scrolls. -->
         <div class="scrolldot" aria-hidden="true"></div>
 
+        <!-- End glows: fixed layers behind everything holding the end
+             photos' blur, painted by the script. Where the document
+             runs out at the strip's ends — past the first/last photo,
+             under Safari's bars — the color continues to the screen's
+             edge instead of stopping at black. -->
+        <div class="endglow start" aria-hidden="true"><canvas></canvas></div>
+        <div class="endglow end" aria-hidden="true"><canvas></canvas></div>
+
         <script>
             // ------------------------------------------------------------------
             // YOUR PORTFOLIO IMAGES GO HERE.
@@ -288,9 +296,14 @@
                     if (entry.isLast) spill -= 72.25;
                     return photo ? photo + spill : 0;
                 }
+                const glowStartCanvas = document.querySelector(".endglow.start canvas");
+                const glowEndCanvas = document.querySelector(".endglow.end canvas");
                 function tryPaint(entry) {
                     if (!entry.imgReady || !entry.sizerReady) return;
                     paintTile(entry.tile, entry.img, axisClientFor(entry), entry.isFirst ? 7.75 : 80, entry.isLast ? 7.75 : 80);
+                    // The matching end glow: same baked blur, no ramps.
+                    if (entry.isFirst) paintTile(glowStartCanvas, entry.img, 1, 0, 0);
+                    if (entry.isLast) paintTile(glowEndCanvas, entry.img, 1, 0, 0);
                 }
                 // If the screen rotates, the baked ramps sit on the wrong
                 // axis — repaint every loaded photo's halos on a flip.
