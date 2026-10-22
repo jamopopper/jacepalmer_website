@@ -316,6 +316,12 @@ body.photography .contactbar a {
    left into the corner. */
 body.photography.tall .contactbar {
     position: fixed;
+    /* Own layer, like the pill pairs: as a bottom-anchored fixed
+       element it rides the visual viewport while Safari's bars grow
+       and shrink, and without a layer that ride is repainted in
+       steps — the text visibly stuttered while the pairs, on their
+       own layers, stayed smooth. */
+    will-change: transform;
     left: calc((var(--lane) - 1.3125rem) / 2);
     bottom: calc((var(--lane) - 1.3125rem) / 2);
     align-items: flex-start;
