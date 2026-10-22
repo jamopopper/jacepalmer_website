@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>halo test</title>
+<style>
+body { background:#000; margin:0; font-family:monospace; color:#fff; }
+.rowlabel { margin:14px 0 4px 20px; font-size:14px; }
+.stripX { position:relative; display:flex; gap:14px; padding-bottom:52px; margin-left:20px; }
+.slide { position:relative; z-index:1; flex:0 0 auto; line-height:0; }
+.photo { width:260px; height:90px; }
+.pa { background:linear-gradient(to right,#ff2020,#700000); }
+.pb { background:linear-gradient(to right,#00ff00,#005500); }
+.halo { position:absolute; z-index:-1; object-fit:fill; border-radius:0; pointer-events:none;
+    inset:-26px -14px -60px -14px; width:calc(100% + 28px); height:calc(100% + 86px);
+    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+.halo.base { filter:blur(16px); }
+.halo.blend { filter:blur(12px); }
+.v2 .halo { -webkit-mask-image:none; mask-image:none; }
+.v3 .halo { filter:none; }
+.v4 .halo { -webkit-mask-image:none; mask-image:none; filter:none; }
+.stage { position:relative; height:142px; margin-left:20px; }
+.backdrop { position:absolute; top:0; right:0; bottom:0; left:0; display:flex; gap:14px; z-index:0; }
+.btile { position:relative; width:260px; height:90px; flex:0 0 auto; }
+.btile canvas { position:absolute; object-fit:fill; pointer-events:none;
+    inset:-26px -60px -60px -60px; width:calc(100% + 120px); height:calc(100% + 86px);
+    filter:blur(40px);
+    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 60px, #000 calc(100% - 60px), transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0, #000 60px, #000 calc(100% - 60px), transparent 100%); }
+.stage .stripX { margin-left:0; }
+</style>
+</head>
+<body>
+<div class="rowlabel">ROW 1: production (in-slide, mask + blur)</div>
+<div class="stripX v1">
+  <div class="slide"><div class="photo pa"></div><canvas class="halo base" data-c="a"></canvas><canvas class="halo blend" data-c="a"></canvas></div>
+  <div class="slide"><div class="photo pb"></div><canvas class="halo base" data-c="b"></canvas><canvas class="halo blend" data-c="b"></canvas></div>
+</div>
+<div class="rowlabel">ROW 2: in-slide, NO mask</div>
+<div class="stripX v2">
+  <div class="slide"><div class="photo pa"></div><canvas class="halo base" data-c="a"></canvas><canvas class="halo blend" data-c="a"></canvas></div>
+  <div class="slide"><div class="photo pb"></div><canvas class="halo base" data-c="b"></canvas><canvas class="halo blend" data-c="b"></canvas></div>
+</div>
+<div class="rowlabel">ROW 3: in-slide, mask, NO filter</div>
+<div class="stripX v3">
+  <div class="slide"><div class="photo pa"></div><canvas class="halo base" data-c="a"></canvas><canvas class="halo blend" data-c="a"></canvas></div>
+  <div class="slide"><div class="photo pb"></div><canvas class="halo base" data-c="b"></canvas><canvas class="halo blend" data-c="b"></canvas></div>
+</div>
+<div class="rowlabel">ROW 4: in-slide, NO mask, NO filter</div>
+<div class="stripX v4">
+  <div class="slide"><div class="photo pa"></div><canvas class="halo base" data-c="a"></canvas><canvas class="halo blend" data-c="a"></canvas></div>
+  <div class="slide"><div class="photo pb"></div><canvas class="halo base" data-c="b"></canvas><canvas class="halo blend" data-c="b"></canvas></div>
+</div>
+<div class="rowlabel">ROW 5: backdrop layer, 60px spill, blur 40</div>
+<div class="stage">
+  <div class="backdrop">
+    <div class="btile"><canvas data-c="a"></canvas></div>
+    <div class="btile"><canvas data-c="b"></canvas></div>
+  </div>
+  <div class="stripX">
+    <div class="slide"><div class="photo pa"></div></div>
+    <div class="slide"><div class="photo pb"></div></div>
+  </div>
+</div>
+<script>
+document.querySelectorAll("canvas").forEach(function (cv) {
+    cv.width = 160; cv.height = 55;
+    var ctx = cv.getContext("2d");
+    var g = ctx.createLinearGradient(0, 0, 160, 0);
+    if (cv.dataset.c === "a") { g.addColorStop(0, "#ff2020"); g.addColorStop(1, "#700000"); }
+    else { g.addColorStop(0, "#00ff00"); g.addColorStop(1, "#005500"); }
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 160, 55);
+});
+</script>
+</body>
+</html>
