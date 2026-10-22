@@ -140,13 +140,14 @@ body.photography .strip {
 }
 body.photography.wide .strip {
     flex-direction: row;
-    /* The LARGE viewport height, deliberately not dvh: dvh tracks
-       Safari's bars as they grow and shrink during a scroll, which
-       resized the lane (and every photo in it) mid-gesture and fed
-       the scroll UI's stutter. lvh — the height with the bars
-       retracted — is constant while scrolling, and the lane bleeding
-       under the glass is the design anyway. */
-    height: 100lvh;
+    /* The DYNAMIC viewport height: the strip (and every photo
+       sized from it) fits the currently visible area whether
+       Safari's Liquid Glass UI is expanded or retracted. lvh was
+       tried while the scroll dot existed (a dvh lane resized
+       mid-gesture and fed the dot's stutter), but with the bars
+       expanded the lvh lane is taller than the screen and the
+       photos' bottoms were cut off — and the dot is gone now. */
+    height: 100dvh;
 }
 body.photography.tall .strip {
     flex-direction: column;
