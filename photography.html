@@ -48,8 +48,8 @@
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
         <!-- Scroll cues: fades on both edges of the strip, always on, plus
-             a pair of remote-style buttons at each end; nearing an end
-             merges its pair into the progress dot. Each pair forms one
+             a pair of remote-style buttons at each end; nearing an end,
+             its pair fades and shrinks away. Each pair forms one
              split pill — fast-forward (double triangle) steps 80% of the
              screen, skip (triangle and bar) goes to that end — with the
              icons cut out of the pill. -->
@@ -61,10 +61,6 @@
             <button class="scrollbtn step" id="scrollFwd" type="button" aria-label="Scroll forward"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollFwd-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 0 L32 0 A32 32 0 0 0 32 64 L64 64 Z" fill="#fff"/><g fill="#000"><path d="M15.9 17.5 L33.7 32 L15.9 46.5 Z"/><path d="M36.3 17.5 L54.1 32 L36.3 46.5 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollFwd-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollFwd-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 64 L64 32 A32 32 0 0 0 0 32 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M46.5 15.9 L32 33.7 L17.5 15.9 Z"/><path d="M46.5 36.3 L32 54.1 L17.5 36.3 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollFwd-tall)"/></svg></button>
             <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L32 0 A32 32 0 0 1 32 64 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M10.3 17.5 L34.1 32 L10.3 46.5 Z"/><rect x="40" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L0 32 A32 32 0 0 0 64 32 L64 0 Z" fill="#fff"/><g fill="#000"><path d="M46.5 10.3 L32 34.1 L17.5 10.3 Z"/><rect x="17.5" y="40" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-tall)"/></svg></button>
         </div>
-
-        <!-- Scroll progress dot: travels the edge between the two pill
-             pairs as the strip scrolls. -->
-        <div class="scrolldot" aria-hidden="true"></div>
 
         <script>
             // ------------------------------------------------------------------
@@ -201,71 +197,37 @@
             window.addEventListener("resize", setOrientation);
             setOrientation();
 
-            // Scroll cues. Fades sit on both edges of the strip, always on;
-            // at each end a pill pair merges into the progress dot as its
-            // end is reached; clicking a pill button smooth-scrolls the
-            // strip. About 3s after the page opens, the strip also nudges
-            // forward and back once — skipped if the visitor has already
-            // started scrolling or their system prefers reduced motion.
+            // Scroll cues. At each end of the strip a pill pair fades
+            // and shrinks away as its end is reached; clicking a pill
+            // button smooth-scrolls the strip. About 3s after the page
+            // opens, the strip also nudges forward and back once —
+            // skipped if the visitor has already started scrolling or
+            // their system prefers reduced motion.
             const fwdBtn = document.getElementById("scrollFwd");
             const backBtn = document.getElementById("scrollBack");
             const skipFwdBtn = document.getElementById("skipEnd");
             const skipBackBtn = document.getElementById("skipStart");
             const fwdGroup = document.querySelector(".btngroup.trail");
             const backGroup = document.querySelector(".btngroup.lead");
-            const dot = document.querySelector(".scrolldot");
             const SCROLL_MS = 1467; // nudge duration — 1.5x the original 2200ms pace
             const BUTTON_MS = 880; // button scrolls: same easing at 2.5x the nudge's speed
             let nudging = false;
             let userScrolled = false;
 
-            // Cached dot geometry: the pairs' tip anchors, the drag
-            // range, and the scrollable length, measured OUTSIDE the
-            // scroll loop (at start, on resize, and as photos land).
-            // updateFade used to re-read the pairs' layout boxes and
-            // recompute the length from the live window size on every
-            // frame — and while Safari's Liquid Glass bars grow and
-            // shrink during a scroll, those inputs move mid-gesture:
-            // a bottom-anchored pair's offsetTop rides the changing
-            // viewport, and innerHeight breathes with the bars, so
-            // the dot's target stretched and jumped under it — the
-            // stutter. With the geometry frozen for the length of a
-            // gesture the frame loop only writes styles, and the dot
-            // itself moves by transform, composited in step with the
-            // scroll. (The anchors come from layout boxes, not
-            // getBoundingClientRect: the pairs are mid-shrink while
-            // this runs, and the anchors must stay on the
-            // untransformed tips.)
+            // The scrollable length, cached outside the scroll
+            // loop (measured at start, on gated refreshes, and as
+            // photos land). It used to be recomputed from the live
+            // window size on every frame — and while Safari's Liquid
+            // Glass bars grow and shrink during a scroll, that length
+            // breathes mid-gesture, which made the pairs' end fades
+            // hunt. Frozen for the length of a gesture, the frame
+            // loop only writes styles.
             let geom = null;
             function measureGeom() {
-                const horizontal = document.body.classList.contains("wide");
-                const d = dot.offsetWidth;
-                const bL = backGroup.offsetLeft, bT = backGroup.offsetTop;
-                const bW = backGroup.offsetWidth, bH = backGroup.offsetHeight;
-                const fL = fwdGroup.offsetLeft, fT = fwdGroup.offsetTop;
-                const fW = fwdGroup.offsetWidth, fH = fwdGroup.offsetHeight;
-                let v0, v1, v2, v3, c0, c1;
-                if (horizontal) {
-                    v0 = bL; // the lead pair's start tip
-                    v1 = bL + bW + 8;
-                    v2 = fL - 8 - d;
-                    v3 = fL + fW - d; // the trail pair's end tip
-                    c0 = bL + d / 2; // drag range: pair centre to pair centre
-                    c1 = fL + fW - d / 2;
-                } else {
-                    v0 = bT;
-                    v1 = bT + bH + 8;
-                    v2 = fT - 8 - d;
-                    v3 = fT + fH - d;
-                    c0 = bT + d / 2;
-                    c1 = fT + fH - d / 2;
-                }
-                geom = { horizontal: horizontal, max: scrollMax(), v0: v0, v1: v1, v2: v2, v3: v3, c0: c0, c1: c1 };
-                // The dot's resting anchor is the lead tip; frames
-                // translate it from there.
-                if (horizontal) { dot.style.left = v0 + "px"; dot.style.top = ""; }
-                else { dot.style.top = v0 + "px"; dot.style.left = ""; }
-                dot.style.transform = "";
+                geom = {
+                    horizontal: document.body.classList.contains("wide"),
+                    max: scrollMax()
+                };
             }
             function refreshFade() {
                 measureGeom();
@@ -275,8 +237,8 @@
             // fade on the cached geometry only, and let the fade
             // loop's settle do the re-measure afterwards. Resizes
             // during a gesture are usually Safari's bars changing
-            // size, and re-measuring then makes the dot chase the
-            // bars' animation — the stutter this gate exists to stop.
+            // size, and re-measuring then makes the fades chase the
+            // bars' animation — the jitter this gate exists to stop.
             function requestRefresh() {
                 if (fadeRaf === null) refreshFade();
                 else updateFade();
@@ -289,14 +251,12 @@
                 const max = geom.max;
                 // (The black edge fades were removed 2026-10-21 at
                 // Jace's request.)
-                // Pair/dot merge at the ends. In the last MERGE px of
+                // The pairs at the ends: in the last MERGE px of
                 // scroll at either end, that end's pair fades out and
-                // shrinks toward its far end (its transform origin sits
-                // at that tip) while the dot slides from its
-                // between-pairs track onto that same tip — one
-                // scroll-driven motion, so the pair reads as collapsing
-                // into the dot at its end, and reverses on the way back.
-                // Mid-strip, the dot rides the edge between the pairs.
+                // shrinks toward its far tip (its transform origin
+                // sits at that tip) until it is gone at the strip's
+                // end; scrolling back reverses it. Mid-strip, both
+                // pairs are fully shown.
                 function setPair(group, o) {
                     group.style.opacity = String(o);
                     group.style.transform = "scale(" + (0.55 + 0.45 * o) + ")";
@@ -305,26 +265,17 @@
                 if (max <= 0) {
                     setPair(backGroup, 0);
                     setPair(fwdGroup, 0);
-                    dot.classList.add("off");
                 } else {
                     const MERGE = Math.min(140, max * 0.25);
                     setPair(backGroup, Math.min(1, pos / MERGE));
                     setPair(fwdGroup, Math.min(1, (max - pos) / MERGE));
-                    dot.classList.remove("off");
-                    let a;
-                    if (pos <= MERGE) a = geom.v0 + (geom.v1 - geom.v0) * (pos / MERGE);
-                    else if (pos >= max - MERGE) a = geom.v2 + (geom.v3 - geom.v2) * ((pos - (max - MERGE)) / MERGE);
-                    else a = geom.v1 + (geom.v2 - geom.v1) * ((pos - MERGE) / (max - 2 * MERGE));
-                    const delta = a - geom.v0;
-                    dot.style.transform = horizontal
-                        ? "translateX(" + delta + "px)"
-                        : "translateY(" + delta + "px)";
                 }
                 if (!nudging && pos > 4) userScrolled = true;
             }
+
             // Scroll events trail the real scroll on iOS — the page
             // moves on the compositor while the event lands later —
-            // which made the dot lag behind the strip. While a scroll
+            // which made the scroll UI lag behind the strip. While a scroll
             // is in flight, sync from requestAnimationFrame instead:
             // every frame reads the live position, and the loop stops
             // once the position has settled for two frames.
@@ -422,34 +373,6 @@
             // the clamp in smoothScrollBy lands them exactly on it.
             skipFwdBtn.addEventListener("click", () => smoothScrollBy(Number.MAX_SAFE_INTEGER));
             skipBackBtn.addEventListener("click", () => smoothScrollBy(-Number.MAX_SAFE_INTEGER));
-
-            // The progress dot is a scrubber too: dragging it along its
-            // edge — from the back pair's centre to the forward pair's —
-            // maps linearly onto the strip's scroll range. Setting the
-            // scroll fires the normal scroll handler, which repositions
-            // the dot (and runs the end merges) as usual.
-            let dotDragging = false;
-            function scrubTo(e) {
-                const horizontal = document.body.classList.contains("wide");
-                if (!geom || geom.horizontal !== horizontal) measureGeom();
-                const max = geom.max;
-                if (max <= 0) return;
-                const p = horizontal ? e.clientX : e.clientY;
-                const f = Math.max(0, Math.min(1, (p - geom.c0) / (geom.c1 - geom.c0)));
-                setScrollPos(f * max);
-            }
-            dot.addEventListener("pointerdown", (e) => {
-                dotDragging = true;
-                dot.setPointerCapture(e.pointerId);
-                cancelAnimations();
-                e.preventDefault();
-                scrubTo(e);
-            });
-            dot.addEventListener("pointermove", (e) => {
-                if (dotDragging) scrubTo(e);
-            });
-            dot.addEventListener("pointerup", () => { dotDragging = false; });
-            dot.addEventListener("pointercancel", () => { dotDragging = false; });
 
             if (PORTFOLIO_IMAGES.length > 1 &&
                 !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {

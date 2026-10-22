@@ -7,14 +7,14 @@
     --text: #fff;
     --r: 14px; /* gap between photos */
     /* Photo corner radius, sized so each corner arc's centre sits on
-       the scroll dot's centre line: the dot's centre rides
+       the scroll UI's centre line: the pill pairs' centre rides
        var(--lane)/2 in from the screen edge and the photos' edge sits
-       (lane - button)/4 in, so the radius is the difference —
+       (lane - button)/4 in, so the radius is the sum —
        (52px + 21px) / 4 = 18.25px at the current sizes. */
     --cr: calc((var(--lane) + 1.3125rem) / 4);
     --lane: 3.25rem; /* the scroll UI's band at the screen edge: bottom
-                        on wide screens, right on tall ones. The dot and
-                        pill pairs are centred in it, which puts their
+                        on wide screens, right on tall ones. The pill
+                        pairs are centred in it, which puts their
                         outer edge (lane − 1.3125rem) / 2 from the screen
                         edge; the gallery's margin (see .gallery) lands
                         the photos' edge halfway between that and the
@@ -25,7 +25,7 @@ html {
     font-family: 'Courier New', monospace;
     scrollbar-width: none; /* the document is the scroller now; its
                              scrollbar stays hidden — the page's own
-                             dot and pills are the scroll UI */
+                             pills are the scroll UI */
 }
 html::-webkit-scrollbar {
     display: none; /* Chrome / Safari: same */
@@ -177,8 +177,8 @@ body.photography.tall .slide img {
 
 /* Arrow buttons: a fast-forward/skip pair at each end of the strip, drawn
    like TV-remote controls. As the strip nears either end, that end's pair
-   merges into the progress dot (the script drives its opacity and scale
-   from scroll); every button is always white.
+   fades and shrinks away (the script drives its opacity and scale from
+   scroll); every button is always white.
    The double-triangle fast-forward steps 80% of the screen; the
    triangle-and-bar skip goes to that end of the strip. The pairs sit in
    the corners at the strip's ends: right corners on tall screens (the
@@ -201,17 +201,17 @@ body.photography .scrollbtn svg {
 body.photography .btngroup {
     position: fixed;
     z-index: 6;
-    will-change: transform; /* own layer, like the dot: it scales
-                              every frame near the strip's ends */
+    will-change: transform; /* own layer: it scales every frame near
+                              the strip's ends */
     display: flex;
     gap: 2px; /* a hairline seam where the pill splits */
     /* No transition: the script drives opacity/scale from scroll position
-       every frame so the pair and the dot merge in lockstep. */
+       every frame so each pair's fade tracks the scroll exactly. */
 }
 /* Each pair shrinks toward its far end — the tip nearest its end of
-   the strip — which is where the dot comes to rest (see updateFade in
-   the page's script): the pair's transform origin sits at that tip's
-   centre, half a button in from the end. */
+   the strip (see updateFade in the page's script): the pair's
+   transform origin sits at that tip's centre, half a button in from
+   the end. */
 body.photography.tall .btngroup.lead {
     transform-origin: 50% 0.65625rem;
 }
@@ -248,45 +248,6 @@ body.photography.wide .btngroup.lead {
     left: calc((var(--lane) - 1.3125rem) / 2);
     bottom: calc((var(--lane) - 1.3125rem) / 2);
     flex-direction: row;
-}
-/* Scroll progress dot: a white disc matching the pills' narrow
-   dimension, travelling the edge between the two pairs (right edge on
-   tall screens, bottom edge on wide ones). The script sets its position
-   from the strip's scroll fraction. */
-body.photography .scrolldot {
-    position: fixed;
-    z-index: 6;
-    /* Own layer: the dot translates every frame while scrolling, and
-       repainting it in the page layer (while Safari re-renders its
-       glass bars) drops frames. Composited, it rides the scroll. */
-    will-change: transform;
-    width: 1.3125rem;
-    height: 1.3125rem;
-    border-radius: 50%;
-    background: #fff;
-    cursor: grab;
-    touch-action: none; /* dragging the dot scrubs the strip — the browser
-                           must not claim the gesture for itself */
-    transition: opacity 0.4s ease;
-}
-/* Invisible halo so the small dot is easy to grab. */
-body.photography .scrolldot::after {
-    content: "";
-    position: absolute;
-    inset: -14px;
-}
-body.photography .scrolldot:active {
-    cursor: grabbing;
-}
-body.photography .scrolldot.off {
-    opacity: 0;
-    pointer-events: none;
-}
-body.photography.tall .scrolldot {
-    right: calc((var(--lane) - 1.3125rem) / 2); /* rides in the lane */
-}
-body.photography.wide .scrolldot {
-    bottom: calc((var(--lane) - 1.3125rem) / 2); /* rides in the lane */
 }
 /* Split-pill geometry is baked into the markup: each button carries two
    pre-drawn SVGs (wide / tall) whose mask holds its pill half with the
