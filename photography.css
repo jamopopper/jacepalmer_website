@@ -158,7 +158,7 @@ body.photography.tall .slide img {
 body.photography .slide .halo {
     position: absolute;
     z-index: -1;
-    object-fit: cover;
+    object-fit: fill;
     border-radius: 0;
     filter: blur(16px) brightness(1);
     pointer-events: none;
