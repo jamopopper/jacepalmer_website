@@ -137,7 +137,6 @@
                 strip.className = "strip";
                 const pyrA = document.createElement("canvas");
                 const pyrB = document.createElement("canvas");
-                const blurCopy = document.createElement("canvas");
                 function paintTile(canvas, img, axisClient) {
                     // Blur: a Kawase-style pyramid, baked into the
                     // bitmap — the tile element itself carries no CSS
@@ -180,20 +179,20 @@
                     canvas.height = Math.max(1, Math.round(160 * aspect));
                     const ctx = canvas.getContext("2d");
                     // Draw the pyramid's top level in BLED PAST the
-                    // edges, so the final blur pass's dark fringe lands
-                    // outside the bitmap instead of on the photo's rim
-                    // — and the tile's edge colors come from just
-                    // inside the photo.
+                    // edges, with one light blur applied to the draw
+                    // itself as a final polish — the blur's dark fringe
+                    // lands outside the bitmap instead of on the photo's
+                    // rim, and the tile's edge colors come from just
+                    // inside the photo. (The polish used to be a
+                    // separate copy-clear-redraw pass over the finished
+                    // bitmap; that dance could lose the bitmap entirely
+                    // on a loaded main thread — a tile with no backdrop
+                    // at all — so the blur now happens inside the one
+                    // draw that fills the tile.)
                     const bleedX = Math.round(canvas.width * 0.15);
                     const bleedY = Math.round(canvas.height * 0.15);
-                    ctx.drawImage(src, -bleedX, -bleedY, canvas.width + 2 * bleedX, canvas.height + 2 * bleedY);
-                    // One light blur pass as a final polish.
-                    blurCopy.width = canvas.width;
-                    blurCopy.height = canvas.height;
-                    blurCopy.getContext("2d").drawImage(canvas, 0, 0);
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.filter = "blur(4px)";
-                    ctx.drawImage(blurCopy, 0, 0);
+                    ctx.drawImage(src, -bleedX, -bleedY, canvas.width + 2 * bleedX, canvas.height + 2 * bleedY);
                     ctx.filter = "none";
                     // Bake the crossfade into the bitmap itself: erase a
                     // ramp at each end of the scroll axis (full erase at
@@ -333,6 +332,18 @@
                     }
                 }
                 pumpLoads();
+                // The first tiles paint during the page's initial
+                // layout burst, while the main thread is saturated
+                // with image decodes — and a canvas painted in that
+                // window can lose its commit (a backdrop that never
+                // appears; a refresh drops a different one). Once the
+                // page has fully loaded, repaint every ready tile:
+                // identical output, committed from a settled page.
+                window.addEventListener("load", function () {
+                    queue.forEach(function (entry) {
+                        if (entry.imgReady && entry.sizerReady) tryPaint(entry);
+                    });
+                });
             }
 
             // Scroll direction follows the screen shape: wider screens scroll
