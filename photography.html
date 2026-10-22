@@ -137,7 +137,7 @@
                 strip.className = "strip";
                 const tinyCanvas = document.createElement("canvas");
                 const blurCopy = document.createElement("canvas");
-                function paintTile(canvas, img) {
+                function paintTile(canvas, img, axisClient) {
                     // Blur, baked in three stages, all inside the
                     // bitmap — the tile element itself carries no CSS
                     // filter (a filter darkens an element's edges where
@@ -179,7 +179,6 @@
                     // the plainest compositing path.
                     const horizontal = document.body.classList.contains("wide");
                     const axisBitmap = horizontal ? canvas.width : canvas.height;
-                    const axisClient = horizontal ? canvas.clientWidth : canvas.clientHeight;
                     if (!axisClient) return;
                     const ramp = Math.max(1, Math.round(40 * axisBitmap / axisClient));
                     ctx.globalCompositeOperation = "destination-out";
@@ -208,6 +207,23 @@
                     }
                     ctx.globalCompositeOperation = "source-over";
                 }
+                // The tile canvas's length along the scroll axis, read
+                // from the photo's sizer copy (which is what sizes the
+                // tile) plus the canvas's spill past both ends. The ramp
+                // math needs this length, and it must come from the
+                // sizer: painting used to measure the canvas itself at
+                // photo-load time, when the tile might not have its
+                // size yet — a lost race erased most of the bitmap and
+                // the backdrop came out faint or missing entirely.
+                function axisClientFor(entry) {
+                    const horizontal = document.body.classList.contains("wide");
+                    const photo = horizontal ? entry.sizer.clientWidth : entry.sizer.clientHeight;
+                    return photo ? photo + 80 : 0;
+                }
+                function tryPaint(entry) {
+                    if (!entry.imgReady || !entry.sizerReady) return;
+                    paintTile(entry.tile, entry.img, axisClientFor(entry));
+                }
                 // If the screen rotates, the baked ramps sit on the wrong
                 // axis — repaint every loaded photo's halos on a flip.
                 let lastWide = document.body.classList.contains("wide");
@@ -217,7 +233,8 @@
                     lastWide = nowWide;
                     queue.forEach(function (entry) {
                         if (entry.img.complete && entry.img.naturalWidth > 0) {
-                            paintTile(entry.tile, entry.img);
+                            entry.sizerReady = true;
+                            tryPaint(entry);
                         }
                     });
                 });
@@ -263,11 +280,20 @@
                             pumpLoads();
                         };
                         entry.img.addEventListener("load", function () {
-                            paintTile(entry.tile, entry.img);
+                            entry.imgReady = true;
+                            tryPaint(entry);
                             updateFade();
                             settle();
                         });
                         entry.img.addEventListener("error", settle);
+                        entry.sizer.addEventListener("load", function () {
+                            entry.sizerReady = true;
+                            tryPaint(entry);
+                        });
+                        entry.sizer.addEventListener("error", function () {
+                            entry.sizerReady = true;
+                            tryPaint(entry);
+                        });
                         entry.img.src = PORTFOLIO_DIR + entry.file;
                         entry.sizer.src = entry.img.src;
                     }
