@@ -135,11 +135,23 @@
                 // filtering a full-size image, so scrolling stays smooth.
                 const strip = document.createElement("div");
                 strip.className = "strip";
+                const tinyCanvas = document.createElement("canvas");
                 function paintHalo(canvas, img, width) {
+                    // Blur, baked in two stages: shrink the photo hard
+                    // onto a tiny canvas (that shrink is most of the
+                    // blur), then draw the tiny copy up into the halo
+                    // bitmap — the upscale smooths it further. No CSS
+                    // filter is used: a filter would keep painting a
+                    // blur-radius past the halo's box, washing over the
+                    // neighbouring photo.
+                    const TINY_W = 40;
+                    tinyCanvas.width = TINY_W;
+                    tinyCanvas.height = Math.max(1, Math.round(TINY_W * img.naturalHeight / img.naturalWidth));
+                    tinyCanvas.getContext("2d").drawImage(img, 0, 0, tinyCanvas.width, tinyCanvas.height);
                     canvas.width = width;
                     canvas.height = Math.max(1, Math.round(width * img.naturalHeight / img.naturalWidth));
                     const ctx = canvas.getContext("2d");
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(tinyCanvas, 0, 0, canvas.width, canvas.height);
                     // Bake the crossfade into the bitmap itself: erase a
                     // ramp at each end of the scroll axis (full erase at
                     // the edge, none one gap-width in), so where two
