@@ -116,6 +116,26 @@
 
             const gallery = document.getElementById("gallery");
 
+            // The document itself is the scroller (the gallery element
+            // is only the strip's wrapper), so scroll reads and writes
+            // go to the root element. This is also what lets iOS
+            // Safari run the content under its top/bottom bars, like
+            // a normal page — an inner container's scrolling never
+            // reaches the glass.
+            const scroller = document.documentElement;
+            function scrollPos() {
+                return document.body.classList.contains("wide") ? window.scrollX : window.scrollY;
+            }
+            function scrollMax() {
+                return document.body.classList.contains("wide")
+                    ? scroller.scrollWidth - window.innerWidth
+                    : scroller.scrollHeight - window.innerHeight;
+            }
+            function setScrollPos(v) {
+                if (document.body.classList.contains("wide")) scroller.scrollLeft = v;
+                else scroller.scrollTop = v;
+            }
+
             function showEmpty(message) {
                 const empty = document.createElement("div");
                 empty.className = "slide endcard";
@@ -370,8 +390,8 @@
             // Scroll direction follows the screen shape: wider screens scroll
             // horizontally, taller screens scroll vertically. Re-evaluated on
             // resize so rotating a phone/tablet just works. No platform
-            // detection anywhere — wheel and touch both drive the native
-            // scroll container on their own.
+            // detection anywhere — wheel and touch both drive the
+            // document's own scrolling.
             function setOrientation() {
                 document.body.classList.toggle("wide", window.innerWidth >= window.innerHeight);
                 document.body.classList.toggle("tall", window.innerWidth < window.innerHeight);
@@ -399,10 +419,8 @@
 
             function updateFade() {
                 const horizontal = document.body.classList.contains("wide");
-                const pos = horizontal ? gallery.scrollLeft : gallery.scrollTop;
-                const max = horizontal
-                    ? gallery.scrollWidth - gallery.clientWidth
-                    : gallery.scrollHeight - gallery.clientHeight;
+                const pos = scrollPos();
+                const max = scrollMax();
                 // (The black edge fades were removed 2026-10-21 at
                 // Jace's request — the blurred backdrop does that job.)
                 // Pair/dot merge at the ends. In the last MERGE px of
@@ -456,7 +474,7 @@
                 }
                 if (!nudging && pos > 4) userScrolled = true;
             }
-            gallery.addEventListener("scroll", updateFade, { passive: true });
+            window.addEventListener("scroll", updateFade, { passive: true });
             window.addEventListener("resize", updateFade);
             updateFade();
             // Late-loading photos grow the strip after that first check,
@@ -474,7 +492,6 @@
                 : 1 - Math.pow(-2 * t + 2, 3) / 2;
             let nudgeCancelled = false;
             function runNudge() {
-                const horizontal = document.body.classList.contains("wide");
                 const distance = 48;
                 const duration = SCROLL_MS;
                 const start = performance.now();
@@ -487,9 +504,7 @@
                     if (nudgeCancelled) { finish(); return; }
                     const p = Math.min((now - start) / duration, 1);
                     const out = p < 0.5 ? easeInOut(p * 2) : easeInOut(2 - p * 2);
-                    const pos = distance * out;
-                    if (horizontal) gallery.scrollLeft = pos;
-                    else gallery.scrollTop = pos;
+                    setScrollPos(distance * out);
                     if (p < 1) requestAnimationFrame(frame);
                     else finish();
                 }
@@ -501,18 +516,15 @@
                 nudgeCancelled = true;
                 buttonAnim = null;
             }
-            gallery.addEventListener("wheel", cancelAnimations, { passive: true });
-            gallery.addEventListener("touchstart", cancelAnimations, { passive: true });
+            window.addEventListener("wheel", cancelAnimations, { passive: true });
+            window.addEventListener("touchstart", cancelAnimations, { passive: true });
 
             // Arrow buttons: smooth-scroll 80% of the screen dimension in
             // the strip's direction, eased like the nudge over BUTTON_MS.
             function smoothScrollBy(delta) {
                 cancelAnimations();
-                const horizontal = document.body.classList.contains("wide");
-                const from = horizontal ? gallery.scrollLeft : gallery.scrollTop;
-                const max = horizontal
-                    ? gallery.scrollWidth - gallery.clientWidth
-                    : gallery.scrollHeight - gallery.clientHeight;
+                const from = scrollPos();
+                const max = scrollMax();
                 const to = Math.max(0, Math.min(max, from + delta));
                 if (to === from) return;
                 const token = {};
@@ -521,9 +533,7 @@
                 function frame(now) {
                     if (buttonAnim !== token) return;
                     const p = Math.min((now - start) / BUTTON_MS, 1);
-                    const value = from + (to - from) * easeInOut(p);
-                    if (horizontal) gallery.scrollLeft = value;
-                    else gallery.scrollTop = value;
+                    setScrollPos(from + (to - from) * easeInOut(p));
                     if (p < 1) requestAnimationFrame(frame);
                     else buttonAnim = null;
                 }
@@ -531,7 +541,7 @@
             }
             function screenDelta(sign) {
                 const horizontal = document.body.classList.contains("wide");
-                return sign * 0.8 * (horizontal ? gallery.clientWidth : gallery.clientHeight);
+                return sign * 0.8 * (horizontal ? window.innerWidth : window.innerHeight);
             }
             fwdBtn.addEventListener("click", () => smoothScrollBy(screenDelta(1)));
             backBtn.addEventListener("click", () => smoothScrollBy(screenDelta(-1)));
@@ -548,9 +558,7 @@
             let dotDragging = false;
             function scrubTo(e) {
                 const horizontal = document.body.classList.contains("wide");
-                const max = horizontal
-                    ? gallery.scrollWidth - gallery.clientWidth
-                    : gallery.scrollHeight - gallery.clientHeight;
+                const max = scrollMax();
                 if (max <= 0) return;
                 const dd = dot.offsetWidth;
                 let c0, c1, p;
@@ -564,8 +572,7 @@
                     p = e.clientY;
                 }
                 const f = Math.max(0, Math.min(1, (p - c0) / (c1 - c0)));
-                if (horizontal) gallery.scrollLeft = f * max;
-                else gallery.scrollTop = f * max;
+                setScrollPos(f * max);
             }
             dot.addEventListener("pointerdown", (e) => {
                 dotDragging = true;

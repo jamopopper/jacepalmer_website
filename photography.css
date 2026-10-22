@@ -23,16 +23,34 @@
 
 html {
     font-family: 'Courier New', monospace;
+    scrollbar-width: none; /* the document is the scroller now; its
+                             scrollbar stays hidden — the page's own
+                             dot and pills are the scroll UI */
+}
+html::-webkit-scrollbar {
+    display: none; /* Chrome / Safari: same */
 }
 
 body.photography {
     margin: 0;
     padding: 0;
-    width: 100vw;
-    height: 100dvh;
-    overflow: hidden; /* the gallery handles all scrolling */
+    /* The document itself is the scroller, like a normal page: iOS
+       Safari only composites a root scroller's content under its
+       top/bottom bars, while an inner scroll container's content
+       stops at the layout boundary, short of the glass. The
+       orientation rules pick the scrolling axis; the other axis is
+       locked so the strip can't drift sideways. */
+    overscroll-behavior: none;
     background-color: var(--bkgnd);
     color: var(--text);
+}
+body.photography.wide {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+body.photography.tall {
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* Top bar: logo left, contact info right. This header is the page's only
@@ -98,39 +116,10 @@ body.photography .pfp.no-logo span {
     display: inline;
 }
 
-/* Full-viewport scroller, continuous (no snapping). Wide screens scroll
-   horizontally, tall screens scroll vertically. Direction is set by
-   body.wide / body.tall. */
+/* The gallery is just the strip's wrapper: the document is the
+   scroller (see body.photography), continuous, no snapping. */
 body.photography .gallery {
-    /* Pinned to the visual viewport: exactly the visible screen in
-       both orientations, extending under Safari's floating bars.
-       Viewport-unit heights couldn't do this — 100dvh tracks the
-       chrome's current state and stops short of the edges, and
-       100lvh overshoots past the bottom in landscape. */
-    position: fixed;
-    inset: 0;
-    display: flex;
-    box-sizing: border-box;
-    /* The photos are centred: this margin runs on every side — the
-       strip's beginning and end included — and on the scroll-UI side it
-       lands the photos' edge halfway between the buttons' outer edge
-       and the edge of the screen. */
-    padding: calc((var(--lane) - 1.3125rem) / 4);
-    scrollbar-width: none; /* Firefox: no browser scrollbar — the page's
-                             own dot and pills are the scroll UI */
-}
-body.photography .gallery::-webkit-scrollbar {
-    display: none; /* Chrome / Safari: same */
-}
-body.photography.wide .gallery {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-}
-body.photography.tall .gallery {
-    flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
+    display: block;
 }
 /* The strip: photos keep their own proportions, lightly rounded corners,
    separated by a gap equal to the corner radius. Under the photos sits
@@ -142,10 +131,16 @@ body.photography .strip {
     display: flex;
     gap: var(--r);
     flex: 0 0 auto;
+    box-sizing: border-box;
+    /* The photos are centred: this margin runs on every side — the
+       strip's beginning and end included — and on the scroll-UI side
+       it lands the photos' edge halfway between the buttons' outer
+       edge and the edge of the screen. */
+    padding: calc((var(--lane) - 1.3125rem) / 4);
 }
 body.photography.wide .strip {
     flex-direction: row;
-    height: 100%;
+    height: 100dvh; /* the photo lane: the full visible height */
 }
 body.photography.tall .strip {
     flex-direction: column;
@@ -200,6 +195,11 @@ body.photography .backdrop {
     display: flex;
     gap: var(--r);
     pointer-events: none;
+    box-sizing: border-box;
+    /* The same padding as the strip, so the tiles line up with the
+       slides: this layer's box is the strip's padding box, and the
+       padding insets its flex layout to the strip's content box. */
+    padding: calc((var(--lane) - 1.3125rem) / 4);
 }
 body.photography.wide .backdrop {
     flex-direction: row;
