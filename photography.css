@@ -243,27 +243,29 @@ body.photography.wide .tile canvas {
     width: calc(100% + 160px);
     height: calc(100% + 86px);
 }
-/* The end tiles' canvases stop at the strip's ends instead of
-   spilling past them. Spill past the start is cut off by the scroll
-   origin anyway, but spill past the end counts as scrollable area —
-   the strip used to travel ~80px beyond the last photo, which read
-   as oversized end padding. The first/last tiles keep their
-   gap-side spill; only the outer side is trimmed. */
+/* The end tiles' canvases spill only a breath past the end photos —
+   exactly the strip's end-padding unit — instead of the full 80px.
+   A full spill past the end counts as scrollable area (the strip
+   used to travel ~80px beyond the last photo, which read as
+   oversized end padding), but none at all left the end bands black
+   while the rest of the page glows to the screen's edges. This much
+   fills the end band and fades out across it (see paintTile), and
+   adds no travel worth noticing. */
 body.photography.tall .tile:first-child canvas {
-    top: 0;
-    height: calc(100% + 80px);
+    top: calc((var(--lane) - 1.3125rem) / -4);
+    height: calc(100% + 80px + (var(--lane) - 1.3125rem) / 4);
 }
 body.photography.tall .tile:last-child canvas {
-    bottom: 0;
-    height: calc(100% + 80px);
+    bottom: calc((var(--lane) - 1.3125rem) / -4);
+    height: calc(100% + 80px + (var(--lane) - 1.3125rem) / 4);
 }
 body.photography.wide .tile:first-child canvas {
-    left: 0;
-    width: calc(100% + 80px);
+    left: calc((var(--lane) - 1.3125rem) / -4);
+    width: calc(100% + 80px + (var(--lane) - 1.3125rem) / 4);
 }
 body.photography.wide .tile:last-child canvas {
-    right: 0;
-    width: calc(100% + 80px);
+    right: calc((var(--lane) - 1.3125rem) / -4);
+    width: calc(100% + 80px + (var(--lane) - 1.3125rem) / 4);
 }
 
 

@@ -157,7 +157,7 @@
                 strip.className = "strip";
                 const pyrA = document.createElement("canvas");
                 const pyrB = document.createElement("canvas");
-                function paintTile(canvas, img, axisClient, fadeStart, fadeEnd) {
+                function paintTile(canvas, img, axisClient, rampStart, rampEnd) {
                     // Blur: a Kawase-style pyramid, baked into the
                     // bitmap — the tile element itself carries no CSS
                     // filter (a filter darkens an element's edges where
@@ -220,47 +220,50 @@
                     // spill), so where two tiles overlap in a gap each
                     // still carries most of its strength and the colors
                     // dissolve into each other. The strip's first and
-                    // last tiles skip the ramp on their outer side:
-                    // there is no neighbour out there to hand off to,
-                    // so the ramp would only drain their glow to black
-                    // against the page — without it their backdrop runs
-                    // full-strength to the strip's end. Doing this in the image data — instead
+                    // last tiles get only a short ramp on their outer
+                    // side — the width of the strip's end padding — so
+                    // their glow fills the end band and feathers out
+                    // exactly at the strip's edge instead of stopping
+                    // dead at the photo or draining across a full
+                    // spill there is no neighbour beyond to catch.
+                    // Doing this in the image data — instead
                     // of a CSS mask or blend mode — keeps the effect on
                     // the plainest compositing path.
                     const horizontal = document.body.classList.contains("wide");
                     const axisBitmap = horizontal ? canvas.width : canvas.height;
                     if (!axisClient) return;
-                    const ramp = Math.max(1, Math.round(80 * axisBitmap / axisClient));
+                    const rampS = Math.max(1, Math.round(rampStart * axisBitmap / axisClient));
+                    const rampE = Math.max(1, Math.round(rampEnd * axisBitmap / axisClient));
                     ctx.globalCompositeOperation = "destination-out";
                     if (horizontal) {
-                        if (fadeStart) {
-                            let g = ctx.createLinearGradient(0, 0, ramp, 0);
+                        if (rampStart > 0) {
+                            let g = ctx.createLinearGradient(0, 0, rampS, 0);
                             g.addColorStop(0, "rgba(0,0,0,1)");
                             g.addColorStop(1, "rgba(0,0,0,0)");
                             ctx.fillStyle = g;
-                            ctx.fillRect(0, 0, ramp, canvas.height);
+                            ctx.fillRect(0, 0, rampS, canvas.height);
                         }
-                        if (fadeEnd) {
-                            let g = ctx.createLinearGradient(canvas.width, 0, canvas.width - ramp, 0);
+                        if (rampEnd > 0) {
+                            let g = ctx.createLinearGradient(canvas.width, 0, canvas.width - rampE, 0);
                             g.addColorStop(0, "rgba(0,0,0,1)");
                             g.addColorStop(1, "rgba(0,0,0,0)");
                             ctx.fillStyle = g;
-                            ctx.fillRect(canvas.width - ramp, 0, ramp, canvas.height);
+                            ctx.fillRect(canvas.width - rampE, 0, rampE, canvas.height);
                         }
                     } else {
-                        if (fadeStart) {
-                            let g = ctx.createLinearGradient(0, 0, 0, ramp);
+                        if (rampStart > 0) {
+                            let g = ctx.createLinearGradient(0, 0, 0, rampS);
                             g.addColorStop(0, "rgba(0,0,0,1)");
                             g.addColorStop(1, "rgba(0,0,0,0)");
                             ctx.fillStyle = g;
-                            ctx.fillRect(0, 0, canvas.width, ramp);
+                            ctx.fillRect(0, 0, canvas.width, rampS);
                         }
-                        if (fadeEnd) {
-                            let g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - ramp);
+                        if (rampEnd > 0) {
+                            let g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - rampE);
                             g.addColorStop(0, "rgba(0,0,0,1)");
                             g.addColorStop(1, "rgba(0,0,0,0)");
                             ctx.fillStyle = g;
-                            ctx.fillRect(0, canvas.height - ramp, canvas.width, ramp);
+                            ctx.fillRect(0, canvas.height - rampE, canvas.width, rampE);
                         }
                     }
                     ctx.globalCompositeOperation = "source-over";
@@ -276,15 +279,18 @@
                 function axisClientFor(entry) {
                     const horizontal = document.body.classList.contains("wide");
                     const photo = horizontal ? entry.sizer.clientWidth : entry.sizer.clientHeight;
-                    // Middle tiles spill 80px past both ends; the
-                    // strip's first/last tiles spill only toward their
-                    // gap — their canvases stop at the strip's ends.
-                    const spill = (entry.isFirst || entry.isLast) ? 80 : 160;
+                    // Middle tiles spill 80px past both ends. The
+                    // strip's first/last tiles spill 80 toward their
+                    // gap and only the end-padding unit (7.75px)
+                    // outward, matching their canvases in the CSS.
+                    let spill = 160;
+                    if (entry.isFirst) spill -= 72.25;
+                    if (entry.isLast) spill -= 72.25;
                     return photo ? photo + spill : 0;
                 }
                 function tryPaint(entry) {
                     if (!entry.imgReady || !entry.sizerReady) return;
-                    paintTile(entry.tile, entry.img, axisClientFor(entry), !entry.isFirst, !entry.isLast);
+                    paintTile(entry.tile, entry.img, axisClientFor(entry), entry.isFirst ? 7.75 : 80, entry.isLast ? 7.75 : 80);
                 }
                 // If the screen rotates, the baked ramps sit on the wrong
                 // axis — repaint every loaded photo's halos on a flip.
@@ -474,7 +480,28 @@
                 }
                 if (!nudging && pos > 4) userScrolled = true;
             }
-            window.addEventListener("scroll", updateFade, { passive: true });
+            // Scroll events trail the real scroll on iOS — the page
+            // moves on the compositor while the event lands later —
+            // which made the dot lag behind the strip. While a scroll
+            // is in flight, sync from requestAnimationFrame instead:
+            // every frame reads the live position, and the loop stops
+            // once the position has settled for two frames.
+            let fadeRaf = null;
+            function requestFade() {
+                if (fadeRaf !== null) return;
+                let lastPos = null;
+                let settled = 0;
+                function step() {
+                    fadeRaf = null;
+                    updateFade();
+                    const p = scrollPos();
+                    if (p === lastPos) settled++;
+                    else { settled = 0; lastPos = p; }
+                    if (settled < 2) fadeRaf = requestAnimationFrame(step);
+                }
+                fadeRaf = requestAnimationFrame(step);
+            }
+            window.addEventListener("scroll", requestFade, { passive: true });
             window.addEventListener("resize", updateFade);
             updateFade();
             // Late-loading photos grow the strip after that first check,
