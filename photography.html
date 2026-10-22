@@ -179,7 +179,7 @@
                             pumpLoads();
                         };
                         entry.img.addEventListener("load", function () {
-                            updateFade();
+                            refreshFade();
                             settle();
                         });
                         entry.img.addEventListener("error", settle);
@@ -219,10 +219,64 @@
             let nudging = false;
             let userScrolled = false;
 
+            // Cached dot geometry: the pairs' tip anchors, the drag
+            // range, and the scrollable length, measured OUTSIDE the
+            // scroll loop (at start, on resize, and as photos land).
+            // updateFade used to re-read the pairs' layout boxes and
+            // recompute the length from the live window size on every
+            // frame — and while Safari's Liquid Glass bars grow and
+            // shrink during a scroll, those inputs move mid-gesture:
+            // a bottom-anchored pair's offsetTop rides the changing
+            // viewport, and innerHeight breathes with the bars, so
+            // the dot's target stretched and jumped under it — the
+            // stutter. With the geometry frozen for the length of a
+            // gesture the frame loop only writes styles, and the dot
+            // itself moves by transform, composited in step with the
+            // scroll. (The anchors come from layout boxes, not
+            // getBoundingClientRect: the pairs are mid-shrink while
+            // this runs, and the anchors must stay on the
+            // untransformed tips.)
+            let geom = null;
+            function measureGeom() {
+                const horizontal = document.body.classList.contains("wide");
+                const d = dot.offsetWidth;
+                const bL = backGroup.offsetLeft, bT = backGroup.offsetTop;
+                const bW = backGroup.offsetWidth, bH = backGroup.offsetHeight;
+                const fL = fwdGroup.offsetLeft, fT = fwdGroup.offsetTop;
+                const fW = fwdGroup.offsetWidth, fH = fwdGroup.offsetHeight;
+                let v0, v1, v2, v3, c0, c1;
+                if (horizontal) {
+                    v0 = bL; // the lead pair's start tip
+                    v1 = bL + bW + 8;
+                    v2 = fL - 8 - d;
+                    v3 = fL + fW - d; // the trail pair's end tip
+                    c0 = bL + d / 2; // drag range: pair centre to pair centre
+                    c1 = fL + fW - d / 2;
+                } else {
+                    v0 = bT;
+                    v1 = bT + bH + 8;
+                    v2 = fT - 8 - d;
+                    v3 = fT + fH - d;
+                    c0 = bT + d / 2;
+                    c1 = fT + fH - d / 2;
+                }
+                geom = { horizontal: horizontal, max: scrollMax(), v0: v0, v1: v1, v2: v2, v3: v3, c0: c0, c1: c1 };
+                // The dot's resting anchor is the lead tip; frames
+                // translate it from there.
+                if (horizontal) { dot.style.left = v0 + "px"; dot.style.top = ""; }
+                else { dot.style.top = v0 + "px"; dot.style.left = ""; }
+                dot.style.transform = "";
+            }
+            function refreshFade() {
+                measureGeom();
+                updateFade();
+            }
+
             function updateFade() {
                 const horizontal = document.body.classList.contains("wide");
+                if (!geom || geom.horizontal !== horizontal) measureGeom();
                 const pos = scrollPos();
-                const max = scrollMax();
+                const max = geom.max;
                 // (The black edge fades were removed 2026-10-21 at
                 // Jace's request.)
                 // Pair/dot merge at the ends. In the last MERGE px of
@@ -247,32 +301,14 @@
                     setPair(backGroup, Math.min(1, pos / MERGE));
                     setPair(fwdGroup, Math.min(1, (max - pos) / MERGE));
                     dot.classList.remove("off");
-                    const d = dot.offsetWidth;
-                    // Layout boxes, not getBoundingClientRect: the pairs
-                    // are mid-shrink (transformed) while this runs, and
-                    // the anchors must stay on the untransformed tips.
-                    const bL = backGroup.offsetLeft, bT = backGroup.offsetTop;
-                    const bW = backGroup.offsetWidth, bH = backGroup.offsetHeight;
-                    const fL = fwdGroup.offsetLeft, fT = fwdGroup.offsetTop;
-                    const fW = fwdGroup.offsetWidth, fH = fwdGroup.offsetHeight;
-                    let v0, v1, v2, v3;
-                    if (horizontal) {
-                        v0 = bL; // the lead pair's start tip
-                        v1 = bL + bW + 8;
-                        v2 = fL - 8 - d;
-                        v3 = fL + fW - d; // the trail pair's end tip
-                    } else {
-                        v0 = bT;
-                        v1 = bT + bH + 8;
-                        v2 = fT - 8 - d;
-                        v3 = fT + fH - d;
-                    }
                     let a;
-                    if (pos <= MERGE) a = v0 + (v1 - v0) * (pos / MERGE);
-                    else if (pos >= max - MERGE) a = v2 + (v3 - v2) * ((pos - (max - MERGE)) / MERGE);
-                    else a = v1 + (v2 - v1) * ((pos - MERGE) / (max - 2 * MERGE));
-                    if (horizontal) { dot.style.left = a + "px"; dot.style.top = ""; }
-                    else { dot.style.top = a + "px"; dot.style.left = ""; }
+                    if (pos <= MERGE) a = geom.v0 + (geom.v1 - geom.v0) * (pos / MERGE);
+                    else if (pos >= max - MERGE) a = geom.v2 + (geom.v3 - geom.v2) * ((pos - (max - MERGE)) / MERGE);
+                    else a = geom.v1 + (geom.v2 - geom.v1) * ((pos - MERGE) / (max - 2 * MERGE));
+                    const delta = a - geom.v0;
+                    dot.style.transform = horizontal
+                        ? "translateX(" + delta + "px)"
+                        : "translateY(" + delta + "px)";
                 }
                 if (!nudging && pos > 4) userScrolled = true;
             }
@@ -298,15 +334,16 @@
                 fadeRaf = requestAnimationFrame(step);
             }
             window.addEventListener("scroll", requestFade, { passive: true });
-            window.addEventListener("resize", updateFade);
-            updateFade();
-            // Late-loading photos grow the strip after that first check,
-            // when it can still measure zero overflow — re-check as each
-            // photo lands so the fade is correct from the start.
+            window.addEventListener("resize", refreshFade);
+            refreshFade();
+            // Late-loading photos grow the strip after that first
+            // check, when it can still measure zero overflow —
+            // re-measure as each photo lands so the geometry and the
+            // fade are correct from the start.
             gallery.querySelectorAll("img").forEach((img) => {
-                if (!img.complete) img.addEventListener("load", updateFade);
+                if (!img.complete) img.addEventListener("load", refreshFade);
             });
-            window.addEventListener("load", updateFade);
+            window.addEventListener("load", refreshFade);
 
             // The nudge: the strip eases out and back symmetrically on one
             // clock — zero speed at the start, the peak, and the end.
@@ -381,20 +418,11 @@
             let dotDragging = false;
             function scrubTo(e) {
                 const horizontal = document.body.classList.contains("wide");
-                const max = scrollMax();
+                if (!geom || geom.horizontal !== horizontal) measureGeom();
+                const max = geom.max;
                 if (max <= 0) return;
-                const dd = dot.offsetWidth;
-                let c0, c1, p;
-                if (horizontal) {
-                    c0 = backGroup.offsetLeft + dd / 2;
-                    c1 = fwdGroup.offsetLeft + fwdGroup.offsetWidth - dd / 2;
-                    p = e.clientX;
-                } else {
-                    c0 = backGroup.offsetTop + dd / 2;
-                    c1 = fwdGroup.offsetTop + fwdGroup.offsetHeight - dd / 2;
-                    p = e.clientY;
-                }
-                const f = Math.max(0, Math.min(1, (p - c0) / (c1 - c0)));
+                const p = horizontal ? e.clientX : e.clientY;
+                const f = Math.max(0, Math.min(1, (p - geom.c0) / (geom.c1 - geom.c0)));
                 setScrollPos(f * max);
             }
             dot.addEventListener("pointerdown", (e) => {
