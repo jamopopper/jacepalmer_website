@@ -135,38 +135,67 @@
                 // re-render (or fringe) when the page is zoomed.
                 const strip = document.createElement("div");
                 strip.className = "strip";
-                const tinyCanvas = document.createElement("canvas");
+                const pyrA = document.createElement("canvas");
+                const pyrB = document.createElement("canvas");
                 const blurCopy = document.createElement("canvas");
                 function paintTile(canvas, img, axisClient) {
-                    // Blur, baked in three stages, all inside the
+                    // Blur: a Kawase-style pyramid, baked into the
                     // bitmap — the tile element itself carries no CSS
                     // filter (a filter darkens an element's edges where
                     // it runs out of image, worst at the corners, and
                     // iOS re-renders filtered layers on pinch-zoom,
-                    // which made corner shadows come and go):
-                    // 1. shrink the photo hard onto a tiny canvas (the
-                    //    shrink is most of the blur);
-                    // 2. draw the tiny copy up into the tile bitmap
-                    //    BLED PAST the edges, so the blur pass's dark
-                    //    fringe lands outside the bitmap instead of on
-                    //    the photo's rim — and the tile's edge colors
-                    //    come from just inside the photo;
-                    // 3. a canvas blur pass over the bitmap.
-                    const TINY_W = 24;
-                    tinyCanvas.width = TINY_W;
-                    tinyCanvas.height = Math.max(1, Math.round(TINY_W * img.naturalHeight / img.naturalWidth));
-                    tinyCanvas.getContext("2d").drawImage(img, 0, 0, tinyCanvas.width, tinyCanvas.height);
+                    // which made corner shadows come and go). The photo
+                    // is halved step by step down to ~32px wide, then
+                    // doubled back up to the tile size: every step is a
+                    // proper local average, and stacked averages
+                    // converge on a Gaussian falloff — the Gaussian
+                    // look without ever running a real Gaussian over
+                    // the full-size photo. (The old one-step shrink to
+                    // a tiny canvas aliased into blotches and faceted
+                    // on the way back up.) All the passes run on small
+                    // canvases, once per photo, at load time.
+                    const aspect = img.naturalHeight / img.naturalWidth;
+                    let src = img;
+                    let sw = img.naturalWidth;
+                    let cur = pyrA;
+                    let nxt = pyrB;
+                    while (sw > 40) {
+                        const w = Math.max(1, Math.round(sw / 2));
+                        const h = Math.max(1, Math.round(w * aspect));
+                        cur.width = w;
+                        cur.height = h;
+                        cur.getContext("2d").drawImage(src, 0, 0, w, h);
+                        src = cur;
+                        sw = w;
+                        const t = cur; cur = nxt; nxt = t;
+                    }
+                    while (sw < 160) {
+                        const w = Math.min(160, sw * 2);
+                        const h = Math.max(1, Math.round(w * aspect));
+                        cur.width = w;
+                        cur.height = h;
+                        cur.getContext("2d").drawImage(src, 0, 0, w, h);
+                        src = cur;
+                        sw = w;
+                        const t = cur; cur = nxt; nxt = t;
+                    }
                     canvas.width = 160;
-                    canvas.height = Math.max(1, Math.round(160 * img.naturalHeight / img.naturalWidth));
+                    canvas.height = Math.max(1, Math.round(160 * aspect));
                     const ctx = canvas.getContext("2d");
+                    // Draw the pyramid's top level in BLED PAST the
+                    // edges, so the final blur pass's dark fringe lands
+                    // outside the bitmap instead of on the photo's rim
+                    // — and the tile's edge colors come from just
+                    // inside the photo.
                     const bleedX = Math.round(canvas.width * 0.15);
                     const bleedY = Math.round(canvas.height * 0.15);
-                    ctx.drawImage(tinyCanvas, -bleedX, -bleedY, canvas.width + 2 * bleedX, canvas.height + 2 * bleedY);
+                    ctx.drawImage(src, -bleedX, -bleedY, canvas.width + 2 * bleedX, canvas.height + 2 * bleedY);
+                    // One light blur pass as a final polish.
                     blurCopy.width = canvas.width;
                     blurCopy.height = canvas.height;
                     blurCopy.getContext("2d").drawImage(canvas, 0, 0);
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.filter = "blur(10px)";
+                    ctx.filter = "blur(4px)";
                     ctx.drawImage(blurCopy, 0, 0);
                     ctx.filter = "none";
                     // Bake the crossfade into the bitmap itself: erase a
