@@ -259,23 +259,27 @@ body.photography .btngroup {
        every frame so the pair and the dot merge in lockstep. */
 }
 body.photography.tall .btngroup.trail {
-    bottom: 0.5rem;
-    right: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
+    /* Both offsets are the lane-centring value, so the pill's end is
+       the same distance from the screen's bottom edge (and from the
+       photos' end edge) as its side is from the screen's right edge
+       (and the photos' side edge). */
+    bottom: calc((var(--lane) - 1.3125rem) / 2);
+    right: calc((var(--lane) - 1.3125rem) / 2);
     flex-direction: column;
 }
 body.photography.wide .btngroup.trail {
-    right: 0.5rem;
-    bottom: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
+    right: calc((var(--lane) - 1.3125rem) / 2);
+    bottom: calc((var(--lane) - 1.3125rem) / 2);
     flex-direction: row;
 }
 body.photography.tall .btngroup.lead {
-    top: 7.25rem; /* below the top bar, which ends ~114px down */
+    top: 7.25rem; /* below the top bar, which ends ~98px down */
     right: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
     flex-direction: column;
 }
 body.photography.wide .btngroup.lead {
-    left: 0.5rem;
-    bottom: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
+    left: calc((var(--lane) - 1.3125rem) / 2);
+    bottom: calc((var(--lane) - 1.3125rem) / 2);
     flex-direction: row;
 }
 /* Scroll progress dot: a white disc matching the pills' narrow
