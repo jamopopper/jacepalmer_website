@@ -116,6 +116,26 @@
 
             const gallery = document.getElementById("gallery");
 
+            // The document itself is the scroller (the gallery element
+            // is only the strip's wrapper), so scroll reads and writes
+            // go to the root element. This is also what lets iOS
+            // Safari run the content under its top/bottom bars, like
+            // a normal page — an inner container's scrolling never
+            // reaches the glass.
+            const scroller = document.documentElement;
+            function scrollPos() {
+                return document.body.classList.contains("wide") ? window.scrollX : window.scrollY;
+            }
+            function scrollMax() {
+                return document.body.classList.contains("wide")
+                    ? scroller.scrollWidth - window.innerWidth
+                    : scroller.scrollHeight - window.innerHeight;
+            }
+            function setScrollPos(v) {
+                if (document.body.classList.contains("wide")) scroller.scrollLeft = v;
+                else scroller.scrollTop = v;
+            }
+
             function showEmpty(message) {
                 const empty = document.createElement("div");
                 empty.className = "slide endcard";
@@ -126,172 +146,10 @@
             if (PORTFOLIO_IMAGES.length === 0) {
                 showEmpty("Portfolio coming soon.");
             } else {
-                // The strip holds the photos over a separate backdrop
-                // layer of blurred tiles (one per photo, sized by an
-                // invisible copy of the photo). When a photo loads,
-                // it's drawn into its tile's canvas at a tiny size
-                // with all of the blur baked in — no CSS filter is
-                // involved, so there is nothing for the browser to
-                // re-render (or fringe) when the page is zoomed.
+                // The strip holds the photos on the page's plain
+                // black ground — no backdrop layer, no blur.
                 const strip = document.createElement("div");
                 strip.className = "strip";
-                const pyrA = document.createElement("canvas");
-                const pyrB = document.createElement("canvas");
-                function paintTile(canvas, img, axisClient, fadeStart, fadeEnd) {
-                    // Blur: a Kawase-style pyramid, baked into the
-                    // bitmap — the tile element itself carries no CSS
-                    // filter (a filter darkens an element's edges where
-                    // it runs out of image, worst at the corners, and
-                    // iOS re-renders filtered layers on pinch-zoom,
-                    // which made corner shadows come and go). The photo
-                    // is cut step by step down to ~32px wide, then
-                    // doubled back up to the tile size: every step is a
-                    // proper local average, and stacked averages
-                    // converge on a Gaussian falloff — the Gaussian
-                    // look without ever running a real Gaussian over
-                    // the full-size photo. (The old one-step shrink to
-                    // a tiny canvas aliased into blotches and faceted
-                    // on the way back up.) The first step quarters the
-                    // photo, skipping the 2000px intermediate — the
-                    // most expensive pass — then halves carry it the
-                    // rest of the way down. (Cutting by thirds all the
-                    // way left the kernel visibly box-shaped; the
-                    // halves converge smoother.) All the passes run
-                    // once per photo, at load time.
-                    const aspect = img.naturalHeight / img.naturalWidth;
-                    let src = img;
-                    let sw = img.naturalWidth;
-                    let cur = pyrA;
-                    let nxt = pyrB;
-                    function step(w) {
-                        const h = Math.max(1, Math.round(w * aspect));
-                        cur.width = w;
-                        cur.height = h;
-                        cur.getContext("2d").drawImage(src, 0, 0, w, h);
-                        src = cur;
-                        sw = w;
-                        const t = cur; cur = nxt; nxt = t;
-                    }
-                    step(Math.max(1, Math.round(img.naturalWidth / 4)));
-                    while (sw > 32) step(Math.max(1, Math.round(sw / 2)));
-                    while (sw < 160) step(Math.min(160, sw * 2));
-                    canvas.width = 160;
-                    canvas.height = Math.max(1, Math.round(160 * aspect));
-                    const ctx = canvas.getContext("2d");
-                    // Draw the pyramid's top level in BLED PAST the
-                    // edges, with one light blur applied to the draw
-                    // itself as a final polish — the blur's dark fringe
-                    // lands outside the bitmap instead of on the photo's
-                    // rim, and the tile's edge colors come from just
-                    // inside the photo. (The polish used to be a
-                    // separate copy-clear-redraw pass over the finished
-                    // bitmap; that dance could lose the bitmap entirely
-                    // on a loaded main thread — a tile with no backdrop
-                    // at all — so the blur now happens inside the one
-                    // draw that fills the tile.)
-                    const bleedX = Math.round(canvas.width * 0.15);
-                    const bleedY = Math.round(canvas.height * 0.15);
-                    ctx.filter = "blur(4px)";
-                    ctx.drawImage(src, -bleedX, -bleedY, canvas.width + 2 * bleedX, canvas.height + 2 * bleedY);
-                    ctx.filter = "none";
-                    // Bake the crossfade into the bitmap itself: erase a
-                    // ramp at each end of the scroll axis (full erase at
-                    // the edge, none 80px in — the length of the tile's
-                    // spill), so where two tiles overlap in a gap each
-                    // still carries most of its strength and the colors
-                    // dissolve into each other. The strip's first and
-                    // last tiles skip the ramp on their outer side:
-                    // there is no neighbour out there to hand off to,
-                    // so the ramp would only drain their glow to black
-                    // against the page — without it their backdrop runs
-                    // full-strength to the strip's end. Doing this in the image data — instead
-                    // of a CSS mask or blend mode — keeps the effect on
-                    // the plainest compositing path.
-                    const horizontal = document.body.classList.contains("wide");
-                    const axisBitmap = horizontal ? canvas.width : canvas.height;
-                    if (!axisClient) return;
-                    const ramp = Math.max(1, Math.round(80 * axisBitmap / axisClient));
-                    ctx.globalCompositeOperation = "destination-out";
-                    if (horizontal) {
-                        if (fadeStart) {
-                            let g = ctx.createLinearGradient(0, 0, ramp, 0);
-                            g.addColorStop(0, "rgba(0,0,0,1)");
-                            g.addColorStop(1, "rgba(0,0,0,0)");
-                            ctx.fillStyle = g;
-                            ctx.fillRect(0, 0, ramp, canvas.height);
-                        }
-                        if (fadeEnd) {
-                            let g = ctx.createLinearGradient(canvas.width, 0, canvas.width - ramp, 0);
-                            g.addColorStop(0, "rgba(0,0,0,1)");
-                            g.addColorStop(1, "rgba(0,0,0,0)");
-                            ctx.fillStyle = g;
-                            ctx.fillRect(canvas.width - ramp, 0, ramp, canvas.height);
-                        }
-                    } else {
-                        if (fadeStart) {
-                            let g = ctx.createLinearGradient(0, 0, 0, ramp);
-                            g.addColorStop(0, "rgba(0,0,0,1)");
-                            g.addColorStop(1, "rgba(0,0,0,0)");
-                            ctx.fillStyle = g;
-                            ctx.fillRect(0, 0, canvas.width, ramp);
-                        }
-                        if (fadeEnd) {
-                            let g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - ramp);
-                            g.addColorStop(0, "rgba(0,0,0,1)");
-                            g.addColorStop(1, "rgba(0,0,0,0)");
-                            ctx.fillStyle = g;
-                            ctx.fillRect(0, canvas.height - ramp, canvas.width, ramp);
-                        }
-                    }
-                    ctx.globalCompositeOperation = "source-over";
-                }
-                // The tile canvas's length along the scroll axis, read
-                // from the photo's sizer copy (which is what sizes the
-                // tile) plus the canvas's spill past both ends. The ramp
-                // math needs this length, and it must come from the
-                // sizer: painting used to measure the canvas itself at
-                // photo-load time, when the tile might not have its
-                // size yet — a lost race erased most of the bitmap and
-                // the backdrop came out faint or missing entirely.
-                function axisClientFor(entry) {
-                    const horizontal = document.body.classList.contains("wide");
-                    const photo = horizontal ? entry.sizer.clientWidth : entry.sizer.clientHeight;
-                    // Middle tiles spill 80px past both ends; the
-                    // strip's first/last tiles spill only toward their
-                    // gap — their canvases stop at the strip's ends.
-                    const spill = (entry.isFirst || entry.isLast) ? 80 : 160;
-                    return photo ? photo + spill : 0;
-                }
-                function tryPaint(entry) {
-                    if (!entry.imgReady || !entry.sizerReady) return;
-                    paintTile(entry.tile, entry.img, axisClientFor(entry), !entry.isFirst, !entry.isLast);
-                }
-                // If the screen rotates, the baked ramps sit on the wrong
-                // axis — repaint every loaded photo's halos on a flip.
-                // Seeded from the window's shape rather than the body
-                // class: the class isn't set until setOrientation()
-                // runs, and this handler must run it BEFORE checking
-                // for a flip — the repaint used to check the class
-                // before anything had updated it, concluded "no flip"
-                // on every rotation, and left the ramps baked on the
-                // old axis until a reload.
-                let lastWide = window.innerWidth >= window.innerHeight;
-                window.addEventListener("resize", function () {
-                    setOrientation();
-                    const nowWide = document.body.classList.contains("wide");
-                    if (nowWide === lastWide) return;
-                    lastWide = nowWide;
-                    queue.forEach(function (entry) {
-                        if (entry.img.complete && entry.img.naturalWidth > 0) {
-                            entry.sizerReady = true;
-                            tryPaint(entry);
-                        }
-                    });
-                });
-                const backdrop = document.createElement("div");
-                backdrop.className = "backdrop";
-                backdrop.setAttribute("aria-hidden", "true");
-                strip.appendChild(backdrop);
                 const queue = [];
                 for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
@@ -300,20 +158,7 @@
                     img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
                     slide.appendChild(img);
                     strip.appendChild(slide);
-                    const tile = document.createElement("div");
-                    tile.className = "tile";
-                    const sizer = document.createElement("img");
-                    sizer.className = "sizer";
-                    sizer.alt = "";
-                    tile.appendChild(sizer);
-                    const tileCanvas = document.createElement("canvas");
-                    tile.appendChild(tileCanvas);
-                    backdrop.appendChild(tile);
-                    queue.push({ img: img, file: file, sizer: sizer, tile: tileCanvas });
-                }
-                if (queue.length) {
-                    queue[0].isFirst = true;
-                    queue[queue.length - 1].isLast = true;
+                    queue.push({ img: img, file: file });
                 }
                 gallery.appendChild(strip);
                 // Photos load in a small rolling window (a few in
@@ -334,44 +179,21 @@
                             pumpLoads();
                         };
                         entry.img.addEventListener("load", function () {
-                            entry.imgReady = true;
-                            tryPaint(entry);
                             updateFade();
                             settle();
                         });
                         entry.img.addEventListener("error", settle);
-                        entry.sizer.addEventListener("load", function () {
-                            entry.sizerReady = true;
-                            tryPaint(entry);
-                        });
-                        entry.sizer.addEventListener("error", function () {
-                            entry.sizerReady = true;
-                            tryPaint(entry);
-                        });
                         entry.img.src = PORTFOLIO_DIR + entry.file;
-                        entry.sizer.src = entry.img.src;
                     }
                 }
                 pumpLoads();
-                // The first tiles paint during the page's initial
-                // layout burst, while the main thread is saturated
-                // with image decodes — and a canvas painted in that
-                // window can lose its commit (a backdrop that never
-                // appears; a refresh drops a different one). Once the
-                // page has fully loaded, repaint every ready tile:
-                // identical output, committed from a settled page.
-                window.addEventListener("load", function () {
-                    queue.forEach(function (entry) {
-                        if (entry.imgReady && entry.sizerReady) tryPaint(entry);
-                    });
-                });
             }
 
             // Scroll direction follows the screen shape: wider screens scroll
             // horizontally, taller screens scroll vertically. Re-evaluated on
             // resize so rotating a phone/tablet just works. No platform
-            // detection anywhere — wheel and touch both drive the native
-            // scroll container on their own.
+            // detection anywhere — wheel and touch both drive the
+            // document's own scrolling.
             function setOrientation() {
                 document.body.classList.toggle("wide", window.innerWidth >= window.innerHeight);
                 document.body.classList.toggle("tall", window.innerWidth < window.innerHeight);
@@ -399,12 +221,10 @@
 
             function updateFade() {
                 const horizontal = document.body.classList.contains("wide");
-                const pos = horizontal ? gallery.scrollLeft : gallery.scrollTop;
-                const max = horizontal
-                    ? gallery.scrollWidth - gallery.clientWidth
-                    : gallery.scrollHeight - gallery.clientHeight;
+                const pos = scrollPos();
+                const max = scrollMax();
                 // (The black edge fades were removed 2026-10-21 at
-                // Jace's request — the blurred backdrop does that job.)
+                // Jace's request.)
                 // Pair/dot merge at the ends. In the last MERGE px of
                 // scroll at either end, that end's pair fades out and
                 // shrinks toward its far end (its transform origin sits
@@ -456,7 +276,28 @@
                 }
                 if (!nudging && pos > 4) userScrolled = true;
             }
-            gallery.addEventListener("scroll", updateFade, { passive: true });
+            // Scroll events trail the real scroll on iOS — the page
+            // moves on the compositor while the event lands later —
+            // which made the dot lag behind the strip. While a scroll
+            // is in flight, sync from requestAnimationFrame instead:
+            // every frame reads the live position, and the loop stops
+            // once the position has settled for two frames.
+            let fadeRaf = null;
+            function requestFade() {
+                if (fadeRaf !== null) return;
+                let lastPos = null;
+                let settled = 0;
+                function step() {
+                    fadeRaf = null;
+                    updateFade();
+                    const p = scrollPos();
+                    if (p === lastPos) settled++;
+                    else { settled = 0; lastPos = p; }
+                    if (settled < 2) fadeRaf = requestAnimationFrame(step);
+                }
+                fadeRaf = requestAnimationFrame(step);
+            }
+            window.addEventListener("scroll", requestFade, { passive: true });
             window.addEventListener("resize", updateFade);
             updateFade();
             // Late-loading photos grow the strip after that first check,
@@ -474,7 +315,6 @@
                 : 1 - Math.pow(-2 * t + 2, 3) / 2;
             let nudgeCancelled = false;
             function runNudge() {
-                const horizontal = document.body.classList.contains("wide");
                 const distance = 48;
                 const duration = SCROLL_MS;
                 const start = performance.now();
@@ -487,9 +327,7 @@
                     if (nudgeCancelled) { finish(); return; }
                     const p = Math.min((now - start) / duration, 1);
                     const out = p < 0.5 ? easeInOut(p * 2) : easeInOut(2 - p * 2);
-                    const pos = distance * out;
-                    if (horizontal) gallery.scrollLeft = pos;
-                    else gallery.scrollTop = pos;
+                    setScrollPos(distance * out);
                     if (p < 1) requestAnimationFrame(frame);
                     else finish();
                 }
@@ -501,18 +339,15 @@
                 nudgeCancelled = true;
                 buttonAnim = null;
             }
-            gallery.addEventListener("wheel", cancelAnimations, { passive: true });
-            gallery.addEventListener("touchstart", cancelAnimations, { passive: true });
+            window.addEventListener("wheel", cancelAnimations, { passive: true });
+            window.addEventListener("touchstart", cancelAnimations, { passive: true });
 
             // Arrow buttons: smooth-scroll 80% of the screen dimension in
             // the strip's direction, eased like the nudge over BUTTON_MS.
             function smoothScrollBy(delta) {
                 cancelAnimations();
-                const horizontal = document.body.classList.contains("wide");
-                const from = horizontal ? gallery.scrollLeft : gallery.scrollTop;
-                const max = horizontal
-                    ? gallery.scrollWidth - gallery.clientWidth
-                    : gallery.scrollHeight - gallery.clientHeight;
+                const from = scrollPos();
+                const max = scrollMax();
                 const to = Math.max(0, Math.min(max, from + delta));
                 if (to === from) return;
                 const token = {};
@@ -521,9 +356,7 @@
                 function frame(now) {
                     if (buttonAnim !== token) return;
                     const p = Math.min((now - start) / BUTTON_MS, 1);
-                    const value = from + (to - from) * easeInOut(p);
-                    if (horizontal) gallery.scrollLeft = value;
-                    else gallery.scrollTop = value;
+                    setScrollPos(from + (to - from) * easeInOut(p));
                     if (p < 1) requestAnimationFrame(frame);
                     else buttonAnim = null;
                 }
@@ -531,7 +364,7 @@
             }
             function screenDelta(sign) {
                 const horizontal = document.body.classList.contains("wide");
-                return sign * 0.8 * (horizontal ? gallery.clientWidth : gallery.clientHeight);
+                return sign * 0.8 * (horizontal ? window.innerWidth : window.innerHeight);
             }
             fwdBtn.addEventListener("click", () => smoothScrollBy(screenDelta(1)));
             backBtn.addEventListener("click", () => smoothScrollBy(screenDelta(-1)));
@@ -548,9 +381,7 @@
             let dotDragging = false;
             function scrubTo(e) {
                 const horizontal = document.body.classList.contains("wide");
-                const max = horizontal
-                    ? gallery.scrollWidth - gallery.clientWidth
-                    : gallery.scrollHeight - gallery.clientHeight;
+                const max = scrollMax();
                 if (max <= 0) return;
                 const dd = dot.offsetWidth;
                 let c0, c1, p;
@@ -564,8 +395,7 @@
                     p = e.clientY;
                 }
                 const f = Math.max(0, Math.min(1, (p - c0) / (c1 - c0)));
-                if (horizontal) gallery.scrollLeft = f * max;
-                else gallery.scrollTop = f * max;
+                setScrollPos(f * max);
             }
             dot.addEventListener("pointerdown", (e) => {
                 dotDragging = true;

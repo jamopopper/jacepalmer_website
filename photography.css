@@ -23,16 +23,34 @@
 
 html {
     font-family: 'Courier New', monospace;
+    scrollbar-width: none; /* the document is the scroller now; its
+                             scrollbar stays hidden — the page's own
+                             dot and pills are the scroll UI */
+}
+html::-webkit-scrollbar {
+    display: none; /* Chrome / Safari: same */
 }
 
 body.photography {
     margin: 0;
     padding: 0;
-    width: 100vw;
-    height: 100dvh;
-    overflow: hidden; /* the gallery handles all scrolling */
+    /* The document itself is the scroller, like a normal page: iOS
+       Safari only composites a root scroller's content under its
+       top/bottom bars, while an inner scroll container's content
+       stops at the layout boundary, short of the glass. The
+       orientation rules pick the scrolling axis; the other axis is
+       locked so the strip can't drift sideways. */
+    overscroll-behavior: none;
     background-color: var(--bkgnd);
     color: var(--text);
+}
+body.photography.wide {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+body.photography.tall {
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* Top bar: logo left, contact info right. This header is the page's only
@@ -98,54 +116,29 @@ body.photography .pfp.no-logo span {
     display: inline;
 }
 
-/* Full-viewport scroller, continuous (no snapping). Wide screens scroll
-   horizontally, tall screens scroll vertically. Direction is set by
-   body.wide / body.tall. */
+/* The gallery is just the strip's wrapper: the document is the
+   scroller (see body.photography), continuous, no snapping. */
 body.photography .gallery {
-    /* Pinned to the visual viewport: exactly the visible screen in
-       both orientations, extending under Safari's floating bars.
-       Viewport-unit heights couldn't do this — 100dvh tracks the
-       chrome's current state and stops short of the edges, and
-       100lvh overshoots past the bottom in landscape. */
-    position: fixed;
-    inset: 0;
-    display: flex;
-    box-sizing: border-box;
-    /* The photos are centred: this margin runs on every side — the
-       strip's beginning and end included — and on the scroll-UI side it
-       lands the photos' edge halfway between the buttons' outer edge
-       and the edge of the screen. */
-    padding: calc((var(--lane) - 1.3125rem) / 4);
-    scrollbar-width: none; /* Firefox: no browser scrollbar — the page's
-                             own dot and pills are the scroll UI */
+    display: block;
 }
-body.photography .gallery::-webkit-scrollbar {
-    display: none; /* Chrome / Safari: same */
-}
-body.photography.wide .gallery {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-}
-body.photography.tall .gallery {
-    flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-/* The strip: photos keep their own proportions, lightly rounded corners,
-   separated by a gap equal to the corner radius. Under the photos sits
-   a backdrop layer (see .backdrop below) of blurred tiles, one per
-   photo, so the gaps and the scroll lane glow with the nearest
-   photos' colors, mixing where they meet. */
+/* The strip: photos keep their own proportions, lightly rounded
+   corners, separated by a gap equal to the corner radius, laid out
+   on the page's plain black ground. */
 body.photography .strip {
     position: relative;
     display: flex;
     gap: var(--r);
     flex: 0 0 auto;
+    box-sizing: border-box;
+    /* The photos are centred: this margin runs on every side — the
+       strip's beginning and end included — and on the scroll-UI side
+       it lands the photos' edge halfway between the buttons' outer
+       edge and the edge of the screen. */
+    padding: calc((var(--lane) - 1.3125rem) / 4);
 }
 body.photography.wide .strip {
     flex-direction: row;
-    height: 100%;
+    height: 100dvh; /* the photo lane: the full visible height */
 }
 body.photography.tall .strip {
     flex-direction: column;
@@ -173,97 +166,6 @@ body.photography.tall .slide img {
     height: auto;
     display: block;
     margin: 0;
-}
-
-/* The backdrop layer: a separate layer inside the strip, under the
-   photos (z-index 0 against the slides' 1), mirroring the strip's
-   layout with one tile per photo. Each tile is sized by an invisible
-   copy of its photo (the sizer image), so a tile always matches its
-   photo exactly and the layer can't drift, collapse, or pile up.
-   The tile's canvas is a tiny baked-blur copy of the photo (painted
-   by the script when the photo loads) spilling 80px past the photo
-   along the scroll axis — hidden under the neighbouring photos,
-   visible in the gap and the lane. All of the blur is baked into
-   the bitmap (see paintTile): there is deliberately no CSS filter
-   on the tile — a filter darkens an element's edges where it runs
-   out of image (worst at the corners), and iOS Safari re-renders
-   filtered layers when the page is pinch-zoomed, which made those
-   corner shadows come and go. The crossfade in each gap is
-   baked into the canvases as an alpha ramp over the spill (see
-   paintTile in the script). No masks and no blend modes: the mask
-   zeroed the spill outright, and the screen blend composited in
-   Chromium but not in iOS Safari's scroller. */
-body.photography .backdrop {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    display: flex;
-    gap: var(--r);
-    pointer-events: none;
-}
-body.photography.wide .backdrop {
-    flex-direction: row;
-}
-body.photography.tall .backdrop {
-    flex-direction: column;
-}
-body.photography .tile {
-    position: relative;
-    flex: 0 0 auto;
-    margin: 0;
-    padding: 0;
-    line-height: 0;
-}
-body.photography .tile img.sizer {
-    display: block;
-    margin: 0;
-    visibility: hidden;
-}
-body.photography.wide .tile img.sizer {
-    height: 100%;
-    width: auto;
-}
-body.photography.tall .tile img.sizer {
-    width: 100%;
-    height: auto;
-}
-body.photography .tile canvas {
-    position: absolute;
-    object-fit: fill;
-    border-radius: 0;
-    pointer-events: none;
-}
-body.photography.tall .tile canvas {
-    inset: -80px -60px -80px -26px;
-    width: calc(100% + 86px);
-    height: calc(100% + 160px);
-}
-body.photography.wide .tile canvas {
-    inset: -26px -80px -60px -80px;
-    width: calc(100% + 160px);
-    height: calc(100% + 86px);
-}
-/* The end tiles' canvases stop at the strip's ends instead of
-   spilling past them. Spill past the start is cut off by the scroll
-   origin anyway, but spill past the end counts as scrollable area —
-   the strip used to travel ~80px beyond the last photo, which read
-   as oversized end padding. The first/last tiles keep their
-   gap-side spill; only the outer side is trimmed. */
-body.photography.tall .tile:first-child canvas {
-    top: 0;
-    height: calc(100% + 80px);
-}
-body.photography.tall .tile:last-child canvas {
-    bottom: 0;
-    height: calc(100% + 80px);
-}
-body.photography.wide .tile:first-child canvas {
-    left: 0;
-    width: calc(100% + 80px);
-}
-body.photography.wide .tile:last-child canvas {
-    right: 0;
-    width: calc(100% + 80px);
 }
 
 
