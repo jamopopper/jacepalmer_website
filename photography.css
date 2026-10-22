@@ -29,10 +29,7 @@ body.photography {
     margin: 0;
     padding: 0;
     width: 100vw;
-    height: 100lvh; /* large viewport: the full physical screen, so
-                       content reaches under Safari's floating bars —
-                       100dvh tracks the chrome's current state and
-                       stops short of the edges while the bar is up */
+    height: 100dvh;
     overflow: hidden; /* the gallery handles all scrolling */
     background-color: var(--bkgnd);
     color: var(--text);
@@ -105,9 +102,14 @@ body.photography .pfp.no-logo span {
    horizontally, tall screens scroll vertically. Direction is set by
    body.wide / body.tall. */
 body.photography .gallery {
+    /* Pinned to the visual viewport: exactly the visible screen in
+       both orientations, extending under Safari's floating bars.
+       Viewport-unit heights couldn't do this — 100dvh tracks the
+       chrome's current state and stops short of the edges, and
+       100lvh overshoots past the bottom in landscape. */
+    position: fixed;
+    inset: 0;
     display: flex;
-    width: 100vw;
-    height: 100lvh; /* see body: full physical screen, under the bars */
     box-sizing: border-box;
     /* The photos are centred: this margin runs on every side — the
        strip's beginning and end included — and on the scroll-UI side it
