@@ -128,15 +128,11 @@
             if (PORTFOLIO_IMAGES.length === 0) {
                 showEmpty("Portfolio coming soon.");
             } else {
-                // The strip holds the photos; behind them, each photo
-                // gets its own blurred halo filling the gaps and the
+                // The strip holds the photos; each photo carries its
+                // own blurred halo behind it, filling the gaps and the
                 // scroll lane with the photos' own colors.
                 const strip = document.createElement("div");
                 strip.className = "strip";
-                const halos = document.createElement("div");
-                halos.className = "halos";
-                halos.setAttribute("aria-hidden", "true");
-                strip.appendChild(halos);
                 for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
                     slide.className = "slide";
@@ -146,16 +142,14 @@
                     img.loading = "lazy";
                     slide.appendChild(img);
                     strip.appendChild(slide);
-                    const haloSlide = document.createElement("div");
-                    haloSlide.className = "slide";
                     const haloImg = document.createElement("img");
                     haloImg.className = "halo";
-                    haloImg.src = PORTFOLIO_DIR + file;
+                    haloImg.src = src;
                     haloImg.alt = "";
+                    haloImg.setAttribute("aria-hidden", "true");
                     haloImg.loading = "lazy";
                     haloImg.draggable = false;
-                    haloSlide.appendChild(haloImg);
-                    halos.appendChild(haloSlide);
+                    slide.appendChild(haloImg);
                 }
                 gallery.appendChild(strip);
             }

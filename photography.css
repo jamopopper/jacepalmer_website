@@ -104,12 +104,9 @@ body.photography.tall .gallery {
     padding-right: var(--lane); /* the lane: blurred backdrop only */
 }
 /* The strip: photos keep their own proportions, lightly rounded corners,
-   separated by a gap equal to the corner radius. Behind them, each photo
-   has its own blurred halo (see img.halo below), so the gaps and the
-   scroll lane glow with the nearest photos' colors. The halo layer
-   extends one lane past the photo area so the lane is covered too; that
-   extension is on the cross axis, which the gallery clips, so it never
-   adds scrollable overflow. */
+   separated by a gap equal to the corner radius. Behind each photo sits
+   its own blurred halo (see img.halo below), so the gaps and the scroll
+   lane glow with the nearest photos' colors, mixing where they meet. */
 body.photography .strip {
     position: relative;
     display: flex;
@@ -123,36 +120,6 @@ body.photography.wide .strip {
 body.photography.tall .strip {
     flex-direction: column;
     width: 100%;
-}
-body.photography .halos {
-    position: absolute;
-    z-index: 0;
-    display: flex;
-    gap: var(--r);
-    pointer-events: none;
-}
-body.photography.wide .halos {
-    top: 0;
-    right: 0;
-    bottom: calc(-1 * var(--lane));
-    left: 0;
-    flex-direction: row;
-}
-body.photography.tall .halos {
-    top: 0;
-    right: calc(-1 * var(--lane));
-    bottom: 0;
-    left: 0;
-    flex-direction: column;
-}
-/* Halo slides must match the real slides' size, but the halo layer is
-   one lane taller/wider than the strip — so size them to the layer
-   minus the lane instead of letting them stretch. */
-body.photography.wide .halos .slide {
-    height: calc(100% - var(--lane));
-}
-body.photography.tall .halos .slide {
-    width: calc(100% - var(--lane));
 }
 body.photography .slide {
     position: relative;
@@ -177,31 +144,34 @@ body.photography.tall .slide img {
     display: block;
     margin: 0;
 }
-/* Per-photo halos: each halo is an oversized blurred copy of its own
-   photo (a small, cheap layer — no giant filtered surface for the
-   browser to tile or drop). It spills past the photo's frame on every
-   side — far enough on the lane side to cross the whole lane — and a
-   mask fades it out along the scroll axis, so neighbouring halos
-   cross-blend inside the gaps instead of meeting at a crease. */
-body.photography .strip .halos .slide img.halo {
+/* Per-photo halos: each photo's own blurred backdrop lives INSIDE its
+   slide, behind the photo itself — the slide is sized by the real
+   photo, so the halo can never drift, collapse, or pile up. The halo
+   spills one gap-width past the photo along the scroll axis (60px on
+   the lane side, enough to cross the whole lane) and a mask fades it
+   across that spill, so two neighbouring halos meet mid-gap and
+   cross-blend like light through frosted glass. */
+body.photography .slide img.halo {
     position: absolute;
+    z-index: -1;
     object-fit: cover;
     border-radius: 0;
     filter: blur(32px) brightness(0.65);
+    pointer-events: none;
 }
-body.photography.tall .strip .halos .slide img.halo {
-    inset: -26px -60px -26px -26px;
+body.photography.tall .slide img.halo {
+    inset: -14px -60px -14px -26px;
     width: calc(100% + 86px);
-    height: calc(100% + 52px);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%);
+    height: calc(100% + 28px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
 }
-body.photography.wide .strip .halos .slide img.halo {
-    inset: -26px -26px -60px -26px;
-    width: calc(100% + 52px);
+body.photography.wide .slide img.halo {
+    inset: -26px -14px -60px -14px;
+    width: calc(100% + 28px);
     height: calc(100% + 86px);
-    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
 }
 
 /* Scroll cues. Edge fades: soft gradients on both edges of the strip,
