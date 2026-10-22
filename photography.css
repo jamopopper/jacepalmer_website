@@ -201,6 +201,8 @@ body.photography .scrollbtn svg {
 body.photography .btngroup {
     position: fixed;
     z-index: 6;
+    will-change: transform; /* own layer, like the dot: it scales
+                              every frame near the strip's ends */
     display: flex;
     gap: 2px; /* a hairline seam where the pill splits */
     /* No transition: the script drives opacity/scale from scroll position
@@ -254,6 +256,10 @@ body.photography.wide .btngroup.lead {
 body.photography .scrolldot {
     position: fixed;
     z-index: 6;
+    /* Own layer: the dot translates every frame while scrolling, and
+       repainting it in the page layer (while Safari re-renders its
+       glass bars) drops frames. Composited, it rides the scroll. */
+    will-change: transform;
     width: 1.3125rem;
     height: 1.3125rem;
     border-radius: 50%;

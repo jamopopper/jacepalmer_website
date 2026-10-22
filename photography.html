@@ -179,7 +179,7 @@
                             pumpLoads();
                         };
                         entry.img.addEventListener("load", function () {
-                            refreshFade();
+                            requestRefresh();
                             settle();
                         });
                         entry.img.addEventListener("error", settle);
@@ -271,6 +271,16 @@
                 measureGeom();
                 updateFade();
             }
+            // Re-measure + fade, UNLESS a scroll is in flight: then
+            // fade on the cached geometry only, and let the fade
+            // loop's settle do the re-measure afterwards. Resizes
+            // during a gesture are usually Safari's bars changing
+            // size, and re-measuring then makes the dot chase the
+            // bars' animation — the stutter this gate exists to stop.
+            function requestRefresh() {
+                if (fadeRaf === null) refreshFade();
+                else updateFade();
+            }
 
             function updateFade() {
                 const horizontal = document.body.classList.contains("wide");
@@ -330,20 +340,23 @@
                     if (p === lastPos) settled++;
                     else { settled = 0; lastPos = p; }
                     if (settled < 2) fadeRaf = requestAnimationFrame(step);
+                    // Settled: the scroll and Safari's bars are at
+                    // rest — land any re-measure deferred mid-gesture.
+                    else refreshFade();
                 }
                 fadeRaf = requestAnimationFrame(step);
             }
             window.addEventListener("scroll", requestFade, { passive: true });
-            window.addEventListener("resize", refreshFade);
+            window.addEventListener("resize", requestRefresh);
             refreshFade();
             // Late-loading photos grow the strip after that first
             // check, when it can still measure zero overflow —
             // re-measure as each photo lands so the geometry and the
             // fade are correct from the start.
             gallery.querySelectorAll("img").forEach((img) => {
-                if (!img.complete) img.addEventListener("load", refreshFade);
+                if (!img.complete) img.addEventListener("load", requestRefresh);
             });
-            window.addEventListener("load", refreshFade);
+            window.addEventListener("load", requestRefresh);
 
             // The nudge: the strip eases out and back symmetrically on one
             // clock — zero speed at the start, the peak, and the end.
