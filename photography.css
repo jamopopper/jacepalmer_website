@@ -338,5 +338,10 @@ body.photography.tall .contactbar {
     bottom: calc((var(--lane) - 1.3125rem) / 2);
     align-items: flex-start;
     text-align: left;
-    height: auto;
+    /* The same box height as a pill pair (two buttons plus the
+       seam) on the same bottom offset, with the two lines centred
+       in it (the base rule's justify-content), so the text's
+       centre line is the trail pair's centre line and the two
+       bottom corners read as a matched set. */
+    height: calc(1.3125rem * 2 + 2px);
 }

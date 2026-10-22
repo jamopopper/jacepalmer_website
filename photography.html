@@ -117,6 +117,51 @@
                 "P1650036 4 Edited.jpeg",
             ];
 
+            // Each photo's pixel dimensions, used to reserve its
+            // slide's shape before the photo loads, so a cold
+            // visit doesn't start with collapsed slides that grow
+            // as photos land. Fetched from the live files; a photo
+            // missing here just falls back to sizing on load, so
+            // a new upload never breaks — add its entry when the
+            // list is updated and it reserves too.
+            const PORTFOLIO_DIMS = {
+                "IMG_2474.jpeg": [3730, 4974],
+                "IMG_2469.jpeg": [3825, 5100],
+                "IMG_2471.jpeg": [3888, 5184],
+                "IMG_2468.jpeg": [3888, 5184],
+                "IMG_1917.jpeg": [5184, 3888],
+                "IMG_1909.jpeg": [5184, 3888],
+                "IMG_1906.jpeg": [5184, 3888],
+                "IMG_1684.jpeg": [5105, 3829],
+                "IMG_1668.JPG": [3888, 5184],
+                "IMG_1545.JPG": [6888, 5172],
+                "IMG_1544.JPG": [5172, 6888],
+                "IMG_1324.JPG": [6888, 5172],
+                "IMG_1406.JPG": [6858, 5149],
+                "IMG_1404.JPG": [6888, 5172],
+                "IMG_1376.JPG": [6549, 4917],
+                "P1760160 6 Edited.jpg": [4592, 3448],
+                "IMG_0599 13 Edited.jpg": [4592, 3448],
+                "IMG_0444 10 Edited.jpg": [4592, 3448],
+                "IMG_0467 4 Edited.jpg": [4592, 3448],
+                "P1740326 51 Edited.jpg": [4592, 3448],
+                "P1740316 49 Edited.jpg": [4592, 3448],
+                "P1740278 42 Edited.jpg": [4592, 3448],
+                "P1740151 26 Edited.jpg": [4592, 3448],
+                "P1730856 19 Edited.JPG": [3448, 4592],
+                "P1730780 3 Edited.JPG": [3448, 4592],
+                "P1730723 110 Edited.jpg": [4134, 1757],
+                "P1730662 106 Edited.jpg": [4592, 3448],
+                "P1730625 101 Edited.jpg": [3753, 2818],
+                "P1730402 68 Edited.jpg": [4592, 3448],
+                "P1730240 37 Edited.jpg": [3448, 4592],
+                "P1730098 19 Edited.jpg": [3448, 4592],
+                "P1730082 17 Edited.jpg": [4592, 3448],
+                "P1730016 11 Edited.jpg": [4592, 3448],
+                "P1650044 7 Edited.jpeg": [4592, 3448],
+                "P1650036 4 Edited.jpeg": [4592, 3448],
+            };
+
             const gallery = document.getElementById("gallery");
 
             // The document itself is the scroller (the gallery element
@@ -159,6 +204,15 @@
                     slide.className = "slide";
                     const img = document.createElement("img");
                     img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
+                    const dims = PORTFOLIO_DIMS[file];
+                    if (dims) {
+                        // Reserve the photo's true shape up front and
+                        // hold it invisible until it loads, so the
+                        // frame is right from the first paint and no
+                        // broken-image glyph ever shows in it.
+                        img.style.aspectRatio = dims[0] + " / " + dims[1];
+                        img.style.opacity = "0";
+                    }
                     slide.appendChild(img);
                     strip.appendChild(slide);
                     queue.push({ img: img, file: file });
@@ -182,10 +236,14 @@
                             pumpLoads();
                         };
                         entry.img.addEventListener("load", function () {
+                            entry.img.style.opacity = "";
                             requestRefresh();
                             settle();
                         });
-                        entry.img.addEventListener("error", settle);
+                        entry.img.addEventListener("error", function () {
+                            entry.img.style.opacity = "";
+                            settle();
+                        });
                         entry.img.src = PORTFOLIO_DIR + entry.file;
                     }
                 }
