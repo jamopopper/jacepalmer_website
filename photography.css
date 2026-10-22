@@ -124,8 +124,8 @@ body.photography .gallery {
 /* The strip: photos keep their own proportions, lightly rounded corners,
    separated by a gap equal to the corner radius. Under the photos sits
    a backdrop layer (see .backdrop below) of blurred tiles, one per
-   photo, so the gaps and the scroll lane glow with the nearest
-   photos' colors, mixing where they meet. */
+   photo, so each photo sits in a subtle halo
+   of its own blurred colors. */
 body.photography .strip {
     position: relative;
     display: flex;
@@ -176,18 +176,17 @@ body.photography.tall .slide img {
    copy of its photo (the sizer image), so a tile always matches its
    photo exactly and the layer can't drift, collapse, or pile up.
    The tile's canvas is a tiny baked-blur copy of the photo (painted
-   by the script when the photo loads) spilling 80px past the photo
-   along the scroll axis — hidden under the neighbouring photos,
-   visible in the gap and the lane. All of the blur is baked into
-   the bitmap (see paintTile): there is deliberately no CSS filter
-   on the tile — a filter darkens an element's edges where it runs
-   out of image (worst at the corners), and iOS Safari re-renders
-   filtered layers when the page is pinch-zoomed, which made those
-   corner shadows come and go. The crossfade in each gap is
-   baked into the canvases as an alpha ramp over the spill (see
-   paintTile in the script). No masks and no blend modes: the mask
-   zeroed the spill outright, and the screen blend composited in
-   Chromium but not in iOS Safari's scroller. */
+   by the script when the photo loads) spilling a short way past the
+   photo on every side, its alpha feathered to nothing across the
+   spill (see paintTile) — a subtle halo around each photo, nothing
+   more: no crossfades or colour mixing between photos. All of the
+   blur is baked into the bitmap: there is deliberately no CSS
+   filter on the tile — a filter darkens an element's edges where it
+   runs out of image (worst at the corners), and iOS Safari
+   re-renders filtered layers when the page is pinch-zoomed, which
+   made corner shadows come and go. No masks and no blend modes:
+   the mask zeroed the spill outright, and the screen blend
+   composited in Chromium but not in iOS Safari's scroller. */
 body.photography .backdrop {
     position: absolute;
     inset: 0;
@@ -234,73 +233,38 @@ body.photography .tile canvas {
     pointer-events: none;
 }
 body.photography.tall .tile canvas {
-    inset: -80px -60px -80px -26px;
-    width: calc(100% + 86px);
-    height: calc(100% + 160px);
+    inset: -24px -32px -24px -24px;
+    width: calc(100% + 56px);
+    height: calc(100% + 48px);
 }
 body.photography.wide .tile canvas {
-    inset: -26px -80px -60px -80px;
-    width: calc(100% + 160px);
-    height: calc(100% + 86px);
+    inset: -24px -24px -32px -24px;
+    width: calc(100% + 48px);
+    height: calc(100% + 56px);
 }
-/* The end tiles' canvases spill only a breath past the end photos —
-   exactly the strip's end-padding unit — instead of the full 80px.
-   A full spill past the end counts as scrollable area (the strip
-   used to travel ~80px beyond the last photo, which read as
-   oversized end padding), but none at all left the end bands black
-   while the rest of the page glows to the screen's edges. This much
-   fills the end band and fades out across it (see paintTile), and
-   adds no travel worth noticing. */
+/* The end tiles' canvases spill only the strip's end-padding unit
+   past the end photos instead of the halo's full 24px: any spill
+   past the end counts as scrollable area (with the old 80px spill
+   the strip travelled ~80px beyond the last photo, which read as
+   oversized end padding). The unit alone fills the end band, and
+   the halo feathers out across it (see paintTile). */
 body.photography.tall .tile:first-child canvas {
     top: calc((var(--lane) - 1.3125rem) / -4);
-    height: calc(100% + 80px + (var(--lane) - 1.3125rem) / 4);
+    height: calc(100% + 24px + (var(--lane) - 1.3125rem) / 4);
 }
 body.photography.tall .tile:last-child canvas {
     bottom: calc((var(--lane) - 1.3125rem) / -4);
-    height: calc(100% + 80px + (var(--lane) - 1.3125rem) / 4);
+    height: calc(100% + 24px + (var(--lane) - 1.3125rem) / 4);
 }
 body.photography.wide .tile:first-child canvas {
     left: calc((var(--lane) - 1.3125rem) / -4);
-    width: calc(100% + 80px + (var(--lane) - 1.3125rem) / 4);
+    width: calc(100% + 24px + (var(--lane) - 1.3125rem) / 4);
 }
 body.photography.wide .tile:last-child canvas {
     right: calc((var(--lane) - 1.3125rem) / -4);
-    width: calc(100% + 80px + (var(--lane) - 1.3125rem) / 4);
+    width: calc(100% + 24px + (var(--lane) - 1.3125rem) / 4);
 }
 
-
-/* End glows: the first/last photos' blur on fixed layers behind the
-   whole page (negative z-index: above the black canvas, below every
-   element). They show only where the document paints nothing — past
-   the strip's ends and under Safari's bars — so the ends glow to the
-   screen's edge like the rest of the page. */
-body.photography .endglow {
-    position: fixed;
-    z-index: -1;
-    pointer-events: none;
-}
-body.photography .endglow canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-    display: block;
-}
-body.photography.tall .endglow {
-    left: 0;
-    right: 0;
-    height: 240px;
-}
-body.photography.tall .endglow.start { top: 0; }
-body.photography.tall .endglow.end { bottom: 0; }
-body.photography.wide .endglow {
-    top: 0;
-    bottom: 0;
-    width: 240px;
-}
-body.photography.wide .endglow.start { left: 0; }
-body.photography.wide .endglow.end { right: 0; }
 
 /* Arrow buttons: a fast-forward/skip pair at each end of the strip, drawn
    like TV-remote controls. As the strip nears either end, that end's pair
