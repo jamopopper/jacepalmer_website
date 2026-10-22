@@ -166,21 +166,21 @@
                     blurCopy.height = canvas.height;
                     blurCopy.getContext("2d").drawImage(canvas, 0, 0);
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.filter = "blur(6px)";
+                    ctx.filter = "blur(10px)";
                     ctx.drawImage(blurCopy, 0, 0);
                     ctx.filter = "none";
                     // Bake the crossfade into the bitmap itself: erase a
                     // ramp at each end of the scroll axis (full erase at
-                    // the edge, none 40px in — the length of the tile's
-                    // spill), so where two tiles overlap in a gap their
-                    // alphas sum to one and the colors dissolve into
-                    // each other. Doing this in the image data — instead
+                    // the edge, none 80px in — the length of the tile's
+                    // spill), so where two tiles overlap in a gap each
+                    // still carries most of its strength and the colors
+                    // dissolve into each other. Doing this in the image data — instead
                     // of a CSS mask or blend mode — keeps the effect on
                     // the plainest compositing path.
                     const horizontal = document.body.classList.contains("wide");
                     const axisBitmap = horizontal ? canvas.width : canvas.height;
                     if (!axisClient) return;
-                    const ramp = Math.max(1, Math.round(40 * axisBitmap / axisClient));
+                    const ramp = Math.max(1, Math.round(80 * axisBitmap / axisClient));
                     ctx.globalCompositeOperation = "destination-out";
                     if (horizontal) {
                         let g = ctx.createLinearGradient(0, 0, ramp, 0);
@@ -218,7 +218,7 @@
                 function axisClientFor(entry) {
                     const horizontal = document.body.classList.contains("wide");
                     const photo = horizontal ? entry.sizer.clientWidth : entry.sizer.clientHeight;
-                    return photo ? photo + 80 : 0;
+                    return photo ? photo + 160 : 0;
                 }
                 function tryPaint(entry) {
                     if (!entry.imgReady || !entry.sizerReady) return;

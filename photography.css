@@ -152,7 +152,7 @@ body.photography.tall .slide img {
    copy of its photo (the sizer image), so a tile always matches its
    photo exactly and the layer can't drift, collapse, or pile up.
    The tile's canvas is a tiny baked-blur copy of the photo (painted
-   by the script when the photo loads) spilling 40px past the photo
+   by the script when the photo loads) spilling 80px past the photo
    along the scroll axis — hidden under the neighbouring photos,
    visible in the gap and the lane. All of the blur is baked into
    the bitmap (see paintTile): there is deliberately no CSS filter
@@ -205,13 +205,13 @@ body.photography .tile canvas {
     pointer-events: none;
 }
 body.photography.tall .tile canvas {
-    inset: -40px -60px -40px -26px;
+    inset: -80px -60px -80px -26px;
     width: calc(100% + 86px);
-    height: calc(100% + 80px);
+    height: calc(100% + 160px);
 }
 body.photography.wide .tile canvas {
-    inset: -26px -40px -60px -40px;
-    width: calc(100% + 80px);
+    inset: -26px -80px -60px -80px;
+    width: calc(100% + 160px);
     height: calc(100% + 86px);
 }
 
