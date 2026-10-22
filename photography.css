@@ -152,23 +152,18 @@ body.photography.tall .slide img {
    the blurring, so the CSS filter here is only a light finish and
    scrolling stays cheap. The halo spills one gap-width past the
    photo along the scroll axis (60px on the lane side, enough to
-   cross the whole lane). Where two halos overlap in a gap they
-   screen-blend into a luminous mix, like light through frosted
-   glass; a clip keeps each halo's paint inside its own box so it
-   can never wash over the neighbouring photo. (An earlier version
-   faded the spill with a mask instead — on these canvas halos the
-   mask zeroed the spill entirely and the gaps stayed black.) */
+   cross the whole lane). The crossfade where two halos meet in a
+   gap is baked into the canvas bitmaps as an alpha ramp (see
+   paintHalo in the script) — no CSS mask, blend mode, or clip is
+   involved: the mask zeroed the spill outright, and the screen
+   blend + clip version composited in Chromium but not in iOS
+   Safari's scroller, which also showed layer rectangles on zoom. */
 body.photography .slide .halo {
     position: absolute;
     z-index: -1;
     object-fit: fill;
     border-radius: 0;
     filter: blur(16px) brightness(1);
-    clip-path: inset(0); /* the blur may not paint outside this box —
-                           in particular, never over a neighbour photo */
-    mix-blend-mode: screen; /* overlaps lighten into a mix, like light
-                               through frosted glass, instead of the
-                               top layer just covering the one below */
     pointer-events: none;
 }
 body.photography.tall .slide .halo {

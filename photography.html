@@ -138,8 +138,62 @@
                 function paintHalo(canvas, img, width) {
                     canvas.width = width;
                     canvas.height = Math.max(1, Math.round(width * img.naturalHeight / img.naturalWidth));
-                    canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    // Bake the crossfade into the bitmap itself: erase a
+                    // ramp at each end of the scroll axis (full erase at
+                    // the edge, none one gap-width in), so where two
+                    // halos overlap in a gap their alphas sum to one and
+                    // the colors dissolve into each other. Doing this in
+                    // the image data — instead of a CSS mask, blend mode,
+                    // or clip — keeps the effect on the plainest image
+                    // compositing path, which is the one iOS Safari
+                    // renders reliably inside a scroller.
+                    const horizontal = document.body.classList.contains("wide");
+                    const axisBitmap = horizontal ? canvas.width : canvas.height;
+                    const axisClient = horizontal ? canvas.clientWidth : canvas.clientHeight;
+                    if (!axisClient) return;
+                    const ramp = Math.max(1, Math.round(14 * axisBitmap / axisClient));
+                    ctx.globalCompositeOperation = "destination-out";
+                    if (horizontal) {
+                        let g = ctx.createLinearGradient(0, 0, ramp, 0);
+                        g.addColorStop(0, "rgba(0,0,0,1)");
+                        g.addColorStop(1, "rgba(0,0,0,0)");
+                        ctx.fillStyle = g;
+                        ctx.fillRect(0, 0, ramp, canvas.height);
+                        g = ctx.createLinearGradient(canvas.width, 0, canvas.width - ramp, 0);
+                        g.addColorStop(0, "rgba(0,0,0,1)");
+                        g.addColorStop(1, "rgba(0,0,0,0)");
+                        ctx.fillStyle = g;
+                        ctx.fillRect(canvas.width - ramp, 0, ramp, canvas.height);
+                    } else {
+                        let g = ctx.createLinearGradient(0, 0, 0, ramp);
+                        g.addColorStop(0, "rgba(0,0,0,1)");
+                        g.addColorStop(1, "rgba(0,0,0,0)");
+                        ctx.fillStyle = g;
+                        ctx.fillRect(0, 0, canvas.width, ramp);
+                        g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - ramp);
+                        g.addColorStop(0, "rgba(0,0,0,1)");
+                        g.addColorStop(1, "rgba(0,0,0,0)");
+                        ctx.fillStyle = g;
+                        ctx.fillRect(0, canvas.height - ramp, canvas.width, ramp);
+                    }
+                    ctx.globalCompositeOperation = "source-over";
                 }
+                // If the screen rotates, the baked ramps sit on the wrong
+                // axis — repaint every loaded photo's halos on a flip.
+                let lastWide = document.body.classList.contains("wide");
+                window.addEventListener("resize", function () {
+                    const nowWide = document.body.classList.contains("wide");
+                    if (nowWide === lastWide) return;
+                    lastWide = nowWide;
+                    queue.forEach(function (entry) {
+                        if (entry.img.complete && entry.img.naturalWidth > 0) {
+                            paintHalo(entry.halo, entry.img, 64);
+                            paintHalo(entry.blend, entry.img, 160);
+                        }
+                    });
+                });
                 const queue = [];
                 for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
