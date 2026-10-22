@@ -29,7 +29,10 @@ body.photography {
     margin: 0;
     padding: 0;
     width: 100vw;
-    height: 100dvh;
+    height: 100lvh; /* large viewport: the full physical screen, so
+                       content reaches under Safari's floating bars —
+                       100dvh tracks the chrome's current state and
+                       stops short of the edges while the bar is up */
     overflow: hidden; /* the gallery handles all scrolling */
     background-color: var(--bkgnd);
     color: var(--text);
@@ -104,7 +107,7 @@ body.photography .pfp.no-logo span {
 body.photography .gallery {
     display: flex;
     width: 100vw;
-    height: 100dvh;
+    height: 100lvh; /* see body: full physical screen, under the bars */
     box-sizing: border-box;
     /* The photos are centred: this margin runs on every side — the
        strip's beginning and end included — and on the scroll-UI side it
