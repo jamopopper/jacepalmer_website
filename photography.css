@@ -184,7 +184,7 @@ body.photography.wide .slide .halo {
    own backdrop. The mask comes from the halo rules above; only
    the blur differs. */
 body.photography .slide .halo.blend {
-    filter: blur(24px) brightness(1);
+    filter: blur(60px) brightness(1);
 }
 body.photography.tall .slide .halo.blend {
     inset: -14px -60px -14px -26px;
