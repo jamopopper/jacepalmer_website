@@ -42,9 +42,12 @@ body.photography .topbar {
     justify-content: space-between;
     gap: 0.5rem 1rem;
     /* Same spacing unit as the gallery's margins — the distance from
-       the buttons to the photos' edge — so the logo and contact block
-       align with the photos' edges below them. */
+       the buttons to the photos' edge — so the logo aligns with the
+       photos' edge below it. The right side is doubled: the contact
+       block's right edge lines up with the pill pairs' right edge
+       instead of running to the photos' edge. */
     padding: calc((var(--lane) - 1.3125rem) / 4);
+    padding-right: calc((var(--lane) - 1.3125rem) / 2);
     pointer-events: none;
 }
 body.photography .topbar a {
