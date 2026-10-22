@@ -5,7 +5,13 @@
 :root {
     --bkgnd: #000;
     --text: #fff;
-    --r: 14px; /* photo corner radius — the gap between photos matches it */
+    --r: 14px; /* gap between photos */
+    /* Photo corner radius, sized so each corner arc's centre sits on
+       the scroll dot's centre line: the dot's centre rides
+       var(--lane)/2 in from the screen edge and the photos' edge sits
+       (lane - button)/4 in, so the radius is the difference —
+       (52px + 21px) / 4 = 18.25px at the current sizes. */
+    --cr: calc((var(--lane) + 1.3125rem) / 4);
     --lane: 3.25rem; /* the scroll UI's band at the screen edge: bottom
                         on wide screens, right on tall ones. The dot and
                         pill pairs are centred in it, which puts their
@@ -145,7 +151,7 @@ body.photography .slide {
     line-height: 0;
 }
 body.photography .slide img {
-    border-radius: var(--r);
+    border-radius: var(--cr);
 }
 body.photography.wide .slide img {
     height: 100%;
