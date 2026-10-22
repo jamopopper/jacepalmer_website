@@ -53,8 +53,6 @@
              split pill — fast-forward (double triangle) steps 80% of the
              screen, skip (triangle and bar) goes to that end — with the
              icons cut out of the pill. -->
-        <div class="edgefade trail" aria-hidden="true"></div>
-        <div class="edgefade lead" aria-hidden="true"></div>
         <div class="btngroup lead">
             <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 0 L32 0 A32 32 0 0 0 32 64 L64 64 Z" fill="#fff"/><g fill="#000"><path d="M53.7 17.5 L29.9 32 L53.7 46.5 Z"/><rect x="16.3" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 64 L64 32 A32 32 0 0 0 0 32 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M17.5 53.7 L32 29.9 L46.5 53.7 Z"/><rect x="17.5" y="16.3" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-tall)"/></svg></button>
             <button class="scrollbtn step" id="scrollBack" type="button" aria-label="Scroll back"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollBack-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L32 0 A32 32 0 0 1 32 64 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M48.1 17.5 L30.3 32 L48.1 46.5 Z"/><path d="M27.7 17.5 L9.9 32 L27.7 46.5 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollBack-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollBack-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L0 32 A32 32 0 0 0 64 32 L64 0 Z" fill="#fff"/><g fill="#000"><path d="M17.5 48.1 L32 30.3 L46.5 48.1 Z"/><path d="M17.5 27.7 L32 9.9 L46.5 27.7 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollBack-tall)"/></svg></button>
@@ -198,8 +196,8 @@
                 const max = horizontal
                     ? gallery.scrollWidth - gallery.clientWidth
                     : gallery.scrollHeight - gallery.clientHeight;
-                // Edge fades stay on at all times (Jace: their disappearing
-                // at the ends wasn't helpful) — nothing toggles them.
+                // (The black edge fades were removed 2026-10-21 at
+                // Jace's request — the blurred backdrop does that job.)
                 // Pair/dot merge at the ends. In the last MERGE px of
                 // scroll at either end, that end's pair fades out and
                 // squishes toward its own centre (scale) while the dot
