@@ -73,11 +73,15 @@ body.photography .topbar {
        block's right edge lines up with the pill pairs' right edge
        instead of running to the photos' edge. */
     padding: calc((var(--lane) - 1.3125rem) / 4);
-    padding-right: calc((var(--lane) - 1.3125rem) / 2);
+    padding-right: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-right, 0px));
     /* The page runs full-bleed (viewport-fit=cover), so the bar also
        clears the status-bar / notch area: the inset is 0 on screens
        without one. */
     padding-top: calc((var(--lane) - 1.3125rem) / 4 + env(safe-area-inset-top, 0px));
+    /* In landscape the Dynamic Island sits on a side edge: the left
+       inset keeps the logo clear of it. Each inset names the side
+       the island is actually on and is 0 everywhere else. */
+    padding-left: calc((var(--lane) - 1.3125rem) / 4 + env(safe-area-inset-left, 0px));
     pointer-events: none;
 }
 body.photography .topbar a {
@@ -237,7 +241,7 @@ body.photography.tall .btngroup.trail {
     flex-direction: column;
 }
 body.photography.wide .btngroup.trail {
-    right: calc((var(--lane) - 1.3125rem) / 2);
+    right: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-right, 0px));
     bottom: calc((var(--lane) - 1.3125rem) / 2);
     flex-direction: row;
 }
@@ -253,7 +257,7 @@ body.photography.tall .btngroup.lead {
     flex-direction: column;
 }
 body.photography.wide .btngroup.lead {
-    left: calc((var(--lane) - 1.3125rem) / 2);
+    left: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-left, 0px));
     bottom: calc((var(--lane) - 1.3125rem) / 2);
     flex-direction: row;
 }
@@ -297,7 +301,7 @@ body.photography .slide.endcard p {
 body.photography .contactbar {
     position: fixed;
     top: calc((var(--lane) - 1.3125rem) / 4 + env(safe-area-inset-top, 0px));
-    right: calc((var(--lane) - 1.3125rem) / 2);
+    right: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-right, 0px));
     z-index: 10; /* the top bar's level, where it used to live */
     pointer-events: none; /* the bar's rule went with the move */
     display: flex;
