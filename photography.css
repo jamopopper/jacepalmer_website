@@ -156,7 +156,7 @@ body.photography .slide img.halo {
     z-index: -1;
     object-fit: cover;
     border-radius: 0;
-    filter: blur(53px) brightness(0.65);
+    filter: blur(53px) brightness(1);
     pointer-events: none;
 }
 body.photography.tall .slide img.halo {
@@ -174,22 +174,23 @@ body.photography.wide .slide img.halo {
     mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
 }
 /* Blend halos: a second copy of each photo at a far heavier blur,
-   reaching only across the gaps (never into the lane), so where two
-   photos meet, their colors dissolve into each other much more
-   strongly than in either photo's own backdrop. The mask comes from
-   the img.halo rules above; only the box and the blur differ. */
+   spanning the same full box as the base halo (across the whole
+   screen, lane included), so where two photos meet, their colors
+   dissolve into each other much more strongly than in either photo's
+   own backdrop. The mask comes from the img.halo rules above; only
+   the blur differs. */
 body.photography .slide img.halo.blend {
-    filter: blur(160px) brightness(0.65);
+    filter: blur(160px) brightness(1);
 }
 body.photography.tall .slide img.halo.blend {
-    inset: -14px 0 -14px 0;
-    width: 100%;
+    inset: -14px -60px -14px -26px;
+    width: calc(100% + 86px);
     height: calc(100% + 28px);
 }
 body.photography.wide .slide img.halo.blend {
-    inset: 0 -14px 0 -14px;
+    inset: -26px -14px -60px -14px;
     width: calc(100% + 28px);
-    height: 100%;
+    height: calc(100% + 86px);
 }
 
 /* Scroll cues. Edge fades: soft gradients on both edges of the strip,
