@@ -126,38 +126,67 @@
             if (PORTFOLIO_IMAGES.length === 0) {
                 showEmpty("Portfolio coming soon.");
             } else {
-                // The strip holds the photos; each photo carries its
-                // own blurred halo behind it, filling the gaps and the
-                // scroll lane with the photos' own colors.
+                // The strip holds the photos; each photo carries two
+                // backdrop canvases behind it. When a photo loads, it's
+                // drawn into those canvases at a tiny size — the shrink
+                // itself is most of the blur — and CSS stretches the
+                // tiny result back up with a light finishing blur. The
+                // phone only ever stretches a tiny texture instead of
+                // filtering a full-size image, so scrolling stays smooth.
                 const strip = document.createElement("div");
                 strip.className = "strip";
+                function paintHalo(canvas, img, width) {
+                    canvas.width = width;
+                    canvas.height = Math.max(1, Math.round(width * img.naturalHeight / img.naturalWidth));
+                    canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+                }
+                const queue = [];
                 for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
                     slide.className = "slide";
                     const img = document.createElement("img");
-                    img.src = PORTFOLIO_DIR + file;
                     img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
-                    img.loading = "lazy";
                     slide.appendChild(img);
+                    const halo = document.createElement("canvas");
+                    halo.className = "halo";
+                    halo.setAttribute("aria-hidden", "true");
+                    slide.appendChild(halo);
+                    const blend = document.createElement("canvas");
+                    blend.className = "halo blend";
+                    blend.setAttribute("aria-hidden", "true");
+                    slide.appendChild(blend);
                     strip.appendChild(slide);
-                    const haloImg = document.createElement("img");
-                    haloImg.className = "halo";
-                    haloImg.src = PORTFOLIO_DIR + file;
-                    haloImg.alt = "";
-                    haloImg.setAttribute("aria-hidden", "true");
-                    haloImg.loading = "lazy";
-                    haloImg.draggable = false;
-                    slide.appendChild(haloImg);
-                    const blendImg = document.createElement("img");
-                    blendImg.className = "halo blend";
-                    blendImg.src = PORTFOLIO_DIR + file;
-                    blendImg.alt = "";
-                    blendImg.setAttribute("aria-hidden", "true");
-                    blendImg.loading = "lazy";
-                    blendImg.draggable = false;
-                    slide.appendChild(blendImg);
+                    queue.push({ img: img, file: file, halo: halo, blend: blend });
                 }
                 gallery.appendChild(strip);
+                // Photos load in a small rolling window (a few in
+                // flight, each finished load starting the next), so the
+                // next section is ready a couple of screens before it's
+                // reached instead of starting at the screen's edge.
+                let nextUp = 0;
+                let inFlight = 0;
+                function pumpLoads() {
+                    while (nextUp < queue.length && inFlight < 5) {
+                        const entry = queue[nextUp++];
+                        inFlight++;
+                        let settled = false;
+                        const settle = function () {
+                            if (settled) return;
+                            settled = true;
+                            inFlight--;
+                            pumpLoads();
+                        };
+                        entry.img.addEventListener("load", function () {
+                            paintHalo(entry.halo, entry.img, 64);
+                            paintHalo(entry.blend, entry.img, 24);
+                            updateFade();
+                            settle();
+                        });
+                        entry.img.addEventListener("error", settle);
+                        entry.img.src = PORTFOLIO_DIR + entry.file;
+                    }
+                }
+                pumpLoads();
             }
 
             // Scroll direction follows the screen shape: wider screens scroll

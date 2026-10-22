@@ -105,7 +105,7 @@ body.photography.tall .gallery {
 }
 /* The strip: photos keep their own proportions, lightly rounded corners,
    separated by a gap equal to the corner radius. Behind each photo sits
-   its own blurred halo (see img.halo below), so the gaps and the scroll
+   its own blurred halo (see the halo rules below), so the gaps and the scroll
    lane glow with the nearest photos' colors, mixing where they meet. */
 body.photography .strip {
     position: relative;
@@ -144,29 +144,33 @@ body.photography.tall .slide img {
     display: block;
     margin: 0;
 }
-/* Per-photo halos: each photo's own blurred backdrop lives INSIDE its
-   slide, behind the photo itself — the slide is sized by the real
-   photo, so the halo can never drift, collapse, or pile up. The halo
-   spills one gap-width past the photo along the scroll axis (60px on
-   the lane side, enough to cross the whole lane) and a mask fades it
-   across that spill, so two neighbouring halos meet mid-gap and
-   cross-blend like light through frosted glass. */
-body.photography .slide img.halo {
+/* Per-photo halos: each photo's backdrop lives INSIDE its slide,
+   behind the photo itself — the slide is sized by the real photo, so
+   the halo can never drift, collapse, or pile up. The halo is a tiny
+   canvas copy of the photo (painted by the script when the photo
+   loads), stretched back up to full size: the shrink does most of
+   the blurring, so the CSS filter here is only a light finish and
+   scrolling stays cheap. The halo spills one gap-width past the
+   photo along the scroll axis (60px on the lane side, enough to
+   cross the whole lane) and a mask fades it across that spill, so
+   two neighbouring halos meet mid-gap and cross-blend like light
+   through frosted glass. */
+body.photography .slide .halo {
     position: absolute;
     z-index: -1;
     object-fit: cover;
     border-radius: 0;
-    filter: blur(53px) brightness(1);
+    filter: blur(16px) brightness(1);
     pointer-events: none;
 }
-body.photography.tall .slide img.halo {
+body.photography.tall .slide .halo {
     inset: -14px -60px -14px -26px;
     width: calc(100% + 86px);
     height: calc(100% + 28px);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
     mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
 }
-body.photography.wide .slide img.halo {
+body.photography.wide .slide .halo {
     inset: -26px -14px -60px -14px;
     width: calc(100% + 28px);
     height: calc(100% + 86px);
@@ -177,17 +181,17 @@ body.photography.wide .slide img.halo {
    spanning the same full box as the base halo (across the whole
    screen, lane included), so where two photos meet, their colors
    dissolve into each other much more strongly than in either photo's
-   own backdrop. The mask comes from the img.halo rules above; only
+   own backdrop. The mask comes from the halo rules above; only
    the blur differs. */
-body.photography .slide img.halo.blend {
-    filter: blur(240px) brightness(1);
+body.photography .slide .halo.blend {
+    filter: blur(24px) brightness(1);
 }
-body.photography.tall .slide img.halo.blend {
+body.photography.tall .slide .halo.blend {
     inset: -14px -60px -14px -26px;
     width: calc(100% + 86px);
     height: calc(100% + 28px);
 }
-body.photography.wide .slide img.halo.blend {
+body.photography.wide .slide .halo.blend {
     inset: -26px -14px -60px -14px;
     width: calc(100% + 28px);
     height: calc(100% + 86px);
