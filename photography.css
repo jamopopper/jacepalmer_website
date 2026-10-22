@@ -234,6 +234,28 @@ body.photography.wide .tile canvas {
     width: calc(100% + 160px);
     height: calc(100% + 86px);
 }
+/* The end tiles' canvases stop at the strip's ends instead of
+   spilling past them. Spill past the start is cut off by the scroll
+   origin anyway, but spill past the end counts as scrollable area —
+   the strip used to travel ~80px beyond the last photo, which read
+   as oversized end padding. The first/last tiles keep their
+   gap-side spill; only the outer side is trimmed. */
+body.photography.tall .tile:first-child canvas {
+    top: 0;
+    height: calc(100% + 80px);
+}
+body.photography.tall .tile:last-child canvas {
+    bottom: 0;
+    height: calc(100% + 80px);
+}
+body.photography.wide .tile:first-child canvas {
+    left: 0;
+    width: calc(100% + 80px);
+}
+body.photography.wide .tile:last-child canvas {
+    right: 0;
+    width: calc(100% + 80px);
+}
 
 
 /* Arrow buttons: a fast-forward/skip pair at each end of the strip, drawn
