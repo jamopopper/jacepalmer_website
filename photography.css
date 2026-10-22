@@ -7,10 +7,12 @@
     --text: #fff;
     --r: 14px; /* photo corner radius — the gap between photos matches it */
     --lane: 3.25rem; /* the scroll UI's band at the screen edge: bottom
-                        on wide screens, right on tall ones. The strip is
-                        centred with half a lane of margin on both sides,
-                        so the dot and pill pairs — centred in the lane —
-                        sit half over the photos' edge. */
+                        on wide screens, right on tall ones. The dot and
+                        pill pairs are centred in it, which puts their
+                        outer edge (lane − 1.3125rem) / 2 from the screen
+                        edge; the gallery's margin (see .gallery) lands
+                        the photos' edge halfway between that and the
+                        screen edge. */
 }
 
 html {
@@ -88,6 +90,11 @@ body.photography .gallery {
     width: 100vw;
     height: 100dvh;
     box-sizing: border-box;
+    /* The photos are centred: this margin runs on every side — the
+       strip's beginning and end included — and on the scroll-UI side it
+       lands the photos' edge halfway between the buttons' outer edge
+       and the edge of the screen. */
+    padding: calc((var(--lane) - 1.3125rem) / 4);
     scrollbar-width: none; /* Firefox: no browser scrollbar — the page's
                              own dot and pills are the scroll UI */
 }
@@ -98,17 +105,11 @@ body.photography.wide .gallery {
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-top: calc(var(--lane) / 2);
-    padding-bottom: calc(var(--lane) / 2); /* strip centred; the scroll
-                        UI rides half over the photos' bottom edge */
 }
 body.photography.tall .gallery {
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-left: calc(var(--lane) / 2);
-    padding-right: calc(var(--lane) / 2); /* strip centred; the scroll
-                        UI rides half over the photos' right edge */
 }
 /* The strip: photos keep their own proportions, lightly rounded corners,
    separated by a gap equal to the corner radius. Under the photos sits
