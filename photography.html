@@ -33,6 +33,7 @@
 
     <body class="photography">
         <header class="topbar">
+            <!-- Back to main page. Black logo PNG; CSS inverts it to white. -->
             <a class="pfp" href="/index.html" title="Back to main page">
                 <img src="/images/jp_logo-01.png" alt="Back to main page"
                      onerror="this.remove();this.parentElement.classList.add('no-logo')" />
@@ -45,6 +46,13 @@
         </header>
 
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
+
+        <!-- Scroll cues: fades on both edges of the strip, always on, plus
+             a pair of remote-style buttons at each end; nearing an end
+             merges its pair into the progress dot. Each pair forms one
+             split pill — fast-forward (double triangle) steps 80% of the
+             screen, skip (triangle and bar) goes to that end — with the
+             icons cut out of the pill. -->
         <div class="edgefade trail" aria-hidden="true"></div>
         <div class="edgefade lead" aria-hidden="true"></div>
         <div class="btngroup lead">
@@ -55,11 +63,22 @@
             <button class="scrollbtn step" id="scrollFwd" type="button" aria-label="Scroll forward"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollFwd-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 0 L32 0 A32 32 0 0 0 32 64 L64 64 Z" fill="#fff"/><g fill="#000"><path d="M15.9 17.5 L33.7 32 L15.9 46.5 Z"/><path d="M36.3 17.5 L54.1 32 L36.3 46.5 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollFwd-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollFwd-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 64 L64 32 A32 32 0 0 0 0 32 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M46.5 15.9 L32 33.7 L17.5 15.9 Z"/><path d="M46.5 36.3 L32 54.1 L17.5 36.3 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollFwd-tall)"/></svg></button>
             <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L32 0 A32 32 0 0 1 32 64 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M10.3 17.5 L34.1 32 L10.3 46.5 Z"/><rect x="40" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L0 32 A32 32 0 0 0 64 32 L64 0 Z" fill="#fff"/><g fill="#000"><path d="M46.5 10.3 L32 34.1 L17.5 10.3 Z"/><rect x="17.5" y="40" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-tall)"/></svg></button>
         </div>
+
+        <!-- Scroll progress dot: travels the edge between the two pill
+             pairs as the strip scrolls. -->
         <div class="scrolldot" aria-hidden="true"></div>
 
         <script>
+            // ------------------------------------------------------------------
+            // YOUR PORTFOLIO IMAGES GO HERE.
+            // 1. Put your image files in /images/portfolio/ in the repo.
+            // 2. List each filename below, in the order you want them shown
+            //    (e.g. newest-taken first).
+            //    Any web image format works: .jpg .jpeg .png .webp .gif
+            // ------------------------------------------------------------------
             const PORTFOLIO_DIR = "/images/portfolio/";
             const PORTFOLIO_IMAGES = [
+                // Ordered newest to oldest by file timestamp.
                 "IMG_2474.jpeg",
                 "IMG_2469.jpeg",
                 "IMG_2471.jpeg",
@@ -109,6 +128,16 @@
             if (PORTFOLIO_IMAGES.length === 0) {
                 showEmpty("Portfolio coming soon.");
             } else {
+                // The strip holds the photos; behind them, a blurred
+                // twin of the same strip (same layout, same images)
+                // fills the gaps and the scroll lane with the photos'
+                // own colors, blurred together across the boundaries.
+                const strip = document.createElement("div");
+                strip.className = "strip";
+                const twin = document.createElement("div");
+                twin.className = "twinlayer";
+                twin.setAttribute("aria-hidden", "true");
+                strip.appendChild(twin);
                 for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
                     slide.className = "slide";
@@ -117,10 +146,25 @@
                     img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
                     img.loading = "lazy";
                     slide.appendChild(img);
-                    gallery.appendChild(slide);
+                    strip.appendChild(slide);
+                    const twinSlide = document.createElement("div");
+                    twinSlide.className = "slide";
+                    const twinImg = document.createElement("img");
+                    twinImg.src = PORTFOLIO_DIR + file;
+                    twinImg.alt = "";
+                    twinImg.loading = "lazy";
+                    twinImg.draggable = false;
+                    twinSlide.appendChild(twinImg);
+                    twin.appendChild(twinSlide);
                 }
+                gallery.appendChild(strip);
             }
 
+            // Scroll direction follows the screen shape: wider screens scroll
+            // horizontally, taller screens scroll vertically. Re-evaluated on
+            // resize so rotating a phone/tablet just works. No platform
+            // detection anywhere — wheel and touch both drive the native
+            // scroll container on their own.
             function setOrientation() {
                 document.body.classList.toggle("wide", window.innerWidth >= window.innerHeight);
                 document.body.classList.toggle("tall", window.innerWidth < window.innerHeight);
@@ -128,6 +172,12 @@
             window.addEventListener("resize", setOrientation);
             setOrientation();
 
+            // Scroll cues. Fades sit on both edges of the strip, always on;
+            // at each end a pill pair merges into the progress dot as its
+            // end is reached; clicking a pill button smooth-scrolls the
+            // strip. About 3s after the page opens, the strip also nudges
+            // forward and back once — skipped if the visitor has already
+            // started scrolling or their system prefers reduced motion.
             const fwdBtn = document.getElementById("scrollFwd");
             const backBtn = document.getElementById("scrollBack");
             const skipFwdBtn = document.getElementById("skipEnd");
@@ -135,8 +185,8 @@
             const fwdGroup = document.querySelector(".btngroup.trail");
             const backGroup = document.querySelector(".btngroup.lead");
             const dot = document.querySelector(".scrolldot");
-            const SCROLL_MS = 1467; 
-            const BUTTON_MS = 880; 
+            const SCROLL_MS = 1467; // nudge duration — 1.5x the original 2200ms pace
+            const BUTTON_MS = 880; // button scrolls: same easing at 2.5x the nudge's speed
             let nudging = false;
             let userScrolled = false;
 
@@ -146,6 +196,15 @@
                 const max = horizontal
                     ? gallery.scrollWidth - gallery.clientWidth
                     : gallery.scrollHeight - gallery.clientHeight;
+                // Edge fades stay on at all times (Jace: their disappearing
+                // at the ends wasn't helpful) — nothing toggles them.
+                // Pair/dot merge at the ends. In the last MERGE px of
+                // scroll at either end, that end's pair fades out and
+                // squishes toward its own centre (scale) while the dot
+                // slides from its between-pairs track into that same
+                // centre — one scroll-driven motion, so the pair reads as
+                // collapsing into the dot, and reverses on the way back.
+                // Mid-strip, the dot rides the edge between the pairs.
                 function setPair(group, o) {
                     group.style.opacity = String(o);
                     group.style.transform = "scale(" + (0.55 + 0.45 * o) + ")";
@@ -187,10 +246,16 @@
             gallery.addEventListener("scroll", updateFade, { passive: true });
             window.addEventListener("resize", updateFade);
             updateFade();
+            // Late-loading photos grow the strip after that first check,
+            // when it can still measure zero overflow — re-check as each
+            // photo lands so the fade is correct from the start.
             gallery.querySelectorAll("img").forEach((img) => {
                 if (!img.complete) img.addEventListener("load", updateFade);
             });
             window.addEventListener("load", updateFade);
+
+            // The nudge: the strip eases out and back symmetrically on one
+            // clock — zero speed at the start, the peak, and the end.
             const easeInOut = (t) => t < 0.5
                 ? 4 * t * t * t
                 : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -217,6 +282,7 @@
                 }
                 requestAnimationFrame(frame);
             }
+            // A real scroll attempt during an animation hands control over.
             let buttonAnim = null;
             function cancelAnimations() {
                 nudgeCancelled = true;
@@ -224,6 +290,9 @@
             }
             gallery.addEventListener("wheel", cancelAnimations, { passive: true });
             gallery.addEventListener("touchstart", cancelAnimations, { passive: true });
+
+            // Arrow buttons: smooth-scroll 80% of the screen dimension in
+            // the strip's direction, eased like the nudge over BUTTON_MS.
             function smoothScrollBy(delta) {
                 cancelAnimations();
                 const horizontal = document.body.classList.contains("wide");
@@ -253,8 +322,16 @@
             }
             fwdBtn.addEventListener("click", () => smoothScrollBy(screenDelta(1)));
             backBtn.addEventListener("click", () => smoothScrollBy(screenDelta(-1)));
+            // Skip buttons ride the same animation to the strip's end —
+            // the clamp in smoothScrollBy lands them exactly on it.
             skipFwdBtn.addEventListener("click", () => smoothScrollBy(Number.MAX_SAFE_INTEGER));
             skipBackBtn.addEventListener("click", () => smoothScrollBy(-Number.MAX_SAFE_INTEGER));
+
+            // The progress dot is a scrubber too: dragging it along its
+            // edge — from the back pair's centre to the forward pair's —
+            // maps linearly onto the strip's scroll range. Setting the
+            // scroll fires the normal scroll handler, which repositions
+            // the dot (and runs the end merges) as usual.
             let dotDragging = false;
             function scrubTo(e) {
                 const horizontal = document.body.classList.contains("wide");

@@ -1,19 +1,31 @@
+/* ---------- Photography page (standalone styles) ---------- */
+
+/* Black and white only — nothing carried over from the main site's palette.
+   No light/dark modes: one fixed scheme — white elements, black fades. */
 :root {
     --bkgnd: #000;
     --text: #fff;
+    --r: 14px; /* photo corner radius — the gap between photos matches it */
+    --lane: 3.25rem; /* blur-only lane for the scroll UI: bottom edge on
+                        wide screens, right edge on tall ones */
 }
+
 html {
     font-family: 'Courier New', monospace;
 }
+
 body.photography {
     margin: 0;
     padding: 0;
     width: 100vw;
     height: 100dvh;
-    overflow: hidden; 
+    overflow: hidden; /* the gallery handles all scrolling */
     background-color: var(--bkgnd);
     color: var(--text);
 }
+
+/* Top bar: logo left, contact info right. This header is the page's only
+   fixed element, so it stays pinned to the top in every browser. */
 body.photography .topbar {
     position: fixed;
     top: 0;
@@ -30,6 +42,8 @@ body.photography .topbar {
 body.photography .topbar a {
     pointer-events: auto;
 }
+
+/* Back-to-main: logo image. Transparent PNG, no box behind it. */
 body.photography .pfp {
     position: static;
     flex: 0 0 auto;
@@ -53,51 +67,121 @@ body.photography .pfp img {
     border-radius: 0;
     margin: 0;
     display: block;
-    filter: invert(1); 
+    filter: invert(1); /* the PNG is black; the logo is always white */
 }
+/* The arrow is only a fallback for a missing logo — hidden otherwise. */
 body.photography .pfp span {
     display: none;
 }
 body.photography .pfp.no-logo span {
     display: inline;
 }
+
+/* Full-viewport scroller, continuous (no snapping). Wide screens scroll
+   horizontally, tall screens scroll vertically. Direction is set by
+   body.wide / body.tall. */
 body.photography .gallery {
     display: flex;
     width: 100vw;
     height: 100dvh;
-    scrollbar-width: none; 
+    box-sizing: border-box;
+    scrollbar-width: none; /* Firefox: no browser scrollbar — the page's
+                             own dot and pills are the scroll UI */
 }
 body.photography .gallery::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome / Safari: same */
 }
 body.photography.wide .gallery {
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
+    padding-bottom: var(--lane); /* the lane: blurred backdrop only */
 }
 body.photography.tall .gallery {
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: auto;
+    padding-right: var(--lane); /* the lane: blurred backdrop only */
+}
+/* The strip: photos keep their own proportions, lightly rounded corners,
+   separated by a gap equal to the corner radius. Behind them sits a
+   blurred twin of the whole strip — same layout, heavily blurred and
+   darkened — so the gaps and the scroll lane show the photos' own colors
+   bleeding across the boundaries instead of a hard crease. The twin
+   extends one lane past the photo area so the lane is blur too; that
+   extension is on the cross axis, which the gallery clips, so it never
+   adds scrollable overflow. */
+body.photography .strip {
+    position: relative;
+    display: flex;
+    gap: var(--r);
+    flex: 0 0 auto;
+}
+body.photography.wide .strip {
+    flex-direction: row;
+    height: 100%;
+}
+body.photography.tall .strip {
+    flex-direction: column;
+    width: 100%;
+}
+body.photography .twinlayer {
+    position: absolute;
+    z-index: 0;
+    display: flex;
+    gap: var(--r);
+    pointer-events: none;
+    filter: blur(48px) brightness(0.65);
+}
+body.photography.wide .twinlayer {
+    top: 0;
+    right: 0;
+    bottom: calc(-1 * var(--lane));
+    left: 0;
+    flex-direction: row;
+}
+body.photography.tall .twinlayer {
+    top: 0;
+    right: calc(-1 * var(--lane));
+    bottom: 0;
+    left: 0;
+    flex-direction: column;
+}
+/* Twin slides must match the real slides' size, but the twin layer is
+   one lane taller/wider than the strip — so size them to the layer
+   minus the lane instead of letting them stretch. */
+body.photography.wide .twinlayer .slide {
+    height: calc(100% - var(--lane));
+}
+body.photography.tall .twinlayer .slide {
+    width: calc(100% - var(--lane));
 }
 body.photography .slide {
+    position: relative;
+    z-index: 1;
     flex: 0 0 auto;
     margin: 0;
     padding: 0;
     line-height: 0;
 }
+body.photography .slide img {
+    border-radius: var(--r);
+}
 body.photography.wide .slide img {
-    height: 100dvh;
+    height: 100%;
     width: auto;
     display: block;
     margin: 0;
 }
 body.photography.tall .slide img {
-    width: 100vw;
+    width: 100%;
     height: auto;
     display: block;
     margin: 0;
 }
+
+/* Scroll cues. Edge fades: soft gradients on both edges of the strip,
+   always on — they never hide, even at the ends of the strip. */
 body.photography .edgefade {
     position: fixed;
     z-index: 5;
@@ -106,9 +190,12 @@ body.photography .edgefade {
 }
 body.photography.tall .edgefade.trail {
     left: 0;
-    right: 0;
+    right: var(--lane);
     bottom: 0;
     height: 40px;
+    /* Eased multi-stop curve: a linear fade's constant slope makes its
+       start edge visible, so the darkening creeps in slowly and only
+       builds near the edge. */
     background: linear-gradient(to bottom,
         rgba(0, 0, 0, 0) 0%,
         rgba(0, 0, 0, 0.08) 35%,
@@ -118,7 +205,7 @@ body.photography.tall .edgefade.trail {
 }
 body.photography.wide .edgefade.trail {
     top: 0;
-    bottom: 0;
+    bottom: var(--lane);
     right: 0;
     width: 40px;
     background: linear-gradient(to right,
@@ -128,9 +215,11 @@ body.photography.wide .edgefade.trail {
         rgba(0, 0, 0, 0.55) 80%,
         rgba(0, 0, 0, 0.92) 100%);
 }
+/* Leading-edge fade: same treatment at the start of the strip (top on tall
+   screens, left on wide ones), darkening toward the edge. */
 body.photography.tall .edgefade.lead {
     left: 0;
-    right: 0;
+    right: var(--lane);
     top: 0;
     height: 40px;
     background: linear-gradient(to top,
@@ -142,7 +231,7 @@ body.photography.tall .edgefade.lead {
 }
 body.photography.wide .edgefade.lead {
     top: 0;
-    bottom: 0;
+    bottom: var(--lane);
     left: 0;
     width: 40px;
     background: linear-gradient(to left,
@@ -152,6 +241,14 @@ body.photography.wide .edgefade.lead {
         rgba(0, 0, 0, 0.55) 80%,
         rgba(0, 0, 0, 0.92) 100%);
 }
+/* Arrow buttons: a fast-forward/skip pair at each end of the strip, drawn
+   like TV-remote controls. As the strip nears either end, that end's pair
+   merges into the progress dot (the script drives its opacity and scale
+   from scroll); every button is always white.
+   The double-triangle fast-forward steps 80% of the screen; the
+   triangle-and-bar skip goes to that end of the strip. The pairs sit in
+   the corners at the strip's ends: right corners on tall screens (the
+   back pair still tucked below the top bar), bottom corners on wide. */
 body.photography .scrollbtn {
     background: none;
     border: none;
@@ -160,37 +257,45 @@ body.photography .scrollbtn {
     color: #fff;
     line-height: 0;
 }
+/* The button's SVG is one half of a split pill with its icon cut out;
+   sizing lives here, the shapes live in the markup's masks. */
 body.photography .scrollbtn svg {
     display: block;
-    width: 1.3125rem; 
+    width: 1.3125rem; /* half of the previous 2.625rem */
     height: 1.3125rem;
 }
 body.photography .btngroup {
     position: fixed;
     z-index: 6;
     display: flex;
-    gap: 2px; 
+    gap: 2px; /* a hairline seam where the pill splits */
+    /* No transition: the script drives opacity/scale from scroll position
+       every frame so the pair and the dot merge in lockstep. */
 }
 body.photography.tall .btngroup.trail {
     bottom: 0.5rem;
-    right: 0.5rem;
+    right: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
     flex-direction: column;
 }
 body.photography.wide .btngroup.trail {
     right: 0.5rem;
-    bottom: 0.5rem;
+    bottom: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
     flex-direction: row;
 }
 body.photography.tall .btngroup.lead {
-    top: 7.25rem; 
-    right: 0.5rem;
+    top: 7.25rem; /* below the top bar, which ends ~114px down */
+    right: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
     flex-direction: column;
 }
 body.photography.wide .btngroup.lead {
     left: 0.5rem;
-    bottom: 0.5rem;
+    bottom: calc((var(--lane) - 1.3125rem) / 2); /* centred in the lane */
     flex-direction: row;
 }
+/* Scroll progress dot: a white disc matching the pills' narrow
+   dimension, travelling the edge between the two pairs (right edge on
+   tall screens, bottom edge on wide ones). The script sets its position
+   from the strip's scroll fraction. */
 body.photography .scrolldot {
     position: fixed;
     z-index: 6;
@@ -199,9 +304,11 @@ body.photography .scrolldot {
     border-radius: 50%;
     background: #fff;
     cursor: grab;
-    touch-action: none; 
+    touch-action: none; /* dragging the dot scrubs the strip — the browser
+                           must not claim the gesture for itself */
     transition: opacity 0.4s ease;
 }
+/* Invisible halo so the small dot is easy to grab. */
 body.photography .scrolldot::after {
     content: "";
     position: absolute;
@@ -215,17 +322,23 @@ body.photography .scrolldot.off {
     pointer-events: none;
 }
 body.photography.tall .scrolldot {
-    right: 0.5rem;
+    right: calc((var(--lane) - 1.3125rem) / 2); /* rides in the lane */
 }
 body.photography.wide .scrolldot {
-    bottom: 0.5rem;
+    bottom: calc((var(--lane) - 1.3125rem) / 2); /* rides in the lane */
 }
+/* Split-pill geometry is baked into the markup: each button carries two
+   pre-drawn SVGs (wide / tall) whose mask holds its pill half with the
+   icon already centered on that half's visual centroid — no transforms,
+   so nothing can drift off-center. CSS only picks which variant shows. */
 body.photography.wide .scrollbtn svg.for-tall {
     display: none;
 }
 body.photography.tall .scrollbtn svg.for-wide {
     display: none;
 }
+
+/* Empty-state message (only shows if the image list is empty). */
 body.photography .slide.endcard {
     width: 100vw;
     height: 100dvh;
@@ -242,21 +355,25 @@ body.photography .slide.endcard p {
     font-weight: 900;
     color: var(--text);
 }
+
+/* Contact info, top right. Bold with slight glyph fattening for legibility
+   over photos. */
 body.photography .contactbar {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: center;
-    gap: 0.75rem; 
-    height: 82px; 
+    gap: 0.75rem; /* lines grouped mid-height instead of spread apart */
+    height: 82px; /* matches the logo height */
     font-size: 1.25rem;
     font-weight: 900;
     text-align: right;
     color: #fff;
+    /* Slightly fattens the glyphs past Courier New's own boldest face. */
     text-shadow: 0.15px 0 0 currentColor, -0.15px 0 0 currentColor,
                  0 0.15px 0 currentColor, 0 -0.15px 0 currentColor;
 }
 body.photography .contactbar a {
     color: #fff;
-    text-decoration: none;
+    text-decoration: none; /* still links, just no underline */
 }
