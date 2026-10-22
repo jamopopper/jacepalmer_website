@@ -126,46 +126,46 @@
             if (PORTFOLIO_IMAGES.length === 0) {
                 showEmpty("Portfolio coming soon.");
             } else {
-                // The strip holds the photos; each photo carries two
-                // backdrop canvases behind it. When a photo loads, it's
-                // drawn into those canvases at a tiny size — the shrink
-                // itself is most of the blur — and CSS stretches the
-                // tiny result back up with a light finishing blur. The
-                // phone only ever stretches a tiny texture instead of
-                // filtering a full-size image, so scrolling stays smooth.
+                // The strip holds the photos over a separate backdrop
+                // layer of blurred tiles (one per photo, sized by an
+                // invisible copy of the photo). When a photo loads,
+                // it's drawn into its tile's canvas at a tiny size —
+                // the shrink itself is most of the blur — and CSS
+                // stretches the tiny result back up and blurs it for
+                // real; the filter's overshoot lands under the
+                // neighbouring photos, so faces stay clean. The phone
+                // only ever filters a tiny texture stretched up, never
+                // a full-size image.
                 const strip = document.createElement("div");
                 strip.className = "strip";
                 const tinyCanvas = document.createElement("canvas");
-                function paintHalo(canvas, img, width) {
+                function paintTile(canvas, img) {
                     // Blur, baked in two stages: shrink the photo hard
                     // onto a tiny canvas (that shrink is most of the
-                    // blur), then draw the tiny copy up into the halo
-                    // bitmap — the upscale smooths it further. No CSS
-                    // filter is used: a filter would keep painting a
-                    // blur-radius past the halo's box, washing over the
-                    // neighbouring photo.
+                    // blur), then draw the tiny copy up into the tile
+                    // bitmap — the upscale smooths it further; a CSS
+                    // blur on the tile finishes it.
                     const TINY_W = 40;
                     tinyCanvas.width = TINY_W;
                     tinyCanvas.height = Math.max(1, Math.round(TINY_W * img.naturalHeight / img.naturalWidth));
                     tinyCanvas.getContext("2d").drawImage(img, 0, 0, tinyCanvas.width, tinyCanvas.height);
-                    canvas.width = width;
-                    canvas.height = Math.max(1, Math.round(width * img.naturalHeight / img.naturalWidth));
+                    canvas.width = 160;
+                    canvas.height = Math.max(1, Math.round(160 * img.naturalHeight / img.naturalWidth));
                     const ctx = canvas.getContext("2d");
                     ctx.drawImage(tinyCanvas, 0, 0, canvas.width, canvas.height);
                     // Bake the crossfade into the bitmap itself: erase a
                     // ramp at each end of the scroll axis (full erase at
-                    // the edge, none one gap-width in), so where two
-                    // halos overlap in a gap their alphas sum to one and
-                    // the colors dissolve into each other. Doing this in
-                    // the image data — instead of a CSS mask, blend mode,
-                    // or clip — keeps the effect on the plainest image
-                    // compositing path, which is the one iOS Safari
-                    // renders reliably inside a scroller.
+                    // the edge, none 40px in — the length of the tile's
+                    // spill), so where two tiles overlap in a gap their
+                    // alphas sum to one and the colors dissolve into
+                    // each other. Doing this in the image data — instead
+                    // of a CSS mask or blend mode — keeps the effect on
+                    // the plainest compositing path.
                     const horizontal = document.body.classList.contains("wide");
                     const axisBitmap = horizontal ? canvas.width : canvas.height;
                     const axisClient = horizontal ? canvas.clientWidth : canvas.clientHeight;
                     if (!axisClient) return;
-                    const ramp = Math.max(1, Math.round(14 * axisBitmap / axisClient));
+                    const ramp = Math.max(1, Math.round(40 * axisBitmap / axisClient));
                     ctx.globalCompositeOperation = "destination-out";
                     if (horizontal) {
                         let g = ctx.createLinearGradient(0, 0, ramp, 0);
@@ -201,11 +201,14 @@
                     lastWide = nowWide;
                     queue.forEach(function (entry) {
                         if (entry.img.complete && entry.img.naturalWidth > 0) {
-                            paintHalo(entry.halo, entry.img, 64);
-                            paintHalo(entry.blend, entry.img, 160);
+                            paintTile(entry.tile, entry.img);
                         }
                     });
                 });
+                const backdrop = document.createElement("div");
+                backdrop.className = "backdrop";
+                backdrop.setAttribute("aria-hidden", "true");
+                strip.appendChild(backdrop);
                 const queue = [];
                 for (const file of PORTFOLIO_IMAGES) {
                     const slide = document.createElement("div");
@@ -213,16 +216,17 @@
                     const img = document.createElement("img");
                     img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
                     slide.appendChild(img);
-                    const halo = document.createElement("canvas");
-                    halo.className = "halo";
-                    halo.setAttribute("aria-hidden", "true");
-                    slide.appendChild(halo);
-                    const blend = document.createElement("canvas");
-                    blend.className = "halo blend";
-                    blend.setAttribute("aria-hidden", "true");
-                    slide.appendChild(blend);
                     strip.appendChild(slide);
-                    queue.push({ img: img, file: file, halo: halo, blend: blend });
+                    const tile = document.createElement("div");
+                    tile.className = "tile";
+                    const sizer = document.createElement("img");
+                    sizer.className = "sizer";
+                    sizer.alt = "";
+                    tile.appendChild(sizer);
+                    const tileCanvas = document.createElement("canvas");
+                    tile.appendChild(tileCanvas);
+                    backdrop.appendChild(tile);
+                    queue.push({ img: img, file: file, sizer: sizer, tile: tileCanvas });
                 }
                 gallery.appendChild(strip);
                 // Photos load in a small rolling window (a few in
@@ -243,13 +247,13 @@
                             pumpLoads();
                         };
                         entry.img.addEventListener("load", function () {
-                            paintHalo(entry.halo, entry.img, 64);
-                            paintHalo(entry.blend, entry.img, 160);
+                            paintTile(entry.tile, entry.img);
                             updateFade();
                             settle();
                         });
                         entry.img.addEventListener("error", settle);
                         entry.img.src = PORTFOLIO_DIR + entry.file;
+                        entry.sizer.src = entry.img.src;
                     }
                 }
                 pumpLoads();
