@@ -6,8 +6,11 @@
     --bkgnd: #000;
     --text: #fff;
     --r: 14px; /* photo corner radius — the gap between photos matches it */
-    --lane: 3.25rem; /* blur-only lane for the scroll UI: bottom edge on
-                        wide screens, right edge on tall ones */
+    --lane: 3.25rem; /* the scroll UI's band at the screen edge: bottom
+                        on wide screens, right on tall ones. The strip is
+                        centred with half a lane of margin on both sides,
+                        so the dot and pill pairs — centred in the lane —
+                        sit half over the photos' edge. */
 }
 
 html {
@@ -95,13 +98,17 @@ body.photography.wide .gallery {
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: var(--lane); /* the lane: blurred backdrop only */
+    padding-top: calc(var(--lane) / 2);
+    padding-bottom: calc(var(--lane) / 2); /* strip centred; the scroll
+                        UI rides half over the photos' bottom edge */
 }
 body.photography.tall .gallery {
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-right: var(--lane); /* the lane: blurred backdrop only */
+    padding-left: calc(var(--lane) / 2);
+    padding-right: calc(var(--lane) / 2); /* strip centred; the scroll
+                        UI rides half over the photos' right edge */
 }
 /* The strip: photos keep their own proportions, lightly rounded corners,
    separated by a gap equal to the corner radius. Under the photos sits
