@@ -29,6 +29,8 @@ body { background:#000; margin:0; font-family:monospace; color:#fff; }
     -webkit-mask-image:linear-gradient(to right, transparent 0, #000 60px, #000 calc(100% - 60px), transparent 100%);
     mask-image:linear-gradient(to right, transparent 0, #000 60px, #000 calc(100% - 60px), transparent 100%); }
 .stage .stripX { margin-left:0; }
+.v6 .halo { -webkit-mask-image:none; mask-image:none; clip-path:inset(0); }
+.v7 .halo { -webkit-mask-image:none; mask-image:none; clip-path:inset(0); mix-blend-mode:screen; }
 </style>
 </head>
 <body>
@@ -49,6 +51,16 @@ body { background:#000; margin:0; font-family:monospace; color:#fff; }
 </div>
 <div class="rowlabel">ROW 4: in-slide, NO mask, NO filter</div>
 <div class="stripX v4">
+  <div class="slide"><div class="photo pa"></div><canvas class="halo base" data-c="a"></canvas><canvas class="halo blend" data-c="a"></canvas></div>
+  <div class="slide"><div class="photo pb"></div><canvas class="halo base" data-c="b"></canvas><canvas class="halo blend" data-c="b"></canvas></div>
+</div>
+<div class="rowlabel">ROW 6: in-slide, NO mask, clip-path inset(0)</div>
+<div class="stripX v6">
+  <div class="slide"><div class="photo pa"></div><canvas class="halo base" data-c="a"></canvas><canvas class="halo blend" data-c="a"></canvas></div>
+  <div class="slide"><div class="photo pb"></div><canvas class="halo base" data-c="b"></canvas><canvas class="halo blend" data-c="b"></canvas></div>
+</div>
+<div class="rowlabel">ROW 7: in-slide, NO mask, clip-path inset(0), screen blend</div>
+<div class="stripX v7">
   <div class="slide"><div class="photo pa"></div><canvas class="halo base" data-c="a"></canvas><canvas class="halo blend" data-c="a"></canvas></div>
   <div class="slide"><div class="photo pb"></div><canvas class="halo base" data-c="b"></canvas><canvas class="halo blend" data-c="b"></canvas></div>
 </div>
