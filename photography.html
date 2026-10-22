@@ -150,6 +150,14 @@
                     haloImg.loading = "lazy";
                     haloImg.draggable = false;
                     slide.appendChild(haloImg);
+                    const blendImg = document.createElement("img");
+                    blendImg.className = "halo blend";
+                    blendImg.src = PORTFOLIO_DIR + file;
+                    blendImg.alt = "";
+                    blendImg.setAttribute("aria-hidden", "true");
+                    blendImg.loading = "lazy";
+                    blendImg.draggable = false;
+                    slide.appendChild(blendImg);
                 }
                 gallery.appendChild(strip);
             }
