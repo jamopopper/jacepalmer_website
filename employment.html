@@ -2,74 +2,38 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="color-scheme" content="light dark" />
-        <link rel="stylesheet" href="/index.css" />
-        <html prefix="og: https://ogp.me/ns#">
-        <meta property="og:title" content="Jace Palmer"/>
-        <meta property="og:type" content="website"/>
-        <meta property="og:url" content="https://jacepalmer.net/employment.html" />
-        <meta property="og:image" content="/images/jp_logo_small.png"/>
-        <link rel="apple-touch-icon" sizes="57x57" href="/images/favicon.ico/apple-icon-57x57.png">
-        <link rel="apple-touch-icon" sizes="60x60" href="/images/favicon.ico/apple-icon-60x60.png">
-        <link rel="apple-touch-icon" sizes="72x72" href="/images/favicon.ico/apple-icon-72x72.png">
-        <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.ico/apple-icon-76x76.png">
-        <link rel="apple-touch-icon" sizes="114x114" href="/images/favicon.ico/apple-icon-114x114.png">
-        <link rel="apple-touch-icon" sizes="120x120" href="/images/favicon.ico/apple-icon-120x120.png">
-        <link rel="apple-touch-icon" sizes="144x144" href="/images/favicon.ico/apple-icon-144x144.png">
-        <link rel="apple-touch-icon" sizes="152x152" href="/images/favicon.ico/apple-icon-152x152.png">
-        <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico/apple-icon-180x180.png">
-        <link rel="icon" type="image/png" sizes="192x192"  href="/images/favicon.ico/android-icon-192x192.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon.ico/favicon-96x96.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico/favicon-16x16.png">
-        <meta name="msapplication-TileColor" content="#ffffff">
-        <meta name="msapplication-TileImage" content="/images.favicon.ico/ms-icon-144x144.png">
-        <meta name="theme-color" content="#ffffff">
-        <meta name="description" content="Employment Information for Jace Palmer">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <meta name="color-scheme" content="dark" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico/favicon-32x32.png" />
         <title>Jace Palmer</title>
+        <style>
+            html, body {
+                margin: 0;
+                height: 100%;
+                background: #000;
+            }
+            body {
+                display: grid;
+                place-items: center;
+                height: 100dvh;
+            }
+            img {
+                width: 80vmin;
+                height: auto;
+                filter: invert(1);
+                animation: ebb 1.5s ease-in-out infinite alternate;
+            }
+            @keyframes ebb {
+                from { transform: scale(0.94); opacity: 0.25; }
+                to { transform: scale(1.06); opacity: 0.75; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                img { animation: none; }
+            }
+        </style>
     </head>
-
     <body>
-        <div class="stack">
-            <div class="module">
-                <h1>Jace Palmer's Portfolio</h1>
-            </div>
-        </div>
-        <div class="stack">
-            <div class="module">
-                <img src="/images/me_and_drone.jpg" alt="">
-            </div>
-            <div class="module">
-                <h3>Email: <a href="mailto:work@jacepalmer.net">work@jacepalmer.net</a></h3>
-                <h3>Resume: <a href="/jace_palmer_resume.pdf">Resume</a></h3>
-                <h3><a href="https://github.com/jamopopper">Coding Languages</a> I've worked with...</h3>
-                <table>
-                    <tr>
-                        <th></th>
-                        <th>Web Dev</th>
-                        <th>Low Level Programming</th>
-                        <th>Scripting</th>
-                        <th>Server Management</th>
-                    </tr>
-                    <tr>
-                        <td>Languages</td>
-                        <td>HTML, JS, CSS, PHP, and SQL</td>
-                        <td>C, C++, and Assembly</td>
-                        <td>Python and Bash</td>
-                        <td>CUDA, OpenMP, OpenCL, MPI</td>
-                    </tr>
-                    <tr>
-                        <td>Projects</td>
-                        <td>Database Management, personal website</td>
-                        <td>Data structure manipulation, 24-bit multiplier</td>
-                        <td>Machine Learning, Algorithm Optimization</td>
-                        <td>Proxmox management, Unix Virtualization, Docker Containers, Samba File Server</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <script src="/index.js"></script>
+        <img src="/images/jp_logo-01.png" alt="Jace Palmer" />
     </body>
 </html>
