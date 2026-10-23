@@ -2,11 +2,9 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         <meta name="color-scheme" content="dark" />
         <link rel="stylesheet" href="/photography.css" />
-        <html prefix="og: https://ogp.me/ns#">
         <meta property="og:title" content="Jace Palmer — Photography"/>
         <meta property="og:type" content="website"/>
         <meta property="og:url" content="https://jacepalmer.net/photography.html" />
@@ -24,8 +22,6 @@
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon.ico/favicon-96x96.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico/favicon-16x16.png">
-        <meta name="msapplication-TileColor" content="#ffffff">
-        <meta name="msapplication-TileImage" content="/images.favicon.ico/ms-icon-144x144.png">
         <meta name="theme-color" content="#ffffff">
         <meta name="description" content="Photography by Jace Palmer">
         <title>Jace Palmer — Photography</title>
@@ -33,26 +29,21 @@
 
     <body class="photography">
         <header class="topbar">
-            <!-- Back to main page. Black logo PNG; CSS inverts it to white. -->
+
             <a class="pfp" href="/index.html" title="Back to main page">
                 <img src="/images/jp_logo-01.png" alt="Back to main page"
                      onerror="this.remove();this.parentElement.classList.add('no-logo')" />
                 <span aria-hidden="true">&#8592;</span>
             </a>
-            <div class="contactbar">
-                <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a>
-                <a href="tel:+15415307472">(541) 530-7472</a>
-            </div>
         </header>
+
+        <div class="contactbar">
+            <a href="mailto:photo@jacepalmer.net">photo@jacepalmer.net</a>
+            <a href="tel:+15415307472">(541) 530-7472</a>
+        </div>
 
         <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
 
-        <!-- Scroll cues: fades on both edges of the strip, always on, plus
-             a pair of remote-style buttons at each end; nearing an end
-             merges its pair into the progress dot. Each pair forms one
-             split pill — fast-forward (double triangle) steps 80% of the
-             screen, skip (triangle and bar) goes to that end — with the
-             icons cut out of the pill. -->
         <div class="btngroup lead">
             <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 0 L32 0 A32 32 0 0 0 32 64 L64 64 Z" fill="#fff"/><g fill="#000"><path d="M53.7 17.5 L29.9 32 L53.7 46.5 Z"/><rect x="16.3" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 64 L64 32 A32 32 0 0 0 0 32 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M17.5 53.7 L32 29.9 L46.5 53.7 Z"/><rect x="17.5" y="16.3" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-tall)"/></svg></button>
             <button class="scrollbtn step" id="scrollBack" type="button" aria-label="Scroll back"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollBack-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L32 0 A32 32 0 0 1 32 64 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M48.1 17.5 L30.3 32 L48.1 46.5 Z"/><path d="M27.7 17.5 L9.9 32 L27.7 46.5 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollBack-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-scrollBack-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L0 32 A32 32 0 0 0 64 32 L64 0 Z" fill="#fff"/><g fill="#000"><path d="M17.5 48.1 L32 30.3 L46.5 48.1 Z"/><path d="M17.5 27.7 L32 9.9 L46.5 27.7 Z"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-scrollBack-tall)"/></svg></button>
@@ -62,21 +53,11 @@
             <button class="scrollbtn skip" id="skipEnd" type="button" aria-label="Go to last photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L32 0 A32 32 0 0 1 32 64 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M10.3 17.5 L34.1 32 L10.3 46.5 Z"/><rect x="40" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipEnd-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M0 0 L0 32 A32 32 0 0 0 64 32 L64 0 Z" fill="#fff"/><g fill="#000"><path d="M46.5 10.3 L32 34.1 L17.5 10.3 Z"/><rect x="17.5" y="40" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipEnd-tall)"/></svg></button>
         </div>
 
-        <!-- Scroll progress dot: travels the edge between the two pill
-             pairs as the strip scrolls. -->
-        <div class="scrolldot" aria-hidden="true"></div>
-
         <script>
-            // ------------------------------------------------------------------
-            // YOUR PORTFOLIO IMAGES GO HERE.
-            // 1. Put your image files in /images/portfolio/ in the repo.
-            // 2. List each filename below, in the order you want them shown
-            //    (e.g. newest-taken first).
-            //    Any web image format works: .jpg .jpeg .png .webp .gif
-            // ------------------------------------------------------------------
+
             const PORTFOLIO_DIR = "/images/portfolio/";
             const PORTFOLIO_IMAGES = [
-                // Ordered newest to oldest by file timestamp.
+
                 "IMG_2474.jpeg",
                 "IMG_2469.jpeg",
                 "IMG_2471.jpeg",
@@ -114,14 +95,46 @@
                 "P1650036 4 Edited.jpeg",
             ];
 
+            const PORTFOLIO_DIMS = {
+                "IMG_2474.jpeg": [3730, 4974],
+                "IMG_2469.jpeg": [3825, 5100],
+                "IMG_2471.jpeg": [3888, 5184],
+                "IMG_2468.jpeg": [3888, 5184],
+                "IMG_1917.jpeg": [5184, 3888],
+                "IMG_1909.jpeg": [5184, 3888],
+                "IMG_1906.jpeg": [5184, 3888],
+                "IMG_1684.jpeg": [5105, 3829],
+                "IMG_1668.JPG": [3888, 5184],
+                "IMG_1545.JPG": [6888, 5172],
+                "IMG_1544.JPG": [5172, 6888],
+                "IMG_1324.JPG": [6888, 5172],
+                "IMG_1406.JPG": [6858, 5149],
+                "IMG_1404.JPG": [6888, 5172],
+                "IMG_1376.JPG": [6549, 4917],
+                "P1760160 6 Edited.jpg": [4592, 3448],
+                "IMG_0599 13 Edited.jpg": [4592, 3448],
+                "IMG_0444 10 Edited.jpg": [4592, 3448],
+                "IMG_0467 4 Edited.jpg": [4592, 3448],
+                "P1740326 51 Edited.jpg": [4592, 3448],
+                "P1740316 49 Edited.jpg": [4592, 3448],
+                "P1740278 42 Edited.jpg": [4592, 3448],
+                "P1740151 26 Edited.jpg": [4592, 3448],
+                "P1730856 19 Edited.JPG": [3448, 4592],
+                "P1730780 3 Edited.JPG": [3448, 4592],
+                "P1730723 110 Edited.jpg": [4134, 1757],
+                "P1730662 106 Edited.jpg": [4592, 3448],
+                "P1730625 101 Edited.jpg": [3753, 2818],
+                "P1730402 68 Edited.jpg": [4592, 3448],
+                "P1730240 37 Edited.jpg": [3448, 4592],
+                "P1730098 19 Edited.jpg": [3448, 4592],
+                "P1730082 17 Edited.jpg": [4592, 3448],
+                "P1730016 11 Edited.jpg": [4592, 3448],
+                "P1650044 7 Edited.jpeg": [4592, 3448],
+                "P1650036 4 Edited.jpeg": [4592, 3448],
+            };
+
             const gallery = document.getElementById("gallery");
 
-            // The document itself is the scroller (the gallery element
-            // is only the strip's wrapper), so scroll reads and writes
-            // go to the root element. This is also what lets iOS
-            // Safari run the content under its top/bottom bars, like
-            // a normal page — an inner container's scrolling never
-            // reaches the glass.
             const scroller = document.documentElement;
             function scrollPos() {
                 return document.body.classList.contains("wide") ? window.scrollX : window.scrollY;
@@ -146,8 +159,7 @@
             if (PORTFOLIO_IMAGES.length === 0) {
                 showEmpty("Portfolio coming soon.");
             } else {
-                // The strip holds the photos on the page's plain
-                // black ground — no backdrop layer, no blur.
+
                 const strip = document.createElement("div");
                 strip.className = "strip";
                 const queue = [];
@@ -156,15 +168,18 @@
                     slide.className = "slide";
                     const img = document.createElement("img");
                     img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
+                    const dims = PORTFOLIO_DIMS[file];
+                    if (dims) {
+
+                        img.style.aspectRatio = dims[0] + " / " + dims[1];
+                        img.style.opacity = "0";
+                    }
                     slide.appendChild(img);
                     strip.appendChild(slide);
                     queue.push({ img: img, file: file });
                 }
                 gallery.appendChild(strip);
-                // Photos load in a small rolling window (a few in
-                // flight, each finished load starting the next), so the
-                // next section is ready a couple of screens before it's
-                // reached instead of starting at the screen's edge.
+
                 let nextUp = 0;
                 let inFlight = 0;
                 function pumpLoads() {
@@ -179,21 +194,20 @@
                             pumpLoads();
                         };
                         entry.img.addEventListener("load", function () {
-                            updateFade();
+                            entry.img.style.opacity = "";
+                            requestRefresh();
                             settle();
                         });
-                        entry.img.addEventListener("error", settle);
+                        entry.img.addEventListener("error", function () {
+                            entry.img.style.opacity = "";
+                            settle();
+                        });
                         entry.img.src = PORTFOLIO_DIR + entry.file;
                     }
                 }
                 pumpLoads();
             }
 
-            // Scroll direction follows the screen shape: wider screens scroll
-            // horizontally, taller screens scroll vertically. Re-evaluated on
-            // resize so rotating a phone/tablet just works. No platform
-            // detection anywhere — wheel and touch both drive the
-            // document's own scrolling.
             function setOrientation() {
                 document.body.classList.toggle("wide", window.innerWidth >= window.innerHeight);
                 document.body.classList.toggle("tall", window.innerWidth < window.innerHeight);
@@ -201,38 +215,40 @@
             window.addEventListener("resize", setOrientation);
             setOrientation();
 
-            // Scroll cues. Fades sit on both edges of the strip, always on;
-            // at each end a pill pair merges into the progress dot as its
-            // end is reached; clicking a pill button smooth-scrolls the
-            // strip. About 3s after the page opens, the strip also nudges
-            // forward and back once — skipped if the visitor has already
-            // started scrolling or their system prefers reduced motion.
             const fwdBtn = document.getElementById("scrollFwd");
             const backBtn = document.getElementById("scrollBack");
             const skipFwdBtn = document.getElementById("skipEnd");
             const skipBackBtn = document.getElementById("skipStart");
             const fwdGroup = document.querySelector(".btngroup.trail");
             const backGroup = document.querySelector(".btngroup.lead");
-            const dot = document.querySelector(".scrolldot");
-            const SCROLL_MS = 1467; // nudge duration — 1.5x the original 2200ms pace
-            const BUTTON_MS = 880; // button scrolls: same easing at 2.5x the nudge's speed
+            const SCROLL_MS = 1467;
+            const BUTTON_MS = 880;
             let nudging = false;
             let userScrolled = false;
 
+            let geom = null;
+            function measureGeom() {
+                geom = {
+                    horizontal: document.body.classList.contains("wide"),
+                    max: scrollMax()
+                };
+            }
+            function refreshFade() {
+                measureGeom();
+                updateFade();
+            }
+
+            function requestRefresh() {
+                if (fadeRaf === null) refreshFade();
+                else updateFade();
+            }
+
             function updateFade() {
                 const horizontal = document.body.classList.contains("wide");
+                if (!geom || geom.horizontal !== horizontal) measureGeom();
                 const pos = scrollPos();
-                const max = scrollMax();
-                // (The black edge fades were removed 2026-10-21 at
-                // Jace's request.)
-                // Pair/dot merge at the ends. In the last MERGE px of
-                // scroll at either end, that end's pair fades out and
-                // shrinks toward its far end (its transform origin sits
-                // at that tip) while the dot slides from its
-                // between-pairs track onto that same tip — one
-                // scroll-driven motion, so the pair reads as collapsing
-                // into the dot at its end, and reverses on the way back.
-                // Mid-strip, the dot rides the edge between the pairs.
+                const max = geom.max;
+
                 function setPair(group, o) {
                     group.style.opacity = String(o);
                     group.style.transform = "scale(" + (0.55 + 0.45 * o) + ")";
@@ -241,47 +257,14 @@
                 if (max <= 0) {
                     setPair(backGroup, 0);
                     setPair(fwdGroup, 0);
-                    dot.classList.add("off");
                 } else {
                     const MERGE = Math.min(140, max * 0.25);
                     setPair(backGroup, Math.min(1, pos / MERGE));
                     setPair(fwdGroup, Math.min(1, (max - pos) / MERGE));
-                    dot.classList.remove("off");
-                    const d = dot.offsetWidth;
-                    // Layout boxes, not getBoundingClientRect: the pairs
-                    // are mid-shrink (transformed) while this runs, and
-                    // the anchors must stay on the untransformed tips.
-                    const bL = backGroup.offsetLeft, bT = backGroup.offsetTop;
-                    const bW = backGroup.offsetWidth, bH = backGroup.offsetHeight;
-                    const fL = fwdGroup.offsetLeft, fT = fwdGroup.offsetTop;
-                    const fW = fwdGroup.offsetWidth, fH = fwdGroup.offsetHeight;
-                    let v0, v1, v2, v3;
-                    if (horizontal) {
-                        v0 = bL; // the lead pair's start tip
-                        v1 = bL + bW + 8;
-                        v2 = fL - 8 - d;
-                        v3 = fL + fW - d; // the trail pair's end tip
-                    } else {
-                        v0 = bT;
-                        v1 = bT + bH + 8;
-                        v2 = fT - 8 - d;
-                        v3 = fT + fH - d;
-                    }
-                    let a;
-                    if (pos <= MERGE) a = v0 + (v1 - v0) * (pos / MERGE);
-                    else if (pos >= max - MERGE) a = v2 + (v3 - v2) * ((pos - (max - MERGE)) / MERGE);
-                    else a = v1 + (v2 - v1) * ((pos - MERGE) / (max - 2 * MERGE));
-                    if (horizontal) { dot.style.left = a + "px"; dot.style.top = ""; }
-                    else { dot.style.top = a + "px"; dot.style.left = ""; }
                 }
                 if (!nudging && pos > 4) userScrolled = true;
             }
-            // Scroll events trail the real scroll on iOS — the page
-            // moves on the compositor while the event lands later —
-            // which made the dot lag behind the strip. While a scroll
-            // is in flight, sync from requestAnimationFrame instead:
-            // every frame reads the live position, and the loop stops
-            // once the position has settled for two frames.
+
             let fadeRaf = null;
             function requestFade() {
                 if (fadeRaf !== null) return;
@@ -294,22 +277,20 @@
                     if (p === lastPos) settled++;
                     else { settled = 0; lastPos = p; }
                     if (settled < 2) fadeRaf = requestAnimationFrame(step);
+
+                    else refreshFade();
                 }
                 fadeRaf = requestAnimationFrame(step);
             }
             window.addEventListener("scroll", requestFade, { passive: true });
-            window.addEventListener("resize", updateFade);
-            updateFade();
-            // Late-loading photos grow the strip after that first check,
-            // when it can still measure zero overflow — re-check as each
-            // photo lands so the fade is correct from the start.
-            gallery.querySelectorAll("img").forEach((img) => {
-                if (!img.complete) img.addEventListener("load", updateFade);
-            });
-            window.addEventListener("load", updateFade);
+            window.addEventListener("resize", requestRefresh);
+            refreshFade();
 
-            // The nudge: the strip eases out and back symmetrically on one
-            // clock — zero speed at the start, the peak, and the end.
+            gallery.querySelectorAll("img").forEach((img) => {
+                if (!img.complete) img.addEventListener("load", requestRefresh);
+            });
+            window.addEventListener("load", requestRefresh);
+
             const easeInOut = (t) => t < 0.5
                 ? 4 * t * t * t
                 : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -333,7 +314,7 @@
                 }
                 requestAnimationFrame(frame);
             }
-            // A real scroll attempt during an animation hands control over.
+
             let buttonAnim = null;
             function cancelAnimations() {
                 nudgeCancelled = true;
@@ -342,8 +323,6 @@
             window.addEventListener("wheel", cancelAnimations, { passive: true });
             window.addEventListener("touchstart", cancelAnimations, { passive: true });
 
-            // Arrow buttons: smooth-scroll 80% of the screen dimension in
-            // the strip's direction, eased like the nudge over BUTTON_MS.
             function smoothScrollBy(delta) {
                 cancelAnimations();
                 const from = scrollPos();
@@ -368,47 +347,9 @@
             }
             fwdBtn.addEventListener("click", () => smoothScrollBy(screenDelta(1)));
             backBtn.addEventListener("click", () => smoothScrollBy(screenDelta(-1)));
-            // Skip buttons ride the same animation to the strip's end —
-            // the clamp in smoothScrollBy lands them exactly on it.
+
             skipFwdBtn.addEventListener("click", () => smoothScrollBy(Number.MAX_SAFE_INTEGER));
             skipBackBtn.addEventListener("click", () => smoothScrollBy(-Number.MAX_SAFE_INTEGER));
-
-            // The progress dot is a scrubber too: dragging it along its
-            // edge — from the back pair's centre to the forward pair's —
-            // maps linearly onto the strip's scroll range. Setting the
-            // scroll fires the normal scroll handler, which repositions
-            // the dot (and runs the end merges) as usual.
-            let dotDragging = false;
-            function scrubTo(e) {
-                const horizontal = document.body.classList.contains("wide");
-                const max = scrollMax();
-                if (max <= 0) return;
-                const dd = dot.offsetWidth;
-                let c0, c1, p;
-                if (horizontal) {
-                    c0 = backGroup.offsetLeft + dd / 2;
-                    c1 = fwdGroup.offsetLeft + fwdGroup.offsetWidth - dd / 2;
-                    p = e.clientX;
-                } else {
-                    c0 = backGroup.offsetTop + dd / 2;
-                    c1 = fwdGroup.offsetTop + fwdGroup.offsetHeight - dd / 2;
-                    p = e.clientY;
-                }
-                const f = Math.max(0, Math.min(1, (p - c0) / (c1 - c0)));
-                setScrollPos(f * max);
-            }
-            dot.addEventListener("pointerdown", (e) => {
-                dotDragging = true;
-                dot.setPointerCapture(e.pointerId);
-                cancelAnimations();
-                e.preventDefault();
-                scrubTo(e);
-            });
-            dot.addEventListener("pointermove", (e) => {
-                if (dotDragging) scrubTo(e);
-            });
-            dot.addEventListener("pointerup", () => { dotDragging = false; });
-            dot.addEventListener("pointercancel", () => { dotDragging = false; });
 
             if (PORTFOLIO_IMAGES.length > 1 &&
                 !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -417,6 +358,5 @@
                 }, 3000);
             }
         </script>
-        <script src="/index.js"></script>
     </body>
 </html>
