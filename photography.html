@@ -22,7 +22,7 @@
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon.ico/favicon-96x96.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico/favicon-16x16.png">
-        <meta name="theme-color" content="#ffffff">
+        <meta name="theme-color" content="#000000">
         <meta name="description" content="Photography by Jace Palmer">
         <title>Jace Palmer — Photography</title>
     </head>
@@ -42,7 +42,7 @@
             <a href="tel:+15415307472">(541) 530-7472</a>
         </div>
 
-        <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
+        <main class="gallery" id="gallery" aria-label="Photo portfolio"><h1 class="visually-hidden">Jace Palmer's Photography Portfolio</h1></main>
 
         <div class="btngroup lead">
             <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 0 L32 0 A32 32 0 0 0 32 64 L64 64 Z" fill="#fff"/><g fill="#000"><path d="M53.7 17.5 L29.9 32 L53.7 46.5 Z"/><rect x="16.3" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 64 L64 32 A32 32 0 0 0 0 32 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M17.5 53.7 L32 29.9 L46.5 53.7 Z"/><rect x="17.5" y="16.3" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-tall)"/></svg></button>
@@ -179,7 +179,7 @@
                     const slide = document.createElement("div");
                     slide.className = "slide";
                     const img = document.createElement("img");
-                    img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
+                    img.alt = "";
                     const dims = PORTFOLIO_DIMS[file];
                     if (dims) {
 
@@ -265,6 +265,7 @@
                     group.style.opacity = String(o);
                     group.style.transform = "scale(" + (0.55 + 0.45 * o) + ")";
                     group.style.pointerEvents = o <= 0.02 ? "none" : "";
+                    group.style.visibility = o <= 0.02 ? "hidden" : "";
                 }
                 if (max <= 0) {
                     setPair(backGroup, 0);
@@ -343,6 +344,11 @@
             function animateTo(to, ms) {
                 nudgeCancelled = true;
                 to = Math.max(0, Math.min(scrollMax(), to));
+                if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                    buttonAnim = null;
+                    setScrollPos(to);
+                    return;
+                }
                 if (buttonAnim) {
                     buttonAnim.to = to;
                     if (ms) buttonAnim.ms = ms;
