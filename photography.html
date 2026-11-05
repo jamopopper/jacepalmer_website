@@ -471,12 +471,13 @@
             }, { passive: true });
             window.addEventListener("wheel", (e) => {
                 if (!document.body.classList.contains("wide")) return;
-                if (e.ctrlKey || e.deltaX === 0) return;
+                if (e.ctrlKey) return;
+                if (e.deltaX === 0 && e.deltaY === 0) return;
                 e.preventDefault();
                 cancelAnimations();
                 const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerWidth : 1;
                 const max = scrollMax();
-                setScrollPos(Math.max(0, Math.min(max, scrollPos() + e.deltaX * unit)));
+                setScrollPos(Math.max(0, Math.min(max, scrollPos() + (e.deltaX + e.deltaY) * unit)));
             }, { passive: false });
 
             if (PORTFOLIO_IMAGES.length > 1 &&
