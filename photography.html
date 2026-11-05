@@ -234,7 +234,7 @@
             const fwdGroup = document.querySelector(".btngroup.trail");
             const backGroup = document.querySelector(".btngroup.lead");
             const SCROLL_MS = 1467;
-            const BUTTON_MS = 880;
+            const BUTTON_MS = 1000;
             let nudging = false;
             let userScrolled = false;
 
@@ -408,7 +408,7 @@
             skipFwdBtn.addEventListener("click", () => animateTo(scrollMax()));
             skipBackBtn.addEventListener("click", () => animateTo(0));
 
-            const SNAP_MS = 450;
+            const SNAP_MS = 550;
             let snapTimer = null;
             let touching = false;
             function scheduleSnap() {
