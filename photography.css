@@ -5,7 +5,7 @@
     --text: #fff;
     --r: 14px;
 
-    --cr: 1.140625rem;
+    --cr: calc(var(--btn) / 2);
     --lane: 5rem;
     --btn: 2.75rem;
 }
