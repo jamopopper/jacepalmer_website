@@ -5,8 +5,9 @@
     --text: #fff;
     --r: 14px;
 
-    --cr: calc((var(--lane) + 1.3125rem) / 4);
-    --lane: 3.25rem;
+    --cr: 1.140625rem;
+    --lane: 5rem;
+    --btn: 2.75rem;
 }
 
 html {
@@ -45,12 +46,12 @@ body.photography .topbar {
     justify-content: space-between;
     gap: 0.5rem 1rem;
 
-    padding: calc((var(--lane) - 1.3125rem) / 4);
-    padding-right: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-right, 0px));
+    padding: calc((var(--lane) - var(--btn)) / 4);
+    padding-right: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-right, 0px));
 
-    padding-top: calc((var(--lane) - 1.3125rem) / 4 + env(safe-area-inset-top, 0px));
+    padding-top: calc((var(--lane) - var(--btn)) / 4 + env(safe-area-inset-top, 0px));
 
-    padding-left: calc((var(--lane) - 1.3125rem) / 4 + env(safe-area-inset-left, 0px));
+    padding-left: calc((var(--lane) - var(--btn)) / 4 + env(safe-area-inset-left, 0px));
     pointer-events: none;
 }
 body.photography .topbar a {
@@ -68,7 +69,7 @@ body.photography .pfp {
     color: inherit;
     text-decoration: none;
     font-size: 1.4rem;
-    font-weight: 900;
+    font-weight: 700;
     line-height: 82px;
     text-align: center;
 }
@@ -101,7 +102,7 @@ body.photography .strip {
     flex: 0 0 auto;
     box-sizing: border-box;
 
-    padding: calc((var(--lane) - 1.3125rem) / 4);
+    padding: calc((var(--lane) - var(--btn)) / 4);
 }
 body.photography.wide .strip {
     flex-direction: row;
@@ -156,18 +157,15 @@ body.photography .scrollbtn {
     color: #fff;
     line-height: 0;
     position: relative;
-}
-
-body.photography .scrollbtn::after {
-    content: "";
-    position: absolute;
-    inset: -0.72rem;
+    width: var(--btn);
+    height: var(--btn);
+    border-radius: var(--cr);
 }
 
 body.photography .scrollbtn svg {
     display: block;
-    width: 1.3125rem;
-    height: 1.3125rem;
+    width: var(--btn);
+    height: var(--btn);
 }
 body.photography .btngroup {
     position: fixed;
@@ -179,37 +177,37 @@ body.photography .btngroup {
 }
 
 body.photography.tall .btngroup.lead {
-    transform-origin: 50% 0.65625rem;
+    transform-origin: 50% calc(var(--btn) / 2);
 }
 body.photography.tall .btngroup.trail {
-    transform-origin: 50% calc(100% - 0.65625rem);
+    transform-origin: 50% calc(100% - calc(var(--btn) / 2));
 }
 body.photography.wide .btngroup.lead {
-    transform-origin: 0.65625rem 50%;
+    transform-origin: calc(var(--btn) / 2) 50%;
 }
 body.photography.wide .btngroup.trail {
-    transform-origin: calc(100% - 0.65625rem) 50%;
+    transform-origin: calc(100% - calc(var(--btn) / 2)) 50%;
 }
 body.photography.tall .btngroup.trail {
 
-    bottom: calc((var(--lane) - 1.3125rem) / 2);
-    right: calc((var(--lane) - 1.3125rem) / 2);
+    bottom: calc((var(--lane) - var(--btn)) / 2);
+    right: calc((var(--lane) - var(--btn)) / 2);
     flex-direction: column;
 }
 body.photography.wide .btngroup.trail {
-    right: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-right, 0px));
-    bottom: calc((var(--lane) - 1.3125rem) / 2);
+    right: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-right, 0px));
+    bottom: calc((var(--lane) - var(--btn)) / 2);
     flex-direction: row;
 }
 body.photography.tall .btngroup.lead {
 
-    top: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-top, 0px));
-    right: calc((var(--lane) - 1.3125rem) / 2);
+    top: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-top, 0px));
+    right: calc((var(--lane) - var(--btn)) / 2);
     flex-direction: column;
 }
 body.photography.wide .btngroup.lead {
-    left: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-left, 0px));
-    bottom: calc((var(--lane) - 1.3125rem) / 2);
+    left: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-left, 0px));
+    bottom: calc((var(--lane) - var(--btn)) / 2);
     flex-direction: row;
 }
 
@@ -233,14 +231,14 @@ body.photography .slide.endcard p {
     padding: 1rem;
     text-align: center;
     font-size: 1.2rem;
-    font-weight: 900;
+    font-weight: 700;
     color: var(--text);
 }
 
 body.photography .contactbar {
     position: fixed;
-    top: calc((var(--lane) - 1.3125rem) / 4 + env(safe-area-inset-top, 0px));
-    right: calc((var(--lane) - 1.3125rem) / 2 + env(safe-area-inset-right, 0px));
+    top: calc((var(--lane) - var(--btn)) / 4 + env(safe-area-inset-top, 0px));
+    right: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-right, 0px));
     z-index: 10;
     pointer-events: none;
     display: flex;
@@ -250,12 +248,9 @@ body.photography .contactbar {
     gap: 0.75rem;
     height: 82px;
     font-size: 1.25rem;
-    font-weight: 900;
+    font-weight: 700;
     text-align: right;
     color: #fff;
-
-    text-shadow: 0.15px 0 0 currentColor, -0.15px 0 0 currentColor,
-                 0 0.15px 0 currentColor, 0 -0.15px 0 currentColor;
 }
 body.photography .contactbar a {
     color: #fff;
@@ -269,62 +264,17 @@ body.photography.tall .contactbar {
     right: auto;
 
     will-change: transform;
-    left: calc((var(--lane) - 1.3125rem) / 2);
-    bottom: calc((var(--lane) - 1.3125rem) / 2);
+    left: calc((var(--lane) - var(--btn)) / 2);
+    bottom: calc((var(--lane) - var(--btn)) / 2);
     align-items: flex-start;
     text-align: left;
 
-    height: calc(1.3125rem * 2 + 2px);
-}
-
-body.photography .contactbar a,
-body.photography .pfp {
-    position: relative;
-}
-
-body.photography .contactbar a::before,
-body.photography .contactbar a::after,
-body.photography .pfp::before,
-body.photography .pfp::after {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    pointer-events: none;
-}
-
-body.photography .contactbar a::before,
-body.photography .pfp::before {
-    content: "[";
-    right: 100%;
-    margin-right: 0.25em;
-}
-
-body.photography .contactbar a::after,
-body.photography .pfp::after {
-    content: "]";
-    left: 100%;
-    margin-left: 0.25em;
+    height: calc(var(--btn) * 2 + 2px);
 }
 
 body.photography .contactbar a:focus-visible,
 body.photography .pfp:focus-visible {
     outline: none;
-}
-
-body.photography .contactbar a:focus-visible::before,
-body.photography .contactbar a:focus-visible::after,
-body.photography .pfp:focus-visible::before,
-body.photography .pfp:focus-visible::after {
-    opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    body.photography .contactbar a::before,
-    body.photography .contactbar a::after,
-    body.photography .pfp::before,
-    body.photography .pfp::after {
-        transition: none;
-    }
+    border-radius: 999px;
+    box-shadow: 0 0 0 4px #000, 0 0 0 6px #fff;
 }
