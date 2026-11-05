@@ -22,7 +22,7 @@
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon.ico/favicon-96x96.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico/favicon-16x16.png">
-        <meta name="theme-color" content="#ffffff">
+        <meta name="theme-color" content="#000000">
         <meta name="description" content="Photography by Jace Palmer">
         <title>Jace Palmer — Photography</title>
     </head>
@@ -42,7 +42,7 @@
             <a href="tel:+15415307472">(541) 530-7472</a>
         </div>
 
-        <main class="gallery" id="gallery" aria-label="Photo portfolio"></main>
+        <main class="gallery" id="gallery" aria-label="Photo portfolio"><h1 class="visually-hidden">Jace Palmer's Photography Portfolio</h1></main>
 
         <div class="btngroup lead">
             <button class="scrollbtn skip" id="skipStart" type="button" aria-label="Go to first photo"><svg class="for-wide" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-wide" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 0 L32 0 A32 32 0 0 0 32 64 L64 64 Z" fill="#fff"/><g fill="#000"><path d="M53.7 17.5 L29.9 32 L53.7 46.5 Z"/><rect x="16.3" y="17.5" width="7.6" height="28.9"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-wide)"/></svg><svg class="for-tall" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><mask id="m-skipStart-tall" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><path d="M64 64 L64 32 A32 32 0 0 0 0 32 L0 64 Z" fill="#fff"/><g fill="#000"><path d="M17.5 53.7 L32 29.9 L46.5 53.7 Z"/><rect x="17.5" y="16.3" width="28.9" height="7.6"/></g></mask></defs><rect width="64" height="64" fill="#fff" mask="url(#m-skipStart-tall)"/></svg></button>
@@ -179,7 +179,7 @@
                     const slide = document.createElement("div");
                     slide.className = "slide";
                     const img = document.createElement("img");
-                    img.alt = file.replace(/[-_]/g, " ").replace(/\.[^.]+$/, "");
+                    img.alt = "";
                     const dims = PORTFOLIO_DIMS[file];
                     if (dims) {
 
@@ -234,7 +234,7 @@
             const fwdGroup = document.querySelector(".btngroup.trail");
             const backGroup = document.querySelector(".btngroup.lead");
             const SCROLL_MS = 1467;
-            const BUTTON_MS = 880;
+            const BUTTON_MS = 1000;
             let nudging = false;
             let userScrolled = false;
 
@@ -265,6 +265,7 @@
                     group.style.opacity = String(o);
                     group.style.transform = "scale(" + (0.55 + 0.45 * o) + ")";
                     group.style.pointerEvents = o <= 0.02 ? "none" : "";
+                    group.style.visibility = o <= 0.02 ? "hidden" : "";
                 }
                 if (max <= 0) {
                     setPair(backGroup, 0);
@@ -306,6 +307,9 @@
             const easeInOut = (t) => t < 0.5
                 ? 4 * t * t * t
                 : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            const easeGlide = (t) => t < 0.5
+                ? 16 * t * t * t * t * t
+                : 1 - Math.pow(-2 * t + 2, 5) / 2;
             let nudgeCancelled = false;
             function runNudge() {
                 const distance = 48;
@@ -333,41 +337,166 @@
                 buttonAnim = null;
             }
             window.addEventListener("wheel", cancelAnimations, { passive: true });
-            window.addEventListener("touchstart", cancelAnimations, { passive: true });
+            window.addEventListener("touchstart", (e) => {
+                if (!e.target.closest(".scrollbtn")) cancelAnimations();
+            }, { passive: true });
 
-            function smoothScrollBy(delta) {
-                cancelAnimations();
+            function animateTo(to, ms) {
+                nudgeCancelled = true;
+                to = Math.max(0, Math.min(scrollMax(), to));
+                if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                    buttonAnim = null;
+                    setScrollPos(to);
+                    return;
+                }
+                if (buttonAnim) {
+                    buttonAnim.to = to;
+                    if (ms) buttonAnim.ms = ms;
+                    return;
+                }
                 const from = scrollPos();
-                const max = scrollMax();
-                const to = Math.max(0, Math.min(max, from + delta));
                 if (to === from) return;
-                const token = {};
-                buttonAnim = token;
-                const start = performance.now();
+                const state = { from: from, to: to, start: performance.now(), ms: ms || BUTTON_MS };
+                buttonAnim = state;
                 function frame(now) {
-                    if (buttonAnim !== token) return;
-                    const p = Math.min((now - start) / BUTTON_MS, 1);
-                    setScrollPos(from + (to - from) * easeInOut(p));
+                    if (buttonAnim !== state) return;
+                    const p = Math.min((now - state.start) / state.ms, 1);
+                    setScrollPos(state.from + (state.to - state.from) * easeGlide(p));
                     if (p < 1) requestAnimationFrame(frame);
                     else buttonAnim = null;
                 }
                 requestAnimationFrame(frame);
             }
-            function screenDelta(sign) {
+            function slideCenters() {
                 const horizontal = document.body.classList.contains("wide");
-                return sign * 0.8 * (horizontal ? window.innerWidth : window.innerHeight);
+                const pos = scrollPos();
+                return Array.from(gallery.querySelectorAll(".slide")).map((el) => {
+                    const r = el.getBoundingClientRect();
+                    return horizontal ? pos + r.left + r.width / 2 : pos + r.top + r.height / 2;
+                });
             }
-            fwdBtn.addEventListener("click", () => smoothScrollBy(screenDelta(1)));
-            backBtn.addEventListener("click", () => smoothScrollBy(screenDelta(-1)));
+            function stepTarget(sign) {
+                const horizontal = document.body.classList.contains("wide");
+                const view = horizontal ? window.innerWidth : window.innerHeight;
+                const base = buttonAnim ? buttonAnim.to : scrollPos();
+                const ref = base + view / 2;
+                const centers = slideCenters();
+                let target = null;
+                if (sign > 0) {
+                    for (const c of centers) if (c > ref + 1) { target = c; break; }
+                } else {
+                    for (let i = centers.length - 1; i >= 0; i--) if (centers[i] < ref - 1) { target = centers[i]; break; }
+                }
+                if (target === null) return sign > 0 ? scrollMax() : 0;
+                return target - view / 2;
+            }
+            function step(sign) {
+                animateTo(stepTarget(sign), BUTTON_MS);
+            }
+            function bindStep(btn, sign) {
+                let timer = null;
+                btn.addEventListener("pointerdown", (e) => {
+                    e.preventDefault();
+                    step(sign);
+                    timer = setInterval(() => step(sign), 500);
+                });
+                const stop = () => {
+                    if (timer) { clearInterval(timer); timer = null; }
+                };
+                btn.addEventListener("pointerup", stop);
+                btn.addEventListener("pointercancel", stop);
+                btn.addEventListener("pointerleave", stop);
+                btn.addEventListener("click", (e) => { if (e.detail === 0) step(sign); });
+            }
+            bindStep(fwdBtn, 1);
+            bindStep(backBtn, -1);
 
-            skipFwdBtn.addEventListener("click", () => smoothScrollBy(Number.MAX_SAFE_INTEGER));
-            skipBackBtn.addEventListener("click", () => smoothScrollBy(-Number.MAX_SAFE_INTEGER));
+            const fwdKeys = new Set(["arrowright", "arrowdown", "d", "s", "l", "k"]);
+            const backKeys = new Set(["arrowleft", "arrowup", "a", "w", "j", "i"]);
+            let lastKeyStep = 0;
+            window.addEventListener("keydown", (e) => {
+                if (e.metaKey || e.ctrlKey || e.altKey) return;
+                const key = e.key.toLowerCase();
+                const sign = fwdKeys.has(key) ? 1 : backKeys.has(key) ? -1 : 0;
+                if (!sign) return;
+                e.preventDefault();
+                const now = performance.now();
+                if (now - lastKeyStep < 300) return;
+                lastKeyStep = now;
+                step(sign);
+            });
+
+            skipFwdBtn.addEventListener("click", () => animateTo(scrollMax()));
+            skipBackBtn.addEventListener("click", () => animateTo(0));
+
+            const SNAP_MS = 550;
+            let snapTimer = null;
+            let touching = false;
+            function scheduleSnap() {
+                if (snapTimer) clearTimeout(snapTimer);
+                snapTimer = setTimeout(snapToNearest, 150);
+            }
+            function snapToNearest() {
+                snapTimer = null;
+                if (buttonAnim || nudging || touching || !userScrolled) return;
+                const horizontal = document.body.classList.contains("wide");
+                const view = horizontal ? window.innerWidth : window.innerHeight;
+                const pos = scrollPos();
+                const ref = pos + view / 2;
+                const centers = slideCenters();
+                if (!centers.length) return;
+                let best = centers[0];
+                for (const c of centers) if (Math.abs(c - ref) < Math.abs(best - ref)) best = c;
+                const to = Math.max(0, Math.min(scrollMax(), best - view / 2));
+                if (Math.abs(to - pos) < 1) return;
+                if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                    setScrollPos(to);
+                    return;
+                }
+                animateTo(to, SNAP_MS);
+            }
+            window.addEventListener("scroll", () => {
+                if (!buttonAnim) scheduleSnap();
+            }, { passive: true });
+            window.addEventListener("touchstart", () => {
+                touching = true;
+                if (snapTimer) { clearTimeout(snapTimer); snapTimer = null; }
+            }, { passive: true });
+            window.addEventListener("touchend", () => {
+                touching = false;
+                scheduleSnap();
+            }, { passive: true });
+            window.addEventListener("touchcancel", () => {
+                touching = false;
+            }, { passive: true });
+            window.addEventListener("wheel", (e) => {
+                if (!document.body.classList.contains("wide")) return;
+                if (e.ctrlKey || e.deltaX === 0) return;
+                e.preventDefault();
+                cancelAnimations();
+                const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerWidth : 1;
+                const max = scrollMax();
+                setScrollPos(Math.max(0, Math.min(max, scrollPos() + e.deltaX * unit)));
+            }, { passive: false });
 
             if (PORTFOLIO_IMAGES.length > 1 &&
                 !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-                setTimeout(() => {
-                    if (!userScrolled) runNudge();
-                }, 3000);
+                let firstImageReady = false;
+                let delayDone = false;
+                let nudgeDone = false;
+                function tryNudge() {
+                    if (nudgeDone || !delayDone || !firstImageReady || userScrolled) return;
+                    nudgeDone = true;
+                    runNudge();
+                }
+                const firstImg = gallery.querySelector(".slide img");
+                if (firstImg && firstImg.complete) {
+                    firstImageReady = true;
+                } else if (firstImg) {
+                    firstImg.addEventListener("load", () => { firstImageReady = true; tryNudge(); });
+                    firstImg.addEventListener("error", () => { firstImageReady = true; tryNudge(); });
+                }
+                setTimeout(() => { delayDone = true; tryNudge(); }, 1000);
             }
         </script>
     </body>
