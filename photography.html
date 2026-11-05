@@ -411,6 +411,21 @@
             bindStep(fwdBtn, 1);
             bindStep(backBtn, -1);
 
+            const fwdKeys = new Set(["arrowright", "arrowdown", "d", "s", "l", "k"]);
+            const backKeys = new Set(["arrowleft", "arrowup", "a", "w", "j", "i"]);
+            let lastKeyStep = 0;
+            window.addEventListener("keydown", (e) => {
+                if (e.metaKey || e.ctrlKey || e.altKey) return;
+                const key = e.key.toLowerCase();
+                const sign = fwdKeys.has(key) ? 1 : backKeys.has(key) ? -1 : 0;
+                if (!sign) return;
+                e.preventDefault();
+                const now = performance.now();
+                if (now - lastKeyStep < 300) return;
+                lastKeyStep = now;
+                step(sign);
+            });
+
             skipFwdBtn.addEventListener("click", () => animateTo(scrollMax()));
             skipBackBtn.addEventListener("click", () => animateTo(0));
 
