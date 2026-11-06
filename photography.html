@@ -183,6 +183,7 @@
                     const dims = PORTFOLIO_DIMS[file];
                     if (dims) {
 
+                        slide.style.aspectRatio = dims[0] + " / " + dims[1];
                         img.style.aspectRatio = dims[0] + " / " + dims[1];
                         img.style.opacity = "0";
                     }
