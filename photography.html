@@ -342,6 +342,31 @@
                 if (!e.target.closest(".scrollbtn")) cancelAnimations();
             }, { passive: true });
 
+            function glideDeriv(t) {
+                return t < 0.5
+                    ? 80 * t * t * t * t
+                    : 80 * Math.pow(1 - t, 4);
+            }
+            function animPos(state, now) {
+                const p = Math.min((now - state.start) / state.ms, 1);
+                if (state.s > 0) {
+                    const s = state.s;
+                    const e = s * p + (3 - 2 * s) * p * p + (s - 2) * p * p * p;
+                    return state.from + (state.to - state.from) * e;
+                }
+                return state.from + (state.to - state.from) * easeGlide(p);
+            }
+            function animVel(state, now) {
+                const p = Math.min((now - state.start) / state.ms, 1);
+                let d;
+                if (state.s > 0) {
+                    const s = state.s;
+                    d = s + 2 * (3 - 2 * s) * p + 3 * (s - 2) * p * p;
+                } else {
+                    d = glideDeriv(p);
+                }
+                return (state.to - state.from) * d / state.ms;
+            }
             function animateTo(to, ms) {
                 nudgeCancelled = true;
                 to = Math.max(0, Math.min(scrollMax(), to));
@@ -350,24 +375,28 @@
                     setScrollPos(to);
                     return;
                 }
-                const from = scrollPos();
+                const now = performance.now();
+                const dur = ms || BUTTON_MS;
+                let from = scrollPos();
+                let s = 0;
+                if (buttonAnim) {
+                    const p = Math.min((now - buttonAnim.start) / buttonAnim.ms, 1);
+                    if (p < 1) {
+                        from = animPos(buttonAnim, now);
+                        const v = animVel(buttonAnim, now);
+                        if (to !== from) s = Math.max(0, Math.min(3, v * dur / (to - from)));
+                    }
+                }
                 if (to === from) {
                     buttonAnim = null;
                     return;
                 }
-                let dur = ms || BUTTON_MS;
-                if (buttonAnim) {
-                    const prevDist = Math.abs(buttonAnim.to - buttonAnim.from);
-                    if (prevDist > 0) {
-                        dur = Math.max(150, Math.round(buttonAnim.ms * Math.abs(to - from) / prevDist));
-                    }
-                }
-                const state = { from: from, to: to, start: performance.now(), ms: dur };
+                const state = { from: from, to: to, start: now, ms: dur, s: s };
                 buttonAnim = state;
-                function frame(now) {
+                function frame(t) {
                     if (buttonAnim !== state) return;
-                    const p = Math.min((now - state.start) / state.ms, 1);
-                    setScrollPos(state.from + (state.to - state.from) * easeGlide(p));
+                    const p = Math.min((t - state.start) / state.ms, 1);
+                    setScrollPos(animPos(state, t));
                     if (p < 1) requestAnimationFrame(frame);
                     else buttonAnim = null;
                 }
