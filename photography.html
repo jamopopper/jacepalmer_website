@@ -350,14 +350,19 @@
                     setScrollPos(to);
                     return;
                 }
-                if (buttonAnim) {
-                    buttonAnim.to = to;
-                    if (ms) buttonAnim.ms = ms;
+                const from = scrollPos();
+                if (to === from) {
+                    buttonAnim = null;
                     return;
                 }
-                const from = scrollPos();
-                if (to === from) return;
-                const state = { from: from, to: to, start: performance.now(), ms: ms || BUTTON_MS };
+                let dur = ms || BUTTON_MS;
+                if (buttonAnim) {
+                    const prevDist = Math.abs(buttonAnim.to - buttonAnim.from);
+                    if (prevDist > 0) {
+                        dur = Math.max(150, Math.round(buttonAnim.ms * Math.abs(to - from) / prevDist));
+                    }
+                }
+                const state = { from: from, to: to, start: performance.now(), ms: dur };
                 buttonAnim = state;
                 function frame(now) {
                     if (buttonAnim !== state) return;
