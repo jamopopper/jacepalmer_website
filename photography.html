@@ -417,14 +417,15 @@
                 const base = buttonAnim ? buttonAnim.to : scrollPos();
                 const ref = base + view / 2;
                 const centers = slideCenters();
-                let target = null;
-                if (sign > 0) {
-                    for (const c of centers) if (c > ref + 1) { target = c; break; }
-                } else {
-                    for (let i = centers.length - 1; i >= 0; i--) if (centers[i] < ref - 1) { target = centers[i]; break; }
+                if (!centers.length) return base;
+                let idx = 0;
+                for (let i = 1; i < centers.length; i++) {
+                    if (Math.abs(centers[i] - ref) < Math.abs(centers[idx] - ref)) idx = i;
                 }
-                if (target === null) return sign > 0 ? scrollMax() : 0;
-                return target - view / 2;
+                const next = idx + sign;
+                if (next < 0) return 0;
+                if (next >= centers.length) return scrollMax();
+                return centers[next] - view / 2;
             }
             function step(sign) {
                 animateTo(stepTarget(sign), BUTTON_MS);
