@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
         <meta name="color-scheme" content="dark" />
         <link rel="stylesheet" href="/photography.css" />
         <meta property="og:title" content="Jace Palmer — Photography"/>
@@ -473,6 +473,13 @@
                 const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerWidth : 1;
                 const max = scrollMax();
                 setScrollPos(Math.max(0, Math.min(max, scrollPos() + (e.deltaX + e.deltaY) * unit)));
+            }, { passive: false });
+
+            document.addEventListener("gesturestart", (e) => e.preventDefault());
+            document.addEventListener("gesturechange", (e) => e.preventDefault());
+            document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
+            window.addEventListener("wheel", (e) => {
+                if (e.ctrlKey) e.preventDefault();
             }, { passive: false });
 
             if (PORTFOLIO_IMAGES.length > 1 &&

@@ -29,10 +29,12 @@ body.photography {
 body.photography.wide {
     overflow-x: auto;
     overflow-y: hidden;
+    touch-action: pan-x;
 }
 body.photography.tall {
     overflow-x: hidden;
     overflow-y: auto;
+    touch-action: pan-y;
 }
 
 body.photography .topbar {
