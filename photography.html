@@ -342,17 +342,41 @@
                 if (!e.target.closest(".scrollbtn")) cancelAnimations();
             }, { passive: true });
 
-            let lastScrollSample = { pos: scrollPos(), t: performance.now() };
-            let scrollVel = 0;
-            window.addEventListener("scroll", () => {
+            const velSamples = [];
+            let velSampling = false;
+            function sampleScrollVelocity() {
                 const now = performance.now();
-                const pos = scrollPos();
-                const dt = now - lastScrollSample.t;
-                if (dt > 0) {
-                    scrollVel = scrollVel * 0.5 + ((pos - lastScrollSample.pos) / dt) * 0.5;
-                    lastScrollSample = { pos: pos, t: now };
+                velSamples.push({ pos: scrollPos(), t: now });
+                while (velSamples.length > 2 && now - velSamples[0].t > 150) velSamples.shift();
+                const first = velSamples[0];
+                const lastS = velSamples[velSamples.length - 1];
+                if (now - first.t >= 120 && first.pos === lastS.pos) {
+                    velSampling = false;
+                    return;
                 }
-            }, { passive: true });
+                requestAnimationFrame(sampleScrollVelocity);
+            }
+            function pokeVelSampler() {
+                if (!velSampling) {
+                    velSampling = true;
+                    requestAnimationFrame(sampleScrollVelocity);
+                }
+            }
+            window.addEventListener("scroll", pokeVelSampler, { passive: true });
+            window.addEventListener("touchend", pokeVelSampler, { passive: true });
+            window.addEventListener("wheel", pokeVelSampler, { passive: true });
+            function manualScrollVel(now) {
+                if (velSamples.length < 2) return 0;
+                const newest = velSamples[velSamples.length - 1];
+                if (now - newest.t > 120) return 0;
+                let oldest = velSamples[0];
+                for (let i = velSamples.length - 1; i >= 0; i--) {
+                    if (newest.t - velSamples[i].t >= 45) { oldest = velSamples[i]; break; }
+                }
+                const dt = newest.t - oldest.t;
+                if (dt < 30) return 0;
+                return (newest.pos - oldest.pos) / dt;
+            }
 
             function easeGlideDeriv(t) {
                 return t < 0.5
@@ -396,8 +420,8 @@
                         v = (buttonAnim.to - buttonAnim.from) * (1 - buttonAnim.p0) *
                             easeGlideDeriv(q) / (buttonAnim.ms * (1 - buttonAnim.g0));
                     }
-                } else if (now - lastScrollSample.t <= 100) {
-                    v = scrollVel;
+                } else {
+                    v = manualScrollVel(now);
                 }
                 if (v !== 0 && to !== from) {
                     const sigma = v * dur / (to - from);
