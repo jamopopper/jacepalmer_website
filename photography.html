@@ -511,9 +511,19 @@
 
             let lastTouchStep = { at: 0, btn: null };
             window.addEventListener("touchstart", (e) => {
-                const btn = e.target.closest ? e.target.closest(".scrollbtn") : null;
+                const t = e.touches && e.touches[0];
+                if (!t) return;
+                let btn = e.target.closest ? e.target.closest(".scrollbtn") : null;
+                if (!btn) {
+                    for (const b of [fwdBtn, backBtn, skipFwdBtn, skipBackBtn]) {
+                        const g = b.closest(".btngroup");
+                        if (g && (g.style.visibility === "hidden" || g.style.pointerEvents === "none")) continue;
+                        const r = b.getBoundingClientRect();
+                        if (t.clientX >= r.left && t.clientX <= r.right &&
+                            t.clientY >= r.top && t.clientY <= r.bottom) { btn = b; break; }
+                    }
+                }
                 if (!btn) return;
-                if (Math.abs(manualScrollVel(performance.now())) < 0.02) return;
                 lastTouchStep = { at: performance.now(), btn: btn };
                 if (btn === fwdBtn) step(1);
                 else if (btn === backBtn) step(-1);
