@@ -342,6 +342,18 @@
                 if (!e.target.closest(".scrollbtn")) cancelAnimations();
             }, { passive: true });
 
+            let lastScrollSample = { pos: scrollPos(), t: performance.now() };
+            let scrollVel = 0;
+            window.addEventListener("scroll", () => {
+                const now = performance.now();
+                const pos = scrollPos();
+                const dt = now - lastScrollSample.t;
+                if (dt > 0) {
+                    scrollVel = scrollVel * 0.5 + ((pos - lastScrollSample.pos) / dt) * 0.5;
+                    lastScrollSample = { pos: pos, t: now };
+                }
+            }, { passive: true });
+
             function easeGlideDeriv(t) {
                 return t < 0.5
                     ? 80 * t * t * t * t
@@ -375,18 +387,21 @@
                 const dur = ms || BUTTON_MS;
                 let from = scrollPos();
                 let p0 = 0;
+                let v = 0;
                 if (buttonAnim) {
                     const u = Math.min((now - buttonAnim.start) / buttonAnim.ms, 1);
                     if (u < 1) {
                         from = animPos(buttonAnim, now);
                         const q = buttonAnim.p0 + (1 - buttonAnim.p0) * u;
-                        const v = (buttonAnim.to - buttonAnim.from) * (1 - buttonAnim.p0) *
+                        v = (buttonAnim.to - buttonAnim.from) * (1 - buttonAnim.p0) *
                             easeGlideDeriv(q) / (buttonAnim.ms * (1 - buttonAnim.g0));
-                        if (to !== from) {
-                            const sigma = v * dur / (to - from);
-                            if (sigma > 0) p0 = matchSlope(sigma);
-                        }
                     }
+                } else if (now - lastScrollSample.t <= 100) {
+                    v = scrollVel;
+                }
+                if (v !== 0 && to !== from) {
+                    const sigma = v * dur / (to - from);
+                    if (sigma > 0) p0 = matchSlope(sigma);
                 }
                 if (to === from) {
                     buttonAnim = null;
