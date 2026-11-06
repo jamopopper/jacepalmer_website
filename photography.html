@@ -429,46 +429,6 @@
             skipFwdBtn.addEventListener("click", () => animateTo(scrollMax()));
             skipBackBtn.addEventListener("click", () => animateTo(0));
 
-            const SNAP_MS = 550;
-            let snapTimer = null;
-            let touching = false;
-            function scheduleSnap() {
-                if (snapTimer) clearTimeout(snapTimer);
-                snapTimer = setTimeout(snapToNearest, 150);
-            }
-            function snapToNearest() {
-                snapTimer = null;
-                if (buttonAnim || nudging || touching || !userScrolled) return;
-                const horizontal = document.body.classList.contains("wide");
-                const view = horizontal ? window.innerWidth : window.innerHeight;
-                const pos = scrollPos();
-                const ref = pos + view / 2;
-                const centers = slideCenters();
-                if (!centers.length) return;
-                let best = centers[0];
-                for (const c of centers) if (Math.abs(c - ref) < Math.abs(best - ref)) best = c;
-                const to = Math.max(0, Math.min(scrollMax(), best - view / 2));
-                if (Math.abs(to - pos) < 1) return;
-                if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-                    setScrollPos(to);
-                    return;
-                }
-                animateTo(to, SNAP_MS);
-            }
-            window.addEventListener("scroll", () => {
-                if (!buttonAnim) scheduleSnap();
-            }, { passive: true });
-            window.addEventListener("touchstart", () => {
-                touching = true;
-                if (snapTimer) { clearTimeout(snapTimer); snapTimer = null; }
-            }, { passive: true });
-            window.addEventListener("touchend", () => {
-                touching = false;
-                scheduleSnap();
-            }, { passive: true });
-            window.addEventListener("touchcancel", () => {
-                touching = false;
-            }, { passive: true });
             window.addEventListener("wheel", (e) => {
                 if (!document.body.classList.contains("wide")) return;
                 if (e.ctrlKey) return;
