@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
         <meta name="color-scheme" content="dark" />
         <link rel="stylesheet" href="/photography.css" />
         <meta property="og:title" content="Jace Palmer — Photography"/>
@@ -183,6 +183,7 @@
                     const dims = PORTFOLIO_DIMS[file];
                     if (dims) {
 
+                        slide.style.aspectRatio = dims[0] + " / " + dims[1];
                         img.style.aspectRatio = dims[0] + " / " + dims[1];
                         img.style.opacity = "0";
                     }
@@ -341,6 +342,27 @@
                 if (!e.target.closest(".scrollbtn")) cancelAnimations();
             }, { passive: true });
 
+            function easeGlideDeriv(t) {
+                return t < 0.5
+                    ? 80 * t * t * t * t
+                    : 80 * Math.pow(1 - t, 4);
+            }
+            function matchSlope(sigma) {
+                const slopeAt = (p) => (1 - p) * easeGlideDeriv(p) / (1 - easeGlide(p));
+                let lo = 0, hi = 0.5;
+                if (slopeAt(hi) <= sigma) return hi;
+                for (let i = 0; i < 40; i++) {
+                    const mid = (lo + hi) / 2;
+                    if (slopeAt(mid) < sigma) lo = mid;
+                    else hi = mid;
+                }
+                return (lo + hi) / 2;
+            }
+            function animPos(state, now) {
+                const u = Math.min((now - state.start) / state.ms, 1);
+                const q = state.p0 + (1 - state.p0) * u;
+                return state.from + (state.to - state.from) * (easeGlide(q) - state.g0) / (1 - state.g0);
+            }
             function animateTo(to, ms) {
                 nudgeCancelled = true;
                 to = Math.max(0, Math.min(scrollMax(), to));
@@ -349,20 +371,34 @@
                     setScrollPos(to);
                     return;
                 }
+                const now = performance.now();
+                const dur = ms || BUTTON_MS;
+                let from = scrollPos();
+                let p0 = 0;
+                let v = 0;
                 if (buttonAnim) {
-                    buttonAnim.to = to;
-                    if (ms) buttonAnim.ms = ms;
+                    const u = Math.min((now - buttonAnim.start) / buttonAnim.ms, 1);
+                    if (u < 1) {
+                        from = animPos(buttonAnim, now);
+                        const q = buttonAnim.p0 + (1 - buttonAnim.p0) * u;
+                        v = (buttonAnim.to - buttonAnim.from) * (1 - buttonAnim.p0) *
+                            easeGlideDeriv(q) / (buttonAnim.ms * (1 - buttonAnim.g0));
+                    }
+                }
+                if (v !== 0 && to !== from) {
+                    const sigma = v * dur / (to - from);
+                    if (sigma > 0) p0 = matchSlope(sigma);
+                }
+                if (to === from) {
+                    buttonAnim = null;
                     return;
                 }
-                const from = scrollPos();
-                if (to === from) return;
-                const state = { from: from, to: to, start: performance.now(), ms: ms || BUTTON_MS };
+                const state = { from: from, to: to, start: now, ms: dur, p0: p0, g0: easeGlide(p0) };
                 buttonAnim = state;
-                function frame(now) {
+                function frame(t) {
                     if (buttonAnim !== state) return;
-                    const p = Math.min((now - state.start) / state.ms, 1);
-                    setScrollPos(state.from + (state.to - state.from) * easeGlide(p));
-                    if (p < 1) requestAnimationFrame(frame);
+                    setScrollPos(animPos(state, t));
+                    if (t - state.start < state.ms) requestAnimationFrame(frame);
                     else buttonAnim = null;
                 }
                 requestAnimationFrame(frame);
@@ -381,14 +417,15 @@
                 const base = buttonAnim ? buttonAnim.to : scrollPos();
                 const ref = base + view / 2;
                 const centers = slideCenters();
-                let target = null;
-                if (sign > 0) {
-                    for (const c of centers) if (c > ref + 1) { target = c; break; }
-                } else {
-                    for (let i = centers.length - 1; i >= 0; i--) if (centers[i] < ref - 1) { target = centers[i]; break; }
+                if (!centers.length) return base;
+                let idx = 0;
+                for (let i = 1; i < centers.length; i++) {
+                    if (Math.abs(centers[i] - ref) < Math.abs(centers[idx] - ref)) idx = i;
                 }
-                if (target === null) return sign > 0 ? scrollMax() : 0;
-                return target - view / 2;
+                const next = idx + sign;
+                if (next < 0) return 0;
+                if (next >= centers.length) return scrollMax();
+                return centers[next] - view / 2;
             }
             function step(sign) {
                 animateTo(stepTarget(sign), BUTTON_MS);
@@ -429,46 +466,6 @@
             skipFwdBtn.addEventListener("click", () => animateTo(scrollMax()));
             skipBackBtn.addEventListener("click", () => animateTo(0));
 
-            const SNAP_MS = 550;
-            let snapTimer = null;
-            let touching = false;
-            function scheduleSnap() {
-                if (snapTimer) clearTimeout(snapTimer);
-                snapTimer = setTimeout(snapToNearest, 150);
-            }
-            function snapToNearest() {
-                snapTimer = null;
-                if (buttonAnim || nudging || touching || !userScrolled) return;
-                const horizontal = document.body.classList.contains("wide");
-                const view = horizontal ? window.innerWidth : window.innerHeight;
-                const pos = scrollPos();
-                const ref = pos + view / 2;
-                const centers = slideCenters();
-                if (!centers.length) return;
-                let best = centers[0];
-                for (const c of centers) if (Math.abs(c - ref) < Math.abs(best - ref)) best = c;
-                const to = Math.max(0, Math.min(scrollMax(), best - view / 2));
-                if (Math.abs(to - pos) < 1) return;
-                if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-                    setScrollPos(to);
-                    return;
-                }
-                animateTo(to, SNAP_MS);
-            }
-            window.addEventListener("scroll", () => {
-                if (!buttonAnim) scheduleSnap();
-            }, { passive: true });
-            window.addEventListener("touchstart", () => {
-                touching = true;
-                if (snapTimer) { clearTimeout(snapTimer); snapTimer = null; }
-            }, { passive: true });
-            window.addEventListener("touchend", () => {
-                touching = false;
-                scheduleSnap();
-            }, { passive: true });
-            window.addEventListener("touchcancel", () => {
-                touching = false;
-            }, { passive: true });
             window.addEventListener("wheel", (e) => {
                 if (!document.body.classList.contains("wide")) return;
                 if (e.ctrlKey) return;
@@ -478,6 +475,13 @@
                 const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerWidth : 1;
                 const max = scrollMax();
                 setScrollPos(Math.max(0, Math.min(max, scrollPos() + (e.deltaX + e.deltaY) * unit)));
+            }, { passive: false });
+
+            document.addEventListener("gesturestart", (e) => e.preventDefault());
+            document.addEventListener("gesturechange", (e) => e.preventDefault());
+            document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
+            window.addEventListener("wheel", (e) => {
+                if (e.ctrlKey) e.preventDefault();
             }, { passive: false });
 
             if (PORTFOLIO_IMAGES.length > 1 &&
