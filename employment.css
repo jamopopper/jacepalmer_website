@@ -131,55 +131,29 @@ body.work .embed-frame img {
     background: #fff;
 }
 
-body.work .contactbar.ghost {
-    display: none;
-}
-
-/* Wide (landscape): the header becomes the left rail of a 3-column
-   grid — logo top corner, contact info bottom corner — with an
-   invisible copy of the contact block balancing the right column.
-   The resume centres in the middle column: exactly viewport-centred,
-   and it can never reach the rail, however wide the text renders. */
+/* Wide (landscape): header becomes the left edge — logo in the top
+   corner, contact info in the bottom corner — and the resume is
+   centred in the viewport, filling the vertical space. */
 @media (min-aspect-ratio: 1/1) {
     body.work {
         overflow: hidden;
-        display: grid;
-        grid-template-columns: max-content 1fr max-content;
-        grid-template-rows: 100dvh;
     }
     body.work .topbar {
-        position: static;
-        grid-column: 1;
-        grid-row: 1;
-        align-self: start;
+        right: auto;
+        bottom: 0;
     }
     body.work .contactbar {
-        position: static;
-        grid-column: 1;
-        grid-row: 1;
-        align-self: end;
+        top: auto;
+        right: auto;
+        left: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-left, 0px));
+        bottom: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-bottom, 0px));
         align-items: flex-start;
         text-align: left;
         height: auto;
-        margin-left: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-left, 0px));
-        margin-bottom: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-bottom, 0px));
-    }
-    body.work .contactbar.ghost {
-        display: flex;
-        grid-column: 3;
-        visibility: hidden;
-        margin-left: 0;
-        margin-right: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-right, 0px));
-    }
-    body.work .contactbar.ghost a {
-        pointer-events: none;
     }
     body.work .page {
-        grid-column: 2;
-        grid-row: 1;
-        min-width: 0;
         max-width: none;
-        margin: 0;
+        height: 100dvh;
         box-sizing: border-box;
         padding: 2rem;
         display: flex;
@@ -194,8 +168,6 @@ body.work .contactbar.ghost {
     body.work .embed-frame {
         flex: 1;
         min-height: 0;
-        display: flex;
-        justify-content: center;
     }
     body.work .embed-frame a {
         display: block;
