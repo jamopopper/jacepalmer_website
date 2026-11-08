@@ -152,7 +152,7 @@ body.work .embed-frame img {
         max-width: none;
         height: 100dvh;
         box-sizing: border-box;
-        padding: 2rem 2rem 2rem 17rem;
+        padding: 2rem;
         display: flex;
         flex-direction: column;
     }
@@ -171,6 +171,9 @@ body.work .embed-frame img {
     body.work .embed-frame a {
         display: block;
         height: 100%;
+        /* Dead-centre in the viewport, shifted right only as far as
+           needed to clear the corner blocks (17rem line). */
+        margin-left: max(0px, calc(17rem - (100vw - (100dvh - 4rem) * 612 / 792) / 2));
     }
     body.work .embed-frame img {
         height: 100%;
