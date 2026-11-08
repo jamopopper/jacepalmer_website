@@ -168,17 +168,23 @@ body.work .embed-frame img {
     body.work .embed-frame {
         flex: 1;
         min-height: 0;
+        display: flex;
     }
     body.work .embed-frame a {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
         height: 100%;
     }
     body.work .embed-frame img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: transparent;
+        /* Sized by height (capped so the width fits the frame), so the
+           image box is the page itself and the shared corner radius
+           clips the sheet, not a letterboxed box. */
+        height: min(100%, calc((100vw - 4rem) * 792 / 612));
+        width: auto;
+        max-width: 100%;
+        border-radius: var(--cr);
     }
 }
 
