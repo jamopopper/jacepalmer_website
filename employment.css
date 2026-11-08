@@ -134,11 +134,3 @@ body.work .embed-frame img {
     background: #fff;
 }
 
-body.work .open-link {
-    margin: 0.75rem 0 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-body.work .open-link a {
-    color: #fff;
-}
