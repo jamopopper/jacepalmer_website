@@ -136,3 +136,51 @@ body.work .embed-frame img {
     background: #fff;
 }
 
+/* Wide (landscape): header becomes the left edge — logo in the top
+   corner, contact info in the bottom corner — and the resume fills
+   the vertical space on the right, centred in what remains. */
+@media (min-aspect-ratio: 1/1) {
+    body.work .topbar {
+        right: auto;
+        bottom: 0;
+    }
+    body.work .contactbar {
+        top: auto;
+        right: auto;
+        left: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-left, 0px));
+        bottom: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-bottom, 0px));
+        align-items: flex-start;
+        text-align: left;
+        height: auto;
+    }
+    body.work .page {
+        max-width: none;
+        height: 100dvh;
+        box-sizing: border-box;
+        padding: 2rem 2rem 2rem 17rem;
+        display: flex;
+        flex-direction: column;
+    }
+    body.work .page section {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    body.work .embed-frame {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        justify-content: center;
+    }
+    body.work .embed-frame a {
+        display: block;
+        height: 100%;
+    }
+    body.work .embed-frame img {
+        height: 100%;
+        width: auto;
+        max-width: 100%;
+    }
+}
+
