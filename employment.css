@@ -131,29 +131,55 @@ body.work .embed-frame img {
     background: #fff;
 }
 
-/* Wide (landscape): header becomes the left edge — logo in the top
-   corner, contact info in the bottom corner — and the resume fills
-   the vertical space on the right, centred in what remains. */
+body.work .contactbar.ghost {
+    display: none;
+}
+
+/* Wide (landscape): the header becomes the left rail of a 3-column
+   grid — logo top corner, contact info bottom corner — with an
+   invisible copy of the contact block balancing the right column.
+   The resume centres in the middle column: exactly viewport-centred,
+   and it can never reach the rail, however wide the text renders. */
 @media (min-aspect-ratio: 1/1) {
     body.work {
         overflow: hidden;
+        display: grid;
+        grid-template-columns: max-content 1fr max-content;
+        grid-template-rows: 100dvh;
     }
     body.work .topbar {
-        right: auto;
-        bottom: 0;
+        position: static;
+        grid-column: 1;
+        grid-row: 1;
+        align-self: start;
     }
     body.work .contactbar {
-        top: auto;
-        right: auto;
-        left: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-left, 0px));
-        bottom: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-bottom, 0px));
+        position: static;
+        grid-column: 1;
+        grid-row: 1;
+        align-self: end;
         align-items: flex-start;
         text-align: left;
         height: auto;
+        margin-left: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-left, 0px));
+        margin-bottom: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-bottom, 0px));
+    }
+    body.work .contactbar.ghost {
+        display: flex;
+        grid-column: 3;
+        visibility: hidden;
+        margin-left: 0;
+        margin-right: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-right, 0px));
+    }
+    body.work .contactbar.ghost a {
+        pointer-events: none;
     }
     body.work .page {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
         max-width: none;
-        height: 100dvh;
+        margin: 0;
         box-sizing: border-box;
         padding: 2rem;
         display: flex;
@@ -169,17 +195,11 @@ body.work .embed-frame img {
         flex: 1;
         min-height: 0;
         display: flex;
-        justify-content: flex-start;
+        justify-content: center;
     }
     body.work .embed-frame a {
         display: block;
         height: 100%;
-        /* Left offset of the resume inside the frame: dead-centre in
-           the viewport, but never left of the 15rem clearance line
-           (17rem from the viewport edge, past the corner blocks).
-           Set as an exact margin with flex-start — a margin on a
-           justify-centred flex item only shifts it by half. */
-        margin-left: max(calc((100vw - 4rem - (100dvh - 4rem) * 612 / 792) / 2), 15rem);
     }
     body.work .embed-frame img {
         height: 100%;

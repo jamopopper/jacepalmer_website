@@ -42,6 +42,12 @@
             <a href="tel:+15415307472">(541) 530-7472</a>
         </div>
 
+        <div class="contactbar ghost" aria-hidden="true">
+            <a tabindex="-1" href="https://www.linkedin.com/in/palmjace">Jace Palmer</a>
+            <a tabindex="-1" href="mailto:work@jacepalmer.net">work@jacepalmer.net</a>
+            <a tabindex="-1" href="tel:+15415307472">(541) 530-7472</a>
+        </div>
+
         <main class="page">
             <section>
                 <div class="embed-frame">
@@ -49,31 +55,5 @@
                 </div>
             </section>
         </main>
-
-        <script>
-        (function () {
-            var anchor = document.querySelector('.embed-frame a');
-            if (!anchor) return;
-            var frame = anchor.parentElement;
-            var img = anchor.querySelector('img');
-            function fit() {
-                if (window.innerWidth < window.innerHeight) {
-                    anchor.style.marginLeft = '';
-                    return;
-                }
-                var rail = 0;
-                document.querySelectorAll('.topbar, .contactbar').forEach(function (el) {
-                    rail = Math.max(rail, el.getBoundingClientRect().right);
-                });
-                var rw = img.getBoundingClientRect().width;
-                var centred = (window.innerWidth - rw) / 2;
-                var target = Math.max(centred, rail + 16);
-                anchor.style.marginLeft = Math.max(0, target - frame.getBoundingClientRect().left) + 'px';
-            }
-            window.addEventListener('resize', fit);
-            if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-            fit();
-        })();
-        </script>
     </body>
 </html>
