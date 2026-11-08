@@ -275,7 +275,9 @@ body.photography.tall .contactbar {
 }
 
 body.photography .contactbar a:focus-visible,
-body.photography .pfp:focus-visible {
+body.photography .pfp:focus-visible,
+body.photography .contactbar a:hover,
+body.photography .pfp:hover {
     outline: none;
     border-radius: 999px;
     box-shadow: 0 0 0 4px #000, 0 0 0 6px #fff;

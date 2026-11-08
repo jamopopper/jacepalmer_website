@@ -99,7 +99,9 @@ body.work .contactbar a {
 
 body.work .contactbar a:focus-visible,
 body.work .pfp:focus-visible,
-body.work .page a:focus-visible {
+body.work .page a:focus-visible,
+body.work .contactbar a:hover,
+body.work .pfp:hover {
     outline: none;
     border-radius: 999px;
     box-shadow: 0 0 0 4px #000, 0 0 0 6px #fff;
