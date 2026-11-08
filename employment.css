@@ -127,10 +127,10 @@ body.work .embed-frame {
     overflow: hidden;
     line-height: 0;
 }
-body.work .embed-frame iframe {
+body.work .embed-frame img {
     width: 100%;
-    height: 80dvh;
-    border: 0;
+    height: auto;
+    display: block;
     background: #fff;
 }
 
