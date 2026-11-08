@@ -199,12 +199,13 @@ body.work .contactbar.ghost {
     }
     body.work .embed-frame a {
         display: block;
+        width: 100%;
         height: 100%;
     }
     body.work .embed-frame img {
+        width: 100%;
         height: 100%;
-        width: auto;
-        max-width: 100%;
+        object-fit: contain;
     }
 }
 
