@@ -113,19 +113,8 @@ body.work .page {
     padding-right: calc(1.5rem + env(safe-area-inset-right, 0px));
 }
 
-body.work .page h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    font-weight: 700;
-}
-body.work .page .subline {
-    margin: 0.5rem 0 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
 body.work .page section {
-    margin-top: 3.5rem;
+    margin-top: 0;
 }
 body.work .page h2 {
     margin: 0 0 1rem;
