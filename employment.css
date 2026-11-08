@@ -118,11 +118,6 @@ body.work .page {
 body.work .page section {
     margin-top: 0;
 }
-body.work .page h2 {
-    margin: 0 0 1rem;
-    font-size: 1.75rem;
-    font-weight: 700;
-}
 
 body.work .embed-frame {
     border-radius: var(--cr);
