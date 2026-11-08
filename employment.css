@@ -99,7 +99,9 @@ body.work .contactbar a {
 
 body.work .contactbar a:focus-visible,
 body.work .pfp:focus-visible,
-body.work .page a:focus-visible {
+body.work .page a:focus-visible,
+body.work .contactbar a:hover,
+body.work .pfp:hover {
     outline: none;
     border-radius: 999px;
     box-shadow: 0 0 0 4px #000, 0 0 0 6px #fff;
@@ -113,24 +115,8 @@ body.work .page {
     padding-right: calc(1.5rem + env(safe-area-inset-right, 0px));
 }
 
-body.work .page h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    font-weight: 700;
-}
-body.work .page .subline {
-    margin: 0.5rem 0 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
 body.work .page section {
-    margin-top: 3.5rem;
-}
-body.work .page h2 {
-    margin: 0 0 1rem;
-    font-size: 1.75rem;
-    font-weight: 700;
+    margin-top: 0;
 }
 
 body.work .embed-frame {
@@ -138,18 +124,67 @@ body.work .embed-frame {
     overflow: hidden;
     line-height: 0;
 }
-body.work .embed-frame iframe {
+body.work .embed-frame img {
     width: 100%;
-    height: 80dvh;
-    border: 0;
+    height: auto;
+    display: block;
     background: #fff;
 }
 
-body.work .open-link {
-    margin: 0.75rem 0 0;
-    font-size: 1.1rem;
-    font-weight: 700;
+/* Wide (landscape): header becomes the left edge — logo in the top
+   corner, contact info in the bottom corner — and the resume is
+   centred in the viewport, filling the vertical space. */
+@media (min-aspect-ratio: 1/1) {
+    body.work {
+        overflow: hidden;
+    }
+    body.work .topbar {
+        right: auto;
+        bottom: 0;
+    }
+    body.work .contactbar {
+        top: auto;
+        right: auto;
+        left: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-left, 0px));
+        bottom: calc((var(--lane) - var(--btn)) / 2 + env(safe-area-inset-bottom, 0px));
+        align-items: flex-start;
+        text-align: left;
+        height: auto;
+    }
+    body.work .page {
+        max-width: none;
+        height: 100dvh;
+        box-sizing: border-box;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+    }
+    body.work .page section {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    body.work .embed-frame {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+    }
+    body.work .embed-frame a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+    body.work .embed-frame img {
+        /* Sized by height (capped so the width fits the frame), so the
+           image box is the page itself and the shared corner radius
+           clips the sheet, not a letterboxed box. */
+        height: min(100%, calc((100vw - 4rem) * 792 / 612));
+        width: auto;
+        max-width: 100%;
+        border-radius: var(--cr);
+    }
 }
-body.work .open-link a {
-    color: #fff;
-}
+
