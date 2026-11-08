@@ -135,6 +135,9 @@ body.work .embed-frame img {
    corner, contact info in the bottom corner — and the resume fills
    the vertical space on the right, centred in what remains. */
 @media (min-aspect-ratio: 1/1) {
+    body.work {
+        overflow: hidden;
+    }
     body.work .topbar {
         right: auto;
         bottom: 0;
